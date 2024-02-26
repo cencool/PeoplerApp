@@ -1,5 +1,5 @@
 class Person {
-  int? id;
+  int id;
   String surname;
   String? name;
   String gender;
@@ -7,7 +7,7 @@ class Person {
   String owner;
 
   Person(
-      {this.id,
+      {this.id = -1,
       required this.surname,
       this.name,
       this.place,
