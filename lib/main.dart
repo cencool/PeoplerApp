@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:peopler/pages/index.dart';
+import 'package:peopler/pages/index_page.dart';
 
 void main() {
   runApp(const MyApp());

@@ -20,12 +20,10 @@ class Persons {
         }
         log('Server response OK');
         var jsonString = response.body;
-        var rows = List<Person>.from(
-            json.decode(jsonString).map((x) => Person.fromJson(x)));
+        var rows = List<Person>.from(json.decode(jsonString).map((x) => Person.fromJson(x)));
         return Persons(rows: rows);
       } else {
-        var snackBar = SnackBar(
-            content: Text('Server response not OK ${response.statusCode}'));
+        var snackBar = SnackBar(content: Text('Server response not OK ${response.statusCode}'));
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
