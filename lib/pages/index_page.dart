@@ -43,6 +43,7 @@ class _IndexPageState extends State<IndexPage> {
           'place': PlutoCell(value: person.place),
           'owner': PlutoCell(value: person.owner),
         },
+        checked: false,
       ));
     }
     return tableRows;
@@ -59,17 +60,17 @@ class _IndexPageState extends State<IndexPage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: PlutoGrid(
-        columns: columns,
-        rows: getRows(persons),
-        onLoaded: (PlutoGridOnLoadedEvent event) {
-          log('State manager assigned');
-          stateManager = event.stateManager;
-        },
-        onChanged: (PlutoGridOnChangedEvent event) {
-          log(event.toString());
-        },
-        configuration: const PlutoGridConfiguration(),
-      ),
+          columns: columns,
+          rows: getRows(persons),
+          onLoaded: (PlutoGridOnLoadedEvent event) {
+            log('State manager assigned');
+            stateManager = event.stateManager;
+            stateManager.setShowColumnFilter(true);
+          },
+          onChanged: (PlutoGridOnChangedEvent event) {
+            log(event.toString());
+          },
+          configuration: const PlutoGridConfiguration()),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
             loadPersons(context);
