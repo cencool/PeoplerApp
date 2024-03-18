@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/pages/login_page.dart';
-import 'package:peopler/pages/index_page.dart';
+import 'package:peopler/pages/person_list_page.dart';
 import 'package:peopler/models/credentials.dart';
 
 void main() {
@@ -30,7 +30,7 @@ class _MyAppState extends State<MyApp> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done && snapshot.data!) {
               // return Text('Logged In');
-              return const IndexPage();
+              return const PersonListPage();
             } else {
               return const LoginPage();
             }

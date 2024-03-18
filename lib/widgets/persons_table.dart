@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/models/persons.dart';
-import 'dart:developer';
 
 class PersonsTable extends StatelessWidget {
   final Persons persons;
@@ -55,14 +54,13 @@ class MyTable extends StatelessWidget {
   }
 
   void onEntered(bool status) {
-    log('hovered over');
+    debugPrint('hovered over');
   }
 
   @override
   Widget build(BuildContext context) {
     return DataTable(
-      headingRowColor: MaterialStateProperty.resolveWith<Color?>(
-          (Set<MaterialState> states) {
+      headingRowColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
         if (states.contains(MaterialState.hovered)) {
           return Colors.red[200];
         }
@@ -73,8 +71,7 @@ class MyTable extends StatelessWidget {
           label: Text('Id'),
         ),
         DataColumn(
-          label: MouseRegion(
-              onEnter: (event) => onEntered(true), child: const Text('Surname')),
+          label: MouseRegion(onEnter: (event) => onEntered(true), child: const Text('Surname')),
         ),
         const DataColumn(
           label: Text('Name'),

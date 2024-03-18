@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:peopler/models/person.dart';
 import 'dart:convert';
-import 'dart:developer';
 
 class Persons {
   static Uri apiUri = Uri.http('peopler.localhost:8000', 'api1/person');
@@ -18,7 +17,7 @@ class Persons {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
-        log('Server response OK');
+        debugPrint('Server response OK');
         var jsonString = response.body;
         var rows = List<Person>.from(json.decode(jsonString).map((x) => Person.fromJson(x)));
         return Persons(rows: rows);
@@ -27,11 +26,11 @@ class Persons {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
-        log('Server response not OK ${response.statusCode}');
+        debugPrint('Server response not OK ${response.statusCode}');
         return Persons(rows: []);
       }
     } on http.ClientException catch (e) {
-      log(e.message);
+      debugPrint(e.message);
       return Persons(rows: []);
     }
   }

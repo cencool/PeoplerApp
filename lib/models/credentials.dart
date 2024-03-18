@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:developer';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:peopler/models/api.dart';
@@ -25,7 +25,7 @@ class Credentials {
       if (responseData['token'] != null) {
         prefs.setString('token', responseData['token']);
         final token = prefs.getString('token');
-        log('Token is: $token');
+        debugPrint('Token is: $token');
         return true;
       }
     }
@@ -44,10 +44,10 @@ class Credentials {
     return false;
   }
 
-  static Future<String?> getAuthString() async {
-    final token = await getToken();
-    final authBytes = utf8.encode('$token:');
-    return base64Encode(authBytes);
+  static Future<String> getAuthString() async {
+    final token = await getToken() ?? '';
+    final authBytes = utf8.encode('$token:'); // colon is necessary to append!
+    return base64Encode(authBytes); // create token for basic auth
   }
 
   static deleteToken() {

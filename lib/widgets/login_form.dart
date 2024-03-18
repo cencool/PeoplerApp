@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/models/credentials.dart';
-import 'package:peopler/pages/index_page.dart';
-import 'dart:developer';
+import 'package:peopler/pages/person_list_page.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -27,22 +26,20 @@ class _LoginFormState extends State<LoginForm> {
           });
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Processing'),
-            duration: Duration(seconds: 0, microseconds: 500),
+            duration: Duration(seconds: 0, milliseconds: 500),
           ));
           Credentials.login(userName: userCtl.text, password: pwdCtl.text).then((result) {
             setState(() {
               isProcessing = false;
             });
             if (result) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const IndexPage()));
-              // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              //   content: Text('Login success'),
-              //   duration: Duration(seconds: 0, microseconds: 500),
-              // ));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => const PersonListPage()));
             } else {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                 content: Text('Login failed'),
-                duration: Duration(seconds: 0, microseconds: 500),
+                duration: Duration(seconds: 0, milliseconds: 500),
+                backgroundColor: Colors.red,
               ));
             }
           });
@@ -98,7 +95,7 @@ class _LoginFormState extends State<LoginForm> {
             ElevatedButton(
               onPressed: () async {
                 final token = await Credentials.getToken();
-                log('Stored token: $token');
+                debugPrint('Stored token: $token');
               },
               child: const Text('Check persistence data'),
             )
