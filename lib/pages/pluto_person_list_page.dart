@@ -7,14 +7,14 @@ import 'package:pluto_grid/pluto_grid.dart';
 import 'dart:convert';
 import 'package:peopler/models/api.dart';
 
-class PersonListPage extends StatefulWidget {
-  const PersonListPage({super.key});
+class PlutoPersonListPage extends StatefulWidget {
+  const PlutoPersonListPage({super.key});
 
   @override
-  State<PersonListPage> createState() => _PersonListPageState();
+  State<PlutoPersonListPage> createState() => _PlutoPersonListPageState();
 }
 
-class _PersonListPageState extends State<PersonListPage> {
+class _PlutoPersonListPageState extends State<PlutoPersonListPage> {
   late final PlutoGridStateManager stateManager;
   final paginationKey = GlobalKey();
   final List<PlutoRow> initRows = [];
@@ -52,7 +52,10 @@ class _PersonListPageState extends State<PersonListPage> {
               ),
               IconButton(
                 onPressed: () {
-                  deleteAlert(buildContext: context, cellContext: cellContext);
+                  deleteAlert(
+                      buildContext: context,
+                      cellContext: cellContext,
+                      paginationKey: paginationKey);
                 },
                 icon: const Icon(Icons.delete),
               ),
@@ -61,7 +64,10 @@ class _PersonListPageState extends State<PersonListPage> {
     ];
   }
 
-  deleteAlert({required buildContext, required PlutoColumnRendererContext cellContext}) {
+  deleteAlert(
+      {required buildContext,
+      required PlutoColumnRendererContext cellContext,
+      required paginationKey}) {
     debugPrint('Delete pressed ${cellContext.cell.value}');
     showDialog(
       context: context,
@@ -84,19 +90,64 @@ class _PersonListPageState extends State<PersonListPage> {
                   content: Text('${serverResponse.statusCode}'),
                   duration: const Duration(seconds: 0, milliseconds: 500),
                 ));
-                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) {
-                  return const PersonListPage();
-                }), (route) => false);
+                // refresh table
+                stateManager.eventManager?.addEvent(PlutoGridChangeColumnSortEvent(
+                    column: getInitColumns(context)[0], oldSort: PlutoColumnSort.none));
+                Navigator.of(context).pop();
               }
             },
             child: const Text('Yes'),
           )
         ],
-        elevation: 24.0,
+        elevation: 20.0,
       ),
     );
   }
 
+  List<PlutoRow> myFilterRows = [
+    PlutoRow(
+      cells: {
+        'id': PlutoCell(value: 1),
+      },
+      checked: false,
+    ),
+    PlutoRow(
+      cells: {
+        'id_action': PlutoCell(value: 1),
+      },
+      checked: false,
+    ),
+    PlutoRow(
+      cells: {
+        'surname': PlutoCell(value: 'x'),
+      },
+      checked: false,
+    ),
+    PlutoRow(
+      cells: {
+        'name': PlutoCell(value: 'x'),
+      },
+      checked: false,
+    ),
+    PlutoRow(
+      cells: {
+        'gender': PlutoCell(value: 'x'),
+      },
+      checked: false,
+    ),
+    PlutoRow(
+      cells: {
+        'place': PlutoCell(value: 'x'),
+      },
+      checked: false,
+    ),
+    PlutoRow(
+      cells: {
+        'owner': PlutoCell(value: 'x'),
+      },
+      checked: false,
+    ),
+  ];
   List<PlutoRow> getRows(Persons persons) {
     var tableRows = <PlutoRow>[];
     for (var person in persons.rows) {

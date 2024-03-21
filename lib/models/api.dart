@@ -10,6 +10,7 @@ class Api {
     return http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
   }
 
+  /// deletes person with given id
   static Future<http.Response> deletePerson({required int id}) async {
     final String url = '$restUrl/$id';
     final String authString = await Credentials.getAuthString();

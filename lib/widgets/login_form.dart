@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/models/credentials.dart';
-import 'package:peopler/pages/person_list_page.dart';
+import 'package:peopler/pages/pluto_person_list_page.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -34,7 +34,7 @@ class _LoginFormState extends State<LoginForm> {
             });
             if (result) {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => const PersonListPage()));
+                  context, MaterialPageRoute(builder: (context) => const PlutoPersonListPage()));
             } else {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                 content: Text('Login failed'),
