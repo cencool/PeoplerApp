@@ -1,19 +1,9 @@
-import 'package:http/http.dart' as http;
-import 'package:peopler/models/credentials.dart';
-
 class Api {
-  static const String restUrl = 'http://peopler.localhost:8000/v1/person';
-  static const String loginUrl = 'http://peopler.localhost:8000/site/get-token';
-  static Future<http.Response> getPersons({String query = ''}) async {
-    final String url = restUrl + query;
-    final String authString = await Credentials.getAuthString();
-    return http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-  }
-
-  /// deletes person with given id
-  static Future<http.Response> deletePerson({required int id}) async {
-    final String url = '$restUrl/$id';
-    final String authString = await Credentials.getAuthString();
-    return http.delete(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-  }
+  // static const String serverUrl = 'http://peopler.localhost:8000';
+  static const String serverUrl = 'http://192.168.0.34:88/peopler';
+  static const String personRestUrl = '$serverUrl/v1/person';
+  static const String personPhotoUrl = '$serverUrl/v1/photo/send-photo';
+  static const String personDetailUrl = '$serverUrl/v1/person-detail';
+  static const String loginUrl = '$serverUrl/site/get-token';
+  static const String relationUrl = '$serverUrl/v1/relation';
 }

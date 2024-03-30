@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/models/credentials.dart';
-import 'package:peopler/pages/pluto_person_list_page.dart';
+import 'package:peopler/pages/person_list_page.dart';
+import 'package:peopler/widgets/snack_message.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -24,17 +25,16 @@ class _LoginFormState extends State<LoginForm> {
           setState(() {
             isProcessing = true;
           });
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Processing'),
-            duration: Duration(seconds: 0, milliseconds: 500),
-          ));
-          Credentials.login(userName: userCtl.text, password: pwdCtl.text).then((result) {
+          SnackMessage.showMessage(
+              context: context, message: 'Processing', messageType: MessageType.info);
+          Credentials.login(userName: userCtl.text, password: pwdCtl.text, context: context)
+              .then((loggedIn) {
             setState(() {
               isProcessing = false;
             });
-            if (result) {
+            if (loggedIn) {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => const PlutoPersonListPage()));
+                  context, MaterialPageRoute(builder: (context) => const PersonListPage()));
             } else {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                 content: Text('Login failed'),
@@ -52,54 +52,52 @@ class _LoginFormState extends State<LoginForm> {
   Widget build(BuildContext context) {
     return Form(
         key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextFormField(
-              controller: userCtl,
-              decoration: const InputDecoration(
-                hintText: 'User id',
-              ),
-              validator: (String? value) {
-                if (value != null) {
-                  value = value.trim();
-                }
-                if (value == null || value.isEmpty) {
-                  return "Please enter user id";
-                }
-                return null;
-              },
+        child: Center(
+          child: SizedBox(
+            width: 300,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: userCtl,
+                  decoration: const InputDecoration(
+                    hintText: 'User id',
+                  ),
+                  validator: (String? value) {
+                    if (value != null) {
+                      value = value.trim();
+                    }
+                    if (value == null || value.isEmpty) {
+                      return "Please enter user id";
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: pwdCtl,
+                  decoration: const InputDecoration(
+                    hintText: 'User password',
+                  ),
+                  validator: (String? value) {
+                    if (value != null) {
+                      value = value.trim();
+                    }
+                    if (value == null || value.isEmpty) {
+                      return "Please enter user password";
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  onPressed: submitAction(),
+                  child: const Text('Submit'),
+                ),
+              ],
             ),
-            TextFormField(
-              controller: pwdCtl,
-              decoration: const InputDecoration(
-                hintText: 'User password',
-              ),
-              validator: (String? value) {
-                if (value != null) {
-                  value = value.trim();
-                }
-                if (value == null || value.isEmpty) {
-                  return "Please enter user password";
-                }
-                return null;
-              },
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            ElevatedButton(
-              onPressed: submitAction(),
-              child: const Text('Submit'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final token = await Credentials.getToken();
-                debugPrint('Stored token: $token');
-              },
-              child: const Text('Check persistence data'),
-            )
-          ],
+          ),
         ));
   }
 }

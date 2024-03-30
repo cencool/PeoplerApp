@@ -11,30 +11,43 @@ class Credentials {
   { 'loggedIn': true/false, 'token': null/string}
   */
 
-  static Future<bool> login({required String userName, required String password}) async {
+  static Future<bool> login(
+      {required String userName, required String password, required BuildContext context}) async {
     // skusi login a ulozit status a token do persistent...
+    await deleteToken();
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove('token');
     final bodyData = {'user': userName, 'password': password};
-    final response = await http.post(
-      Uri.parse(Api.loginUrl),
-      body: bodyData,
-    );
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      final responseData = jsonDecode(response.body);
-      if (responseData['token'] != null) {
-        prefs.setString('token', responseData['token']);
-        final token = prefs.getString('token');
-        debugPrint('Token is: $token');
-        return true;
+    try {
+      final response = await http.post(
+        Uri.parse(Api.loginUrl),
+        body: bodyData,
+      );
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final responseData = jsonDecode(response.body);
+        if ((responseData is Map) && responseData['token'] != null) {
+          prefs.setString('peoplerToken', responseData['token']);
+          final token = prefs.getString('peoplerToken');
+          debugPrint('Token is: $token');
+          return true;
+        }
       }
+      return false;
+    } on http.ClientException catch (e) {
+      debugPrint('Connection error: ${e.message}');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(e.message),
+          duration: const Duration(seconds: 0, milliseconds: 1500),
+          backgroundColor: Colors.red,
+        ));
+      }
+      return false;
     }
-    return false;
   }
 
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    return prefs.getString('peoplerToken');
   }
 
   static Future<bool> isLoggedIn() async {
@@ -46,13 +59,13 @@ class Credentials {
 
   static Future<String> getAuthString() async {
     final token = await getToken() ?? '';
-    final authBytes = utf8.encode('$token:'); // colon is necessary to append!
+    final authBytes =
+        utf8.encode('$token:'); // colon is necessary to append for basic auth to work!
     return base64Encode(authBytes); // create token for basic auth
   }
 
-  static deleteToken() {
-    SharedPreferences.getInstance().then((prefs) {
-      prefs.remove('token');
-    });
+  static Future<bool> deleteToken() async {
+    var prefs = await SharedPreferences.getInstance();
+    return await (prefs.remove('peoplerToken'));
   }
 }
