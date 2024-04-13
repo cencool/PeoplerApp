@@ -51,7 +51,7 @@ class PersonRelation {
 
   /// returns [PaginatedRelationList] based on query
   static Future<PaginatedRelationList> getPaginatedRelationList(
-      {String query = '', required BuildContext context}) async {
+      {String query = '', required GlobalKey<ScaffoldMessengerState> messengerKey}) async {
     final String url = Api.relationUrl + query;
     final String authString = await Credentials.getAuthString();
     try {
@@ -65,18 +65,14 @@ class PersonRelation {
             List<PersonRelation>.from(jsonObject.map((el) => PersonRelation.fromJson(el)));
         return PaginatedRelationList(relations: relationList, pageCount: pageCount);
       } else {
-        if (context.mounted) {
-          SnackMessage.showMessage(
-              context: context,
-              message: 'Unexpected response code:${serverResponse.statusCode} ',
-              messageType: MessageType.error);
-        }
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'Unexpected response code:${serverResponse.statusCode} ',
+            messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {
-      if (context.mounted) {
-        SnackMessage.showMessage(
-            context: context, message: e.message, messageType: MessageType.error);
-      }
+      SnackMessage.showMessage(
+          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
     }
     return PaginatedRelationList(relations: <PersonRelation>[]);
   }

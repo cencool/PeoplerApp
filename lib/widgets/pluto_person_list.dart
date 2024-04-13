@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/models/person.dart';
-import 'package:peopler/widgets/snack_message.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:peopler/pages/person_page.dart';
+import 'package:provider/provider.dart';
+import 'package:peopler/globals/globals.dart' as globals;
 
 class PlutoPersonList extends StatefulWidget {
   const PlutoPersonList({super.key});
@@ -45,44 +46,6 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
       PlutoColumn(title: 'Place', field: 'place', type: PlutoColumnType.text()),
       PlutoColumn(title: 'Owner', field: 'owner', type: PlutoColumnType.text(), hide: true),
     ];
-  }
-
-  deleteAlert(
-      {required buildContext,
-      required PlutoColumnRendererContext cellContext,
-      required paginationKey}) {
-    debugPrint('Delete pressed ${cellContext.cell.value}');
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Confirm Delete: '),
-        content: Text(
-          'Id:${cellContext.cell.value} "${cellContext.row.cells['surname']?.value} ${cellContext.row.cells['name']?.value}" ?',
-          style: const TextStyle(fontSize: 20),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => {Navigator.of(context).pop()},
-            child: const Text('No'),
-          ),
-          TextButton(
-            onPressed: () async {
-              var serverResponse =
-                  await Person.deletePerson(id: cellContext.cell.value, context: context);
-              if (mounted) {
-                SnackMessage.showMessage(context: context, message: '${serverResponse.statusCode}');
-                // refresh table by emitting event the lazy pagination react to
-                stateManager.eventManager?.addEvent(PlutoGridChangeColumnSortEvent(
-                    column: getColumns(context)[0], oldSort: PlutoColumnSort.none));
-                Navigator.of(context).pop();
-              }
-            },
-            child: const Text('Yes'),
-          )
-        ],
-        elevation: 20.0,
-      ),
-    );
   }
 
   List<PlutoRow> getPlutoRows(List<Person> persons) {
@@ -132,7 +95,8 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
 
     debugPrint(queryString);
     final List<PlutoRow> rows;
-    final persons = await Person.getPaginatedPersonList(query: queryString, context: context);
+    final persons = await Person.getPaginatedPersonList(
+        query: queryString, messengerKey: context.read<globals.AppKeys>().personListMessengerKey);
     rows = getPlutoRows(persons.persons);
     return PlutoLazyPaginationResponse(totalPage: persons.pageCount, rows: rows);
   }

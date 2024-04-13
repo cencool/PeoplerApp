@@ -31,6 +31,96 @@ class PersonDetail {
         address: json["address"],
       );
 
+  PersonDetail.dummy(int pId)
+      : id = -1,
+        personId = pId {
+    maritalStatus = '';
+    maidenName = '';
+    note = '';
+    address = '';
+  }
+
+  Future<bool> save(GlobalKey<ScaffoldMessengerState> messengerKey) async {
+    final String authString = await Credentials.getAuthString();
+
+    if (id > -1) {
+      // update  existing record
+      String url = '${Api.personDetailUrl}/$personId';
+      try {
+        http.Response serverResponse = await http.put(Uri.parse(url),
+            headers: {'Authorization': 'Basic $authString'}, body: toBodyPut());
+        if (serverResponse.statusCode == 200) {
+          String jsonString = serverResponse.body;
+          if (jsonString == "null") {
+            return false;
+          }
+          SnackMessage.showMessage(
+              messengerKey: messengerKey,
+              message: 'Details for:$id saved',
+              messageType: MessageType.info);
+          return true;
+        } else if (serverResponse.statusCode == 404) {
+          SnackMessage.showMessage(
+              messengerKey: messengerKey,
+              message: 'No details data available...',
+              messageType: MessageType.info);
+        } else {
+          SnackMessage.showMessage(
+              messengerKey: messengerKey,
+              message: 'Detail Save - Unexpected response code:${serverResponse.statusCode} ',
+              messageType: MessageType.error);
+        }
+      } on http.ClientException catch (e) {
+        SnackMessage.showMessage(
+            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+      } catch (e) {
+        debugPrint(e.toString());
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'Exceptions:${e.toString()}',
+            messageType: MessageType.error);
+      }
+    } else {
+      // create new record
+      String url = Api.personDetailUrl;
+      try {
+        http.Response serverResponse = await http.post(Uri.parse(url),
+            headers: {'Authorization': 'Basic $authString'}, body: toBodyPost());
+        if (serverResponse.statusCode == 200) {
+          String jsonString = serverResponse.body;
+          if (jsonString == "null") {
+            return false;
+          }
+          SnackMessage.showMessage(
+              messengerKey: messengerKey,
+              message: 'Details for:$id saved',
+              messageType: MessageType.info);
+          return true;
+        } else if (serverResponse.statusCode == 404) {
+          SnackMessage.showMessage(
+              messengerKey: messengerKey,
+              message: 'No details data available...',
+              messageType: MessageType.info);
+        } else {
+          SnackMessage.showMessage(
+              messengerKey: messengerKey,
+              message: 'Detail Save - Unexpected response code:${serverResponse.statusCode} ',
+              messageType: MessageType.error);
+        }
+      } on http.ClientException catch (e) {
+        SnackMessage.showMessage(
+            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+      } catch (e) {
+        debugPrint(e.toString());
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'Exceptions:${e.toString()}',
+            messageType: MessageType.error);
+      }
+    }
+    return false;
+  }
+
   Map<String, dynamic> toJson() => {
         "id": id,
         "person_id": personId,
@@ -39,9 +129,23 @@ class PersonDetail {
         "note": note,
         "address": address,
       };
+  Map<String, dynamic> toBodyPut() => {
+        "id": id.toString(),
+        "marital_status": maritalStatus,
+        "maiden_name": maidenName,
+        "note": note,
+        "address": address,
+      };
+  Map<String, dynamic> toBodyPost() => {
+        "person_id": personId.toString(),
+        "marital_status": maritalStatus,
+        "maiden_name": maidenName,
+        "note": note,
+        "address": address,
+      };
 
-  static Future<PersonDetail?> getPersonDetail(
-      {required int id, required BuildContext context}) async {
+  static Future<PersonDetail> getPersonDetail(
+      {required int id, required GlobalKey<ScaffoldMessengerState> messengerKey}) async {
     String url = '${Api.personDetailUrl}/$id';
     final String authString = await Credentials.getAuthString();
     try {
@@ -49,29 +153,29 @@ class PersonDetail {
           await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
       if (serverResponse.statusCode == 200) {
         String jsonString = serverResponse.body;
+        if (jsonString == "null") {
+          return PersonDetail.dummy(id);
+        }
         var jsonObject = json.decode(jsonString);
         return PersonDetail.fromJson(jsonObject);
       } else if (serverResponse.statusCode == 404) {
-        if (context.mounted) {
-          SnackMessage.showMessage(
-              context: context,
-              message: 'No details data available...',
-              messageType: MessageType.info);
-        }
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'No details data available...',
+            messageType: MessageType.info);
       } else {
-        if (context.mounted) {
-          SnackMessage.showMessage(
-              context: context,
-              message: 'Unexpected response code:${serverResponse.statusCode} ',
-              messageType: MessageType.error);
-        }
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'Get Detail - Unexpected response code:${serverResponse.statusCode} ',
+            messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {
-      if (context.mounted) {
-        SnackMessage.showMessage(
-            context: context, message: e.message, messageType: MessageType.error);
-      }
+      SnackMessage.showMessage(
+          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+    } catch (e) {
+      debugPrint(e.toString());
+      SnackMessage.showMessage(messageType: MessageType.error, messengerKey: messengerKey);
     }
-    return null;
+    return PersonDetail.dummy(id);
   }
 }

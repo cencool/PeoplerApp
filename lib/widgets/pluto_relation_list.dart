@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:peopler/pages/person_page.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:peopler/models/person_relation.dart';
+import 'package:peopler/globals/globals.dart' as globals;
+import 'package:provider/provider.dart';
 
 class PlutoRelationList extends StatefulWidget {
   final int personId;
@@ -16,7 +19,11 @@ class _PlutoRelationListState extends State<PlutoRelationList> {
 
   List<PlutoColumn> getColumns(BuildContext context) {
     return <PlutoColumn>[
-      PlutoColumn(title: 'Relation', field: 'relation', type: PlutoColumnType.text()),
+      PlutoColumn(
+          title: 'Relation',
+          field: 'relation',
+          type: PlutoColumnType.text(),
+          enableContextMenu: false),
       PlutoColumn(
           title: 'To',
           field: 'relationToWhom',
@@ -25,8 +32,25 @@ class _PlutoRelationListState extends State<PlutoRelationList> {
           enableContextMenu: false,
           enableSorting: true,
           renderer: (cellContext) {
-            return Text('${cellContext.cell.value}');
+            return InkWell(
+              onTap: () {
+                debugPrint('tapped:${cellContext.row.cells["toWhomId"]?.value}');
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                  return PersonPage(cellContext.row.cells["toWhomId"]?.value);
+                }));
+              },
+              child: Text(
+                '${cellContext.cell.value}',
+                style: const TextStyle(color: Colors.blue),
+              ),
+            );
           }),
+      PlutoColumn(
+          title: 'toWhomId',
+          field: 'toWhomId',
+          type: PlutoColumnType.number(),
+          hide: true,
+          enableHideColumnMenuItem: false),
     ];
   }
 
@@ -37,6 +61,7 @@ class _PlutoRelationListState extends State<PlutoRelationList> {
         cells: {
           'relation': PlutoCell(value: relation.relation),
           'relationToWhom': PlutoCell(value: relation.relationToWhom),
+          'toWhomId': PlutoCell(value: relation.toWhomId),
         },
         checked: false,
       ));
@@ -51,7 +76,8 @@ class _PlutoRelationListState extends State<PlutoRelationList> {
       final filterMap = FilterHelper.convertRowsToMap(request.filterRows);
       for (final filter in filterMap.entries) {
         for (final type in filter.value) {
-          queryString += '&filter[${filter.key}]';
+          var filterKey = PersonRelation.apiFieldNames[filter.key];
+          queryString += '&filter[$filterKey]';
           final filterType = type.entries.first;
           if (filterType.key == 'Contains') {
             queryString += '[like][]=${filterType.value}';
@@ -72,8 +98,8 @@ class _PlutoRelationListState extends State<PlutoRelationList> {
 
     debugPrint(queryString);
     final List<PlutoRow> rows;
-    final relations =
-        await PersonRelation.getPaginatedRelationList(query: queryString, context: context);
+    final relations = await PersonRelation.getPaginatedRelationList(
+        query: queryString, messengerKey: context.read<globals.AppKeys>().personViewMessengerKey);
     rows = getPlutoRows(relations.relations);
     return PlutoLazyPaginationResponse(totalPage: relations.pageCount, rows: rows);
   }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/models/credentials.dart';
 import 'package:peopler/pages/person_list_page.dart';
-import 'package:peopler/widgets/snack_message.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -16,17 +15,20 @@ class _LoginFormState extends State<LoginForm> {
   final pwdCtl = TextEditingController();
   bool isProcessing = false;
 
-  VoidCallback? submitAction() {
+  VoidCallback submitAction() {
     if (isProcessing) {
-      return null;
+      return () {};
     } else {
       return () {
         if (_formKey.currentState!.validate()) {
           setState(() {
             isProcessing = true;
           });
-          SnackMessage.showMessage(
-              context: context, message: 'Processing', messageType: MessageType.info);
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Processing'),
+            duration: Duration(seconds: 0, milliseconds: 500),
+            backgroundColor: Colors.blue,
+          ));
           Credentials.login(userName: userCtl.text, password: pwdCtl.text, context: context)
               .then((loggedIn) {
             setState(() {
@@ -51,53 +53,54 @@ class _LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     return Form(
-        key: _formKey,
-        child: Center(
-          child: SizedBox(
-            width: 300,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  controller: userCtl,
-                  decoration: const InputDecoration(
-                    hintText: 'User id',
-                  ),
-                  validator: (String? value) {
-                    if (value != null) {
-                      value = value.trim();
-                    }
-                    if (value == null || value.isEmpty) {
-                      return "Please enter user id";
-                    }
-                    return null;
-                  },
+      key: _formKey,
+      child: Center(
+        child: SizedBox(
+          width: 300,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: userCtl,
+                decoration: const InputDecoration(
+                  hintText: 'User id',
                 ),
-                TextFormField(
-                  controller: pwdCtl,
-                  decoration: const InputDecoration(
-                    hintText: 'User password',
-                  ),
-                  validator: (String? value) {
-                    if (value != null) {
-                      value = value.trim();
-                    }
-                    if (value == null || value.isEmpty) {
-                      return "Please enter user password";
-                    }
-                    return null;
-                  },
+                validator: (String? value) {
+                  if (value != null) {
+                    value = value.trim();
+                  }
+                  if (value == null || value.isEmpty) {
+                    return "Please enter user id";
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: pwdCtl,
+                decoration: const InputDecoration(
+                  hintText: 'User password',
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
-                ElevatedButton(
-                  onPressed: submitAction(),
-                  child: const Text('Submit'),
-                ),
-              ],
-            ),
+                validator: (String? value) {
+                  if (value != null) {
+                    value = value.trim();
+                  }
+                  if (value == null || value.isEmpty) {
+                    return "Please enter user password";
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              ElevatedButton(
+                onPressed: submitAction(),
+                child: const Text('Submit'),
+              ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

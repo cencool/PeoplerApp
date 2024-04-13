@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:peopler/pages/login_page.dart';
 import 'package:peopler/pages/person_list_page.dart';
 import 'package:peopler/models/credentials.dart';
+import 'package:peopler/globals/globals.dart' as globals;
+import 'package:provider/provider.dart';
 
 void main() {
-  // PlatformDispatcher.instance.onError = (error, stack) {
-  //   print('Error:$error');
-  //   print(stack.toString());
-  //   exit(1);
-  // };
-
   runApp(const MyApp());
 }
 
