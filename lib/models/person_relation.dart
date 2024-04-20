@@ -92,3 +92,63 @@ class PaginatedRelationList {
   final List<PersonRelation> relations;
   PaginatedRelationList({required this.relations, this.pageCount = 1});
 }
+
+List<RelationName> relationNamesFromJson(String str) =>
+    List<RelationName>.from(json.decode(str).map((x) => RelationName.fromJson(x)));
+
+String relationNamesToJson(List<RelationName> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+
+class RelationName {
+  int id;
+  String gender;
+  String relationName;
+  String token;
+
+  RelationName({
+    required this.id,
+    required this.gender,
+    required this.relationName,
+    required this.token,
+  });
+
+  factory RelationName.fromJson(Map<String, dynamic> json) => RelationName(
+        id: json["id"],
+        gender: json["gender"],
+        relationName: json["relation_name"],
+        token: json["token"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "gender": gender,
+        "relation_name": relationName,
+        "token": token,
+      };
+
+  static Future<List<RelationName>> getRelationNames(
+      {required GlobalKey<ScaffoldMessengerState> messengerKey}) async {
+    const url = Api.relationNamesUrl;
+    final String authString = await Credentials.getAuthString();
+
+    try {
+      http.Response serverResponse =
+          await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
+      if (serverResponse.statusCode == 200) {
+        // final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '0');
+        String jsonString = serverResponse.body;
+        List<RelationName> relationNames = relationNamesFromJson(jsonString);
+        return relationNames;
+      } else {
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'Unexpected response code:${serverResponse.statusCode} ',
+            messageType: MessageType.error);
+      }
+    } on http.ClientException catch (e) {
+      SnackMessage.showMessage(
+          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+    }
+    return [];
+  }
+}

@@ -32,9 +32,7 @@ class _PersonPageState extends State<PersonPage> {
                   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
                   bottom: const TabBar(tabs: [
                     Tooltip(message: 'Person', child: Tab(icon: Icon(Icons.person))),
-                    Tooltip(
-                        message: 'Relations',
-                        child: Tab(icon: Icon(Icons.transfer_within_a_station))),
+                    Tooltip(message: 'Relations', child: Tab(icon: Icon(Icons.people))),
                     Tooltip(message: 'Items', child: Tab(icon: Icon(Icons.list))),
                     Tooltip(message: 'Attachments', child: Tab(icon: Icon(Icons.attach_file))),
                     Tooltip(message: 'Search', child: Tab(icon: Icon(Icons.search))),

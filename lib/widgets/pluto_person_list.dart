@@ -6,7 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:peopler/globals/globals.dart' as globals;
 
 class PlutoPersonList extends StatefulWidget {
-  const PlutoPersonList({super.key});
+  const PlutoPersonList({this.idCallback, super.key});
+  final void Function(int id)? idCallback;
 
   @override
   State<PlutoPersonList> createState() => _PlutoPersonListState();
@@ -25,8 +26,8 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
           enableFilterMenuItem: true,
           enableContextMenu: false,
           enableSorting: true,
-          width: 100,
-          minWidth: 100,
+          width: 130,
+          minWidth: 130,
           renderer: (cellContext) {
             return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('${cellContext.cell.value}'),
@@ -38,6 +39,13 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
                 },
                 icon: const Icon(Icons.remove_red_eye_sharp),
               ),
+              widget.idCallback != null
+                  ? IconButton(
+                      onPressed: () {
+                        widget.idCallback!(cellContext.cell.value);
+                      },
+                      icon: const Icon(Icons.add))
+                  : Container(),
             ]);
           }),
       PlutoColumn(title: 'Surname', field: 'surname', type: PlutoColumnType.text()),
