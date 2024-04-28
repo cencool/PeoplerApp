@@ -31,6 +31,14 @@ class PersonRelation {
     required this.relationToWhom,
   });
 
+  PersonRelation.dummy()
+      : relationId = -1,
+        relation = '',
+        toWhomId = -1,
+        relationToWhom = '',
+        aOwner = '',
+        bOwner = '';
+
   factory PersonRelation.fromJson(Map<String, dynamic> json) => PersonRelation(
         aOwner: json["a_owner"],
         bOwner: json["b_owner"],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/api.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -6,34 +7,33 @@ import 'package:peopler/models/credentials.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:peopler/models/person_detail.dart';
 import 'package:provider/provider.dart';
-import 'package:peopler/globals/globals.dart' as globals;
 
-class PersonView extends StatefulWidget {
-  const PersonView(this.personId, {super.key});
-  final int personId;
+class PersonTab extends StatefulWidget {
+  // const PersonTab(this.activePerson, {super.key});
+  const PersonTab({super.key});
+  // final Person activePerson;
 
   @override
-  State<PersonView> createState() => _PersonViewState();
+  State<PersonTab> createState() => _PersonTabState();
 }
 
-class _PersonViewState extends State<PersonView> {
-  Future<List> fetchPersonData(int id, GlobalKey<ScaffoldMessengerState> messengerKey) async {
-    final personFuture = Person.getPerson(id: id, messengerKey: messengerKey);
-    final personDetailFuture = PersonDetail.getPersonDetail(id: id, messengerKey: messengerKey);
-    return await Future.wait([personFuture, personDetailFuture]);
-  }
+class _PersonTabState extends State<PersonTab> {
+  late Person activePerson = context.read<Person>();
+  late Future<PersonDetail> personDetailFuture = PersonDetail.getPersonDetail(
+      // id: widget.activePerson.id,
+      id: activePerson.id,
+      messengerKey: context.read<AppState>().messengerKey);
 
   @override
   Widget build(BuildContext context) {
-    var messengerKey = context.read<globals.AppKeys>().personViewMessengerKey;
+    var messengerKey = context.read<AppState>().messengerKey;
     return FutureBuilder(
-        future: fetchPersonData(
-            widget.personId, context.read<globals.AppKeys>().personViewMessengerKey),
+        future: personDetailFuture,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return ChangeNotifierProvider(
               create: (context) =>
-                  PersonFormModel(person: snapshot.data![0], personDetail: snapshot.data![1]),
+                  PersonFormModel(person: activePerson, personDetail: snapshot.data!),
               child: Consumer<PersonFormModel>(builder: (context, model, child) {
                 return Stack(children: [
                   ListView(
@@ -41,7 +41,7 @@ class _PersonViewState extends State<PersonView> {
                       const SizedBox(height: 10.0),
                       SizedBox(
                         height: 200,
-                        child: PersonPhoto(widget.personId),
+                        child: PersonPhoto(activePerson.id),
                       ),
                       const SizedBox(height: 10.0),
                       Padding(
@@ -88,7 +88,7 @@ class _PersonViewState extends State<PersonView> {
                             )),
                             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       ),
-                      ...snapshot.data?[1] == null
+                      ...snapshot.data == null
                           ? []
                           : [
                               Padding(
@@ -103,7 +103,7 @@ class _PersonViewState extends State<PersonView> {
                                     style:
                                         const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                               ),
-                              snapshot.data?[0].gender == 'f'
+                              activePerson.gender == 'f'
                                   ? Padding(
                                       padding: const EdgeInsets.only(left: 15.0),
                                       child: TextField(

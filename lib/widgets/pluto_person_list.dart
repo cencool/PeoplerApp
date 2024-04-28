@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:peopler/pages/person_page.dart';
 import 'package:provider/provider.dart';
-import 'package:peopler/globals/globals.dart' as globals;
 
 class PlutoPersonList extends StatefulWidget {
   const PlutoPersonList({this.idCallback, super.key});
-  final void Function(int id)? idCallback;
+  final void Function(Map<String, PlutoCell> rowData)? idCallback;
 
   @override
   State<PlutoPersonList> createState() => _PlutoPersonListState();
@@ -32,17 +32,19 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
             return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('${cellContext.cell.value}'),
               IconButton(
-                onPressed: () => {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return PersonPage(cellContext.cell.value);
-                  }))
-                },
                 icon: const Icon(Icons.remove_red_eye_sharp),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return Builder(builder: (context) {
+                      return PersonPage(cellContext.cell.value);
+                    });
+                  }));
+                },
               ),
               widget.idCallback != null
                   ? IconButton(
                       onPressed: () {
-                        widget.idCallback!(cellContext.cell.value);
+                        widget.idCallback!(cellContext.row.cells);
                       },
                       icon: const Icon(Icons.add))
                   : Container(),
@@ -61,7 +63,7 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
     for (var person in persons) {
       tableRows.add(PlutoRow(
         cells: {
-          'id_action': PlutoCell(value: person.id),
+          // 'id_action': PlutoCell(value: person.id),
           'id': PlutoCell(value: person.id),
           'surname': PlutoCell(value: person.surname),
           'name': PlutoCell(value: person.name),
@@ -104,7 +106,7 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
     debugPrint(queryString);
     final List<PlutoRow> rows;
     final persons = await Person.getPaginatedPersonList(
-        query: queryString, messengerKey: context.read<globals.AppKeys>().personListMessengerKey);
+        query: queryString, messengerKey: context.read<AppState>().messengerKey);
     rows = getPlutoRows(persons.persons);
     return PlutoLazyPaginationResponse(totalPage: persons.pageCount, rows: rows);
   }

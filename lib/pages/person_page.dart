@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:peopler/widgets/person_view.dart';
-import 'package:peopler/widgets/pluto_relation_list.dart';
-import 'package:peopler/globals/globals.dart' as globals;
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:peopler/globals/app_state.dart';
+import 'package:peopler/models/person.dart';
+import 'package:peopler/widgets/person_tab.dart';
+import 'package:peopler/widgets/relation_tab.dart';
 import 'package:provider/provider.dart';
 
 class PersonPage extends StatefulWidget {
@@ -13,45 +15,75 @@ class PersonPage extends StatefulWidget {
 }
 
 class _PersonPageState extends State<PersonPage> {
+  // Person activePerson = Person.dummy();
+  // late Future<Person> personFuture = Person.getPerson(
+  //     id: widget.personId, messengerKey: context.read<globals.AppKeys>().personViewMessengerKey);
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 5,
-      child: Provider(
-        create: (_) => globals.AppKeys(),
-        child: Consumer<globals.AppKeys>(
-          builder: (context, keyModel, child) {
-            return ScaffoldMessenger(
-              key: keyModel.personViewMessengerKey,
-              child: Scaffold(
-                appBar: AppBar(
-                  title: const Text(
-                    'Person',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                  bottom: const TabBar(tabs: [
-                    Tooltip(message: 'Person', child: Tab(icon: Icon(Icons.person))),
-                    Tooltip(message: 'Relations', child: Tab(icon: Icon(Icons.people))),
-                    Tooltip(message: 'Items', child: Tab(icon: Icon(Icons.list))),
-                    Tooltip(message: 'Attachments', child: Tab(icon: Icon(Icons.attach_file))),
-                    Tooltip(message: 'Search', child: Tab(icon: Icon(Icons.search))),
-                  ]),
-                ),
-                body: TabBarView(
-                  children: [
-                    PersonView(widget.personId),
-                    PlutoRelationList(personId: widget.personId),
-                    PersonView(widget.personId),
-                    PersonView(widget.personId),
-                    PersonView(widget.personId),
-                  ],
-                ),
+      child: Consumer<AppState>(
+        builder: (context, appState, child) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text(
+                'Person Data',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-            );
-          },
-        ),
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              bottom: const TabBar(tabs: [
+                Tooltip(message: 'Person', child: Tab(icon: Icon(Icons.person))),
+                Tooltip(message: 'Relations', child: Tab(icon: Icon(Icons.people))),
+                Tooltip(message: 'Items', child: Tab(icon: Icon(Icons.list))),
+                Tooltip(message: 'Attachments', child: Tab(icon: Icon(Icons.attach_file))),
+                Tooltip(message: 'Search', child: Tab(icon: Icon(Icons.search))),
+              ]),
+            ),
+
+            /// separated widget so that scaffold is already available for Snack message
+            body: PersonPageBody(
+              personId: widget.personId,
+            ),
+          );
+        },
       ),
     );
+  }
+}
+
+class PersonPageBody extends StatefulWidget {
+  final int personId;
+  const PersonPageBody({required this.personId, super.key});
+
+  @override
+  State<PersonPageBody> createState() => _PersonPageBodyState();
+}
+
+class _PersonPageBodyState extends State<PersonPageBody> {
+  Person activePerson = Person.dummy();
+  late Future<Person> personFuture =
+      Person.getPerson(id: widget.personId, messengerKey: context.read<AppState>().messengerKey);
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: personFuture,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            activePerson = snapshot.data!;
+            return Provider<Person>.value(
+              value: activePerson,
+              child: const TabBarView(children: [
+                PersonTab(),
+                RelationTab(),
+                Placeholder(),
+                Placeholder(),
+                Placeholder(),
+              ]),
+            );
+          } else {
+            return const SpinKitPouringHourGlass(color: Colors.blue);
+          }
+        });
   }
 }
