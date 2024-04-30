@@ -165,14 +165,16 @@ class RelationSaveDialog extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextButton(
-                    onPressed: () {
+                    onPressed: () async {
                       debugPrint('Yes save pressed');
                       // model.saveData(messengerKey);
-                      context
+                      await context
                           .read<AppState>()
                           .activeRelationRecord
                           .save(messengerKey: context.read<AppState>().messengerKey);
-                      Navigator.pop(context);
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
                     },
                     child: const Text('Yes'),
                   ),

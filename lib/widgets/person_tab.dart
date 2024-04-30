@@ -327,36 +327,39 @@ class PersonSaveDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('Do you want to save changes ?'),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    debugPrint('Yes save pressed');
-                    model.saveData(messengerKey);
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Yes'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    debugPrint('No save pressed');
-                    model.restoreData();
-                    Navigator.pop(context);
-                  },
-                  child: const Text('No'),
-                ),
-              ],
-            ),
-          ],
+      child: SizedBox(
+        width: 300.0,
+        child: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Text('Do you want to save changes ?'),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      debugPrint('Yes save pressed');
+                      model.saveData(messengerKey);
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Yes'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      debugPrint('No save pressed');
+                      model.restoreData();
+                      Navigator.pop(context);
+                    },
+                    child: const Text('No'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
