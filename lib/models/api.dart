@@ -7,5 +7,4 @@ class Api {
   static const String loginUrl = '$serverUrl/site/get-token';
   static const String relationUrl = '$serverUrl/v1/relation';
   static const String relationNamesUrl = '$serverUrl/v1/relation/relation-names';
-  static const String relationCreateUrl = '$serverUrl/v1/relation/relation';
 }

@@ -33,7 +33,7 @@ class RelationTab extends StatefulWidget {
 }
 
 class _RelationTabState extends State<RelationTab> {
-  late Person activePerson = context.read<Person>();
+  late Person activePerson = context.read<AppState>().activePerson;
   RelationTabMode mode = RelationTabMode.view;
   late Map<String, String> activeRelation = {
     "id": "",
@@ -56,9 +56,17 @@ class _RelationTabState extends State<RelationTab> {
       case (RelationTabMode.add):
         {
           debugPrint('Switiching to view mode');
-          SnackMessage.showMessage(messengerKey: messengerKey, message: 'Switching to view mode');
-          setState(() {
-            mode = RelationTabMode.view;
+          showDialog(
+              barrierDismissible: false,
+              context: context,
+              builder: (dialogContext) {
+                return const RelationSaveDialog();
+              }).then((r) {
+            SnackMessage.showMessage(messengerKey: messengerKey, message: 'Switching to view mode');
+          }).then((r) {
+            setState(() {
+              mode = RelationTabMode.view;
+            });
           });
         }
       default:
@@ -129,5 +137,59 @@ class _ActiveContentState extends State<ActiveContent> {
           return const Text('Nothing to display');
         }
     }
+  }
+}
+
+class RelationSaveDialog extends StatelessWidget {
+  // const RelationSaveDialog({required this.model, required this.messengerKey, super.key});
+  const RelationSaveDialog({super.key});
+  // final PersonFormModel model;
+  // final GlobalKey<ScaffoldMessengerState> messengerKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: SizedBox(
+        width: 250.0,
+        child: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Text('Do you want to save changes ?'),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      debugPrint('Yes save pressed');
+                      // model.saveData(messengerKey);
+                      context
+                          .read<AppState>()
+                          .activeRelationRecord
+                          .save(messengerKey: context.read<AppState>().messengerKey);
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Yes'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      debugPrint('No save pressed');
+                      // model.restoreData();
+                      Navigator.pop(context);
+                    },
+                    child: const Text('No'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

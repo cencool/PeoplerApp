@@ -3,6 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/person_relation.dart';
+import 'package:peopler/models/relation_record.dart';
 import 'package:peopler/widgets/pluto_person_list.dart';
 import 'package:peopler/widgets/snack_message.dart';
 import 'package:pluto_grid/pluto_grid.dart';
@@ -27,6 +28,15 @@ class _RelationAddState extends State<RelationAdd> {
     "relation_ab_id": "",
     "person_b_id": ""
   };
+  late RelationRecord activeRelationRecord = context.read<AppState>().activeRelationRecord;
+
+  @override
+  void initState() {
+    super.initState();
+    activeRelationRecord.personAId = widget.activePerson.id;
+    debugPrint(activeRelationRecord.toString());
+  }
+
   String toWhom = '';
 
   List<DropdownMenuEntry> createDropdownEntries(List<RelationName> relationNameList) {
@@ -42,12 +52,13 @@ class _RelationAddState extends State<RelationAdd> {
     var surname = rowData['surname']!.value;
     var name = rowData['name']?.value;
     if (id != widget.activePerson.id) {
-      newRelation["person_b_id"] = id.toString();
+      // newRelation["person_b_id"] = id.toString();
+      activeRelationRecord.personBId = id;
       toWhom = '$surname  $name';
       debugPrint('Id to be related $id');
       debugPrint('Surname:$surname');
       debugPrint('Name:$name');
-      print(newRelation);
+      debugPrint(activeRelationRecord.toString());
       setState(() {});
     } else {
       SnackMessage.showMessage(
@@ -79,9 +90,10 @@ class _RelationAddState extends State<RelationAdd> {
                       dropdownMenuEntries: createDropdownEntries(relationNameList),
                       label: Text('New Relation'),
                       onSelected: (value) {
-                        newRelation["relation_ab_id"] = value.toString();
+                        // newRelation["relation_ab_id"] = value.toString();
+                        activeRelationRecord.relationAbId = value;
                         debugPrint('$value');
-                        print(newRelation);
+                        print(activeRelationRecord.toString());
                       },
                       menuHeight: 200,
                     ),
@@ -111,6 +123,7 @@ class _RelationAddState extends State<RelationAdd> {
         });
   }
 }
+
 /*
 class AddRelation extends StatefulWidget {
   const AddRelation(

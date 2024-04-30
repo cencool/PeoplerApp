@@ -18,7 +18,7 @@ class PersonTab extends StatefulWidget {
 }
 
 class _PersonTabState extends State<PersonTab> {
-  late Person activePerson = context.read<Person>();
+  late Person activePerson = context.read<AppState>().activePerson;
   late Future<PersonDetail> personDetailFuture = PersonDetail.getPersonDetail(
       // id: widget.activePerson.id,
       id: activePerson.id,
@@ -31,9 +31,11 @@ class _PersonTabState extends State<PersonTab> {
         future: personDetailFuture,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            PersonDetail activePersonDetail = snapshot.data!;
+            context.read<AppState>().activePersonDetail = activePersonDetail;
             return ChangeNotifierProvider(
               create: (context) =>
-                  PersonFormModel(person: activePerson, personDetail: snapshot.data!),
+                  PersonFormModel(person: activePerson, personDetail: activePersonDetail),
               child: Consumer<PersonFormModel>(builder: (context, model, child) {
                 return Stack(children: [
                   ListView(

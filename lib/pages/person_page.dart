@@ -61,7 +61,7 @@ class PersonPageBody extends StatefulWidget {
 }
 
 class _PersonPageBodyState extends State<PersonPageBody> {
-  Person activePerson = Person.dummy();
+  // Person activePerson = Person.dummy();
   late Future<Person> personFuture =
       Person.getPerson(id: widget.personId, messengerKey: context.read<AppState>().messengerKey);
   @override
@@ -70,17 +70,14 @@ class _PersonPageBodyState extends State<PersonPageBody> {
         future: personFuture,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            activePerson = snapshot.data!;
-            return Provider<Person>.value(
-              value: activePerson,
-              child: const TabBarView(children: [
-                PersonTab(),
-                RelationTab(),
-                Placeholder(),
-                Placeholder(),
-                Placeholder(),
-              ]),
-            );
+            context.read<AppState>().activePerson = snapshot.data!;
+            return const TabBarView(children: [
+              PersonTab(),
+              RelationTab(),
+              Placeholder(),
+              Placeholder(),
+              Placeholder(),
+            ]);
           } else {
             return const SpinKitPouringHourGlass(color: Colors.blue);
           }

@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:peopler/widgets/snack_message.dart';
 import 'dart:convert';
 
+Person personFromJson(String str) => Person.fromJson(json.decode(str));
+
+String personToJson(Person data) => json.encode(data.toJson());
+
 class Person {
   int id;
   String surname;
@@ -30,6 +34,15 @@ class Person {
         owner: json["owner"],
       );
 
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "surname": surname,
+        "name": name,
+        "gender": gender,
+        "place": place,
+        "owner": owner
+      };
+
   factory Person.dummy() => Person(
         id: -1,
         surname: "N/A",
@@ -40,6 +53,7 @@ class Person {
       );
 
   /// deletes person with given id
+  /// TODO is not checked yet
   static Future<http.Response> deletePerson({required int id, required messengerKey}) async {
     final String url = '${Api.personRestUrl}/$id';
     final String authString = await Credentials.getAuthString();
@@ -125,7 +139,9 @@ class Person {
       String url = '${Api.personRestUrl}/$id';
       try {
         http.Response serverResponse = await http.put(Uri.parse(url),
-            headers: {'Authorization': 'Basic $authString'}, body: toBodyPut());
+            headers: {'Authorization': 'Basic $authString', "Content-Type": "application/json"},
+            // body: toBodyPut());
+            body: personToJson(this));
         if (serverResponse.statusCode == 200) {
           String jsonString = serverResponse.body;
           if (jsonString == "null") {
@@ -162,7 +178,9 @@ class Person {
       String url = Api.personDetailUrl;
       try {
         http.Response serverResponse = await http.post(Uri.parse(url),
-            headers: {'Authorization': 'Basic $authString'}, body: toBodyPost());
+            headers: {'Authorization': 'Basic $authString', "Content-Type": "application/json"},
+            // body: toBodyPost());
+            body: personToJson(this));
         if (serverResponse.statusCode == 200) {
           String jsonString = serverResponse.body;
           if (jsonString == "null") {
