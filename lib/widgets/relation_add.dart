@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
@@ -22,17 +23,12 @@ class _RelationAddState extends State<RelationAdd> {
   late Future<List<RelationName>> relationNames =
       RelationName.getRelationNames(messengerKey: messengerKey);
   // late Future futureCollection = Future.wait([relationNames, person]);
-  late Map<String, String> newRelation = {
-    "id": "",
-    "person_a_id": widget.activePerson.id.toString(),
-    "relation_ab_id": "",
-    "person_b_id": ""
-  };
   late RelationRecord activeRelationRecord = context.read<AppState>().activeRelationRecord;
 
   @override
   void initState() {
     super.initState();
+    activeRelationRecord.reset();
     activeRelationRecord.personAId = widget.activePerson.id;
     debugPrint(activeRelationRecord.toString());
   }
@@ -83,7 +79,7 @@ class _RelationAddState extends State<RelationAdd> {
             }
             return ListView(children: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.fromLTRB(8, 40.0, 8.0, 8.0),
                 child: Row(
                   children: [
                     DropdownMenu(
@@ -98,15 +94,15 @@ class _RelationAddState extends State<RelationAdd> {
                       menuHeight: 200,
                     ),
                     SizedBox(
-                      width: 20.0,
+                      width: 10.0,
                     ),
                     Icon(Icons.arrow_forward),
                     SizedBox(
-                      width: 20.0,
+                      width: 10.0,
                     ),
                     Text(
                       '$toWhom',
-                      style: TextStyle(fontSize: 20.0),
+                      style: TextStyle(fontSize: 15.0),
                     ),
                   ],
                 ),

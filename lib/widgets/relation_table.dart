@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/pages/person_page.dart';
+import 'package:peopler/widgets/relation_tab.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:peopler/models/person_relation.dart';
 import 'package:provider/provider.dart';
 
 class RelationTable extends StatefulWidget {
   final Person activePerson;
-  const RelationTable({required this.activePerson, super.key});
+  final void Function(RelationTabMode mode) switchMode;
+  const RelationTable({required this.activePerson, required this.switchMode, super.key});
 
   @override
   State<RelationTable> createState() => _RelationTableState();
@@ -35,15 +37,23 @@ class _RelationTableState extends State<RelationTable> {
               cellContext.cell.value > -1
                   ? IconButton(
                       icon: const Icon(Icons.edit),
-                      onPressed: () => {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return Builder(builder: (context) {
-                            return PersonPage(cellContext.cell.value);
-                          });
-                        }))
-                      },
-                    )
+                      onPressed: () {
+                        debugPrint('Edit button pressed:${cellContext.cell.value}');
+                        print(cellContext.row.cells);
+                        context.read<AppState>().activeRelationRecord.id = cellContext.cell.value;
+                        widget.switchMode(RelationTabMode.edit);
+                      })
                   : const Icon(Icons.edit_off),
+              cellContext.cell.value > -1
+                  ? IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () {
+                        debugPrint('Delete button pressed:${cellContext.cell.value}');
+                        print(cellContext.row.cells);
+                        context.read<AppState>().activeRelationRecord.id = cellContext.cell.value;
+                        widget.switchMode(RelationTabMode.delete);
+                      })
+                  : const Icon(Icons.delete_forever),
             ]);
           }),
       PlutoColumn(
@@ -155,6 +165,7 @@ class _RelationTableState extends State<RelationTable> {
         debugPrint('State manager assigned');
         stateManager = event.stateManager;
         stateManager.setShowColumnFilter(true);
+        context.read<AppState>().relationTableStateManager = stateManager;
       },
       onChanged: (PlutoGridOnChangedEvent event) {
         debugPrint(event.toString());

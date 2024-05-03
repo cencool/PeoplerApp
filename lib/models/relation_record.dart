@@ -48,6 +48,13 @@ class RelationRecord {
         relationAbId: -1,
       );
 
+  void reset() {
+    id = -1;
+    personAId = -1;
+    personBId = -1;
+    relationAbId = -1;
+  }
+
   @override
   String toString() {
     return 'id:$id\npersonAid:$personAId\npersonBid:$personBId\nrelationAbId:$relationAbId';
@@ -132,6 +139,95 @@ class RelationRecord {
             message: 'Exceptions:${e.toString()}',
             messageType: MessageType.error);
       }
+    }
+    return false;
+  }
+
+  static Future<RelationRecord> getRelationRecord(
+    int id, {
+    required GlobalKey<ScaffoldMessengerState> messengerKey,
+  }) async {
+    final String authString = await Credentials.getAuthString();
+    String url = '${Api.relationRecordUrl}?relationId=$id';
+    try {
+      http.Response serverResponse =
+          await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
+      if (serverResponse.statusCode == 200) {
+        String jsonString = serverResponse.body;
+        if (jsonString == "null") {
+          return RelationRecord.dummy();
+        }
+        var responseRelationRecord = RelationRecord.fromJson(jsonDecode(jsonString));
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'Relation: ${responseRelationRecord.id} received',
+            messageType: MessageType.info);
+        return responseRelationRecord;
+      } else if (serverResponse.statusCode == 404) {
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'No relation data available...',
+            messageType: MessageType.info);
+      } else {
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'RelationRecord get - Unexpected response code:${serverResponse.statusCode} ',
+            messageType: MessageType.error);
+      }
+    } on http.ClientException catch (e) {
+      SnackMessage.showMessage(
+          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+    } catch (e) {
+      debugPrint(e.toString());
+      SnackMessage.showMessage(
+          messengerKey: messengerKey,
+          message: 'Exceptions:${e.toString()}',
+          messageType: MessageType.error);
+    }
+    return RelationRecord.dummy();
+  }
+
+  static Future<bool> delete(
+    int id, {
+    required GlobalKey<ScaffoldMessengerState> messengerKey,
+  }) async {
+    final String authString = await Credentials.getAuthString();
+    String url = '${Api.relationUrl}/$id';
+    try {
+      http.Response serverResponse =
+          await http.delete(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
+      if (serverResponse.statusCode == 200) {
+        String jsonString = serverResponse.body;
+        if (jsonString == "null") {
+          return false;
+        }
+        var response = jsonDecode(jsonString);
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'Relation: ${response['deleted_id']} deleted',
+            messageType: MessageType.info);
+        return true;
+      } else if (serverResponse.statusCode == 404) {
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'No relation data available...',
+            messageType: MessageType.info);
+      } else {
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message:
+                'RelationRecord delete - Unexpected response code:${serverResponse.statusCode} ',
+            messageType: MessageType.error);
+      }
+    } on http.ClientException catch (e) {
+      SnackMessage.showMessage(
+          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+    } catch (e) {
+      debugPrint(e.toString());
+      SnackMessage.showMessage(
+          messengerKey: messengerKey,
+          message: 'Exceptions:${e.toString()}',
+          messageType: MessageType.error);
     }
     return false;
   }
