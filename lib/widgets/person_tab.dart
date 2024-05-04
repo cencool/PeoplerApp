@@ -165,9 +165,36 @@ class _PersonTabState extends State<PersonTab> {
                         model.switchMode();
                       },
                       mini: true,
+                      heroTag: null,
                       child: (model.editMode == true)
                           ? const Icon(Icons.done)
                           : const Icon(Icons.edit),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: FloatingActionButton(
+                        onPressed: (model.editMode == true)
+                            ? null
+                            : () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => PersonDeleteDialog(
+                                          model: model,
+                                          messengerKey: messengerKey,
+                                        ),
+                                    barrierDismissible: false);
+                                // model.switchMode();
+                              },
+                        mini: true,
+                        heroTag: null,
+                        child: Icon(
+                          Icons.delete,
+                          color: (model.editMode == true) ? Colors.grey : null,
+                        ),
+                      ),
                     ),
                   ),
                 ]);
@@ -306,9 +333,13 @@ class PersonFormModel with ChangeNotifier {
     personDetail.address = addressController.text;
     personDetail.note = noteController.text;
     var personResult = await person.save(messengerKey);
-    var detaileResult = await personDetail.save(messengerKey);
-    if (personResult && detaileResult) {
-      person = await Person.getPerson(id: person.id, messengerKey: messengerKey);
+    if (personResult["error"] == null) {
+      person = await Person.getPerson(id: personResult["id"], messengerKey: messengerKey);
+      personDetail.personId = person.id;
+    }
+    var detailResult = await personDetail.save(messengerKey);
+    if ((personResult["error"] == null) && (detailResult["error"] == null)) {
+      // person = await Person.getPerson(id: person.id, messengerKey: messengerKey);
       personDetail = await PersonDetail.getPersonDetail(id: person.id, messengerKey: messengerKey);
       personToCache(person, personOld);
       detailToCache(personDetail, detailOld);
@@ -351,6 +382,54 @@ class PersonSaveDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       debugPrint('No save pressed');
+                      model.restoreData();
+                      Navigator.pop(context);
+                    },
+                    child: const Text('No'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PersonDeleteDialog extends StatelessWidget {
+  const PersonDeleteDialog({required this.model, required this.messengerKey, super.key});
+  final PersonFormModel model;
+  final GlobalKey<ScaffoldMessengerState> messengerKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: SizedBox(
+        width: 300.0,
+        child: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Text('Do you want to delete person ?'),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      debugPrint('Yes to delete pressed');
+                      Person.delete(model.person.id, messengerKey: messengerKey);
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Yes'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      debugPrint('No to delete pressed');
                       model.restoreData();
                       Navigator.pop(context);
                     },

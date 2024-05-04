@@ -40,7 +40,7 @@ class PersonDetail {
     address = '';
   }
 
-  Future<bool> save(GlobalKey<ScaffoldMessengerState> messengerKey) async {
+  Future<Map<String, dynamic>> save(GlobalKey<ScaffoldMessengerState> messengerKey) async {
     final String authString = await Credentials.getAuthString();
 
     if (id > -1) {
@@ -52,13 +52,14 @@ class PersonDetail {
         if (serverResponse.statusCode == 200) {
           String jsonString = serverResponse.body;
           if (jsonString == "null") {
-            return false;
+            return {"error": true};
           }
+          Map<String, dynamic> response = json.decode(jsonString);
           SnackMessage.showMessage(
               messengerKey: messengerKey,
-              message: 'Details for:$id saved',
+              message: 'Details for:${response["person_id"]} saved',
               messageType: MessageType.info);
-          return true;
+          return response;
         } else if (serverResponse.statusCode == 404) {
           SnackMessage.showMessage(
               messengerKey: messengerKey,
@@ -89,13 +90,14 @@ class PersonDetail {
         if (serverResponse.statusCode == 200) {
           String jsonString = serverResponse.body;
           if (jsonString == "null") {
-            return false;
+            return {"error": true};
           }
+          Map<String, dynamic> response = json.decode(jsonString);
           SnackMessage.showMessage(
               messengerKey: messengerKey,
-              message: 'Details for:$id saved',
+              message: 'Details for:${response["person_id"]} saved',
               messageType: MessageType.info);
-          return true;
+          return response;
         } else if (serverResponse.statusCode == 404) {
           SnackMessage.showMessage(
               messengerKey: messengerKey,
@@ -118,7 +120,7 @@ class PersonDetail {
             messageType: MessageType.error);
       }
     }
-    return false;
+    return {"error": true};
   }
 
   Map<String, dynamic> toJson() => {

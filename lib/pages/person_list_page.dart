@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/pages/login_page.dart';
 import 'package:peopler/models/credentials.dart';
+import 'package:peopler/pages/person_page.dart';
 import 'package:peopler/widgets/pluto_person_list.dart';
 import 'package:provider/provider.dart';
 
@@ -28,7 +29,13 @@ class _PersonListPageState extends State<PersonListPage> {
               IconButton(
                 icon: const Icon(Icons.add),
                 tooltip: 'New Record',
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return Builder(builder: (context) {
+                      return PersonPage(-1);
+                    });
+                  }));
+                },
               ),
               IconButton(
                 icon: const Icon(Icons.logout),

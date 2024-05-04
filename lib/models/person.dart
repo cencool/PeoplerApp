@@ -97,22 +97,24 @@ class Person {
   static Future<Person> getPerson({required int id, required messengerKey}) async {
     String url = '${Api.personRestUrl}/$id';
     final String authString = await Credentials.getAuthString();
-    try {
-      http.Response serverResponse =
-          await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-      if (serverResponse.statusCode == 200) {
-        String jsonString = serverResponse.body;
-        var jsonObject = json.decode(jsonString);
-        return Person.fromJson(jsonObject);
-      } else {
+    if (id > -1) {
+      try {
+        http.Response serverResponse =
+            await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
+        if (serverResponse.statusCode == 200) {
+          String jsonString = serverResponse.body;
+          var jsonObject = json.decode(jsonString);
+          return Person.fromJson(jsonObject);
+        } else {
+          SnackMessage.showMessage(
+              messengerKey: messengerKey,
+              message: 'Get Person - Unexpected response code:${serverResponse.statusCode} ',
+              messageType: MessageType.error);
+        }
+      } on http.ClientException catch (e) {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Get Person - Unexpected response code:${serverResponse.statusCode} ',
-            messageType: MessageType.error);
+            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
       }
-    } on http.ClientException catch (e) {
-      SnackMessage.showMessage(
-          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
     }
     return Person.dummy();
   }
@@ -131,7 +133,7 @@ class Person {
         "gender": gender,
         "owner": owner,
       };
-  Future<bool> save(GlobalKey<ScaffoldMessengerState> messengerKey) async {
+  Future<Map<String, dynamic>> save(GlobalKey<ScaffoldMessengerState> messengerKey) async {
     final String authString = await Credentials.getAuthString();
 
     if (id > -1) {
@@ -142,16 +144,16 @@ class Person {
             headers: {'Authorization': 'Basic $authString', "Content-Type": "application/json"},
             // body: toBodyPut());
             body: personToJson(this));
-        if (serverResponse.statusCode == 200) {
+        if (serverResponse.statusCode >= 200 && serverResponse.statusCode < 300) {
           String jsonString = serverResponse.body;
           if (jsonString == "null") {
-            return false;
+            return {"error": true};
           }
           SnackMessage.showMessage(
               message: 'Person :$id saved',
               messageType: MessageType.info,
               messengerKey: messengerKey);
-          return true;
+          return json.decode(jsonString);
         } else if (serverResponse.statusCode == 404) {
           SnackMessage.showMessage(
               messengerKey: messengerKey,
@@ -175,22 +177,23 @@ class Person {
       }
     } else {
       // create new record
-      String url = Api.personDetailUrl;
+      String url = Api.personRestUrl;
       try {
         http.Response serverResponse = await http.post(Uri.parse(url),
             headers: {'Authorization': 'Basic $authString', "Content-Type": "application/json"},
             // body: toBodyPost());
             body: personToJson(this));
-        if (serverResponse.statusCode == 200) {
+        if (serverResponse.statusCode >= 200 && serverResponse.statusCode < 300) {
           String jsonString = serverResponse.body;
           if (jsonString == "null") {
-            return false;
+            return {"error": true};
           }
+          Map<String, dynamic> response = json.decode(jsonString);
           SnackMessage.showMessage(
               messengerKey: messengerKey,
-              message: 'Person: $id saved',
+              message: 'Person: ${response["id"]} saved',
               messageType: MessageType.info);
-          return true;
+          return response;
         } else if (serverResponse.statusCode == 404) {
           SnackMessage.showMessage(
               messengerKey: messengerKey,
@@ -212,6 +215,45 @@ class Person {
             message: 'Exceptions:${e.toString()}',
             messageType: MessageType.error);
       }
+    }
+    return {"error": true};
+  }
+
+  static Future<bool> delete(
+    int id, {
+    required GlobalKey<ScaffoldMessengerState> messengerKey,
+  }) async {
+    final String authString = await Credentials.getAuthString();
+    String url = '${Api.personRestUrl}/$id';
+    try {
+      http.Response serverResponse =
+          await http.delete(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
+      if (serverResponse.statusCode >= 200 && serverResponse.statusCode < 300) {
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'Person: $id deleted',
+            messageType: MessageType.info);
+        return true;
+      } else if (serverResponse.statusCode == 404) {
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'No Person $id available...',
+            messageType: MessageType.error);
+      } else {
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'Person delete - Unexpected response code:${serverResponse.statusCode} ',
+            messageType: MessageType.error);
+      }
+    } on http.ClientException catch (e) {
+      SnackMessage.showMessage(
+          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+    } catch (e) {
+      debugPrint(e.toString());
+      SnackMessage.showMessage(
+          messengerKey: messengerKey,
+          message: 'Exceptions:${e.toString()}',
+          messageType: MessageType.error);
     }
     return false;
   }
