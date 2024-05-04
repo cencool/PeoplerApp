@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
@@ -84,7 +83,7 @@ class _RelationAddState extends State<RelationAdd> {
                   children: [
                     DropdownMenu(
                       dropdownMenuEntries: createDropdownEntries(relationNameList),
-                      label: Text('New Relation'),
+                      label: const Text('New Relation'),
                       onSelected: (value) {
                         // newRelation["relation_ab_id"] = value.toString();
                         activeRelationRecord.relationAbId = value;
@@ -93,16 +92,16 @@ class _RelationAddState extends State<RelationAdd> {
                       },
                       menuHeight: 200,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10.0,
                     ),
-                    Icon(Icons.arrow_forward),
-                    SizedBox(
+                    const Icon(Icons.arrow_forward),
+                    const SizedBox(
                       width: 10.0,
                     ),
                     Text(
-                      '$toWhom',
-                      style: TextStyle(fontSize: 15.0),
+                      toWhom,
+                      style: const TextStyle(fontSize: 15.0),
                     ),
                   ],
                 ),

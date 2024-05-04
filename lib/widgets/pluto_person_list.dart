@@ -132,6 +132,7 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
         debugPrint('State manager assigned');
         stateManager = event.stateManager;
         stateManager.setShowColumnFilter(true);
+        context.read<AppState>().personListStateManager = stateManager;
       },
       onChanged: (PlutoGridOnChangedEvent event) {
         debugPrint(event.toString());

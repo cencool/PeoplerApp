@@ -4,6 +4,7 @@ import 'package:peopler/models/person.dart';
 import 'package:peopler/models/api.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:peopler/models/credentials.dart';
+import 'package:pluto_grid/pluto_grid.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:peopler/models/person_detail.dart';
 import 'package:provider/provider.dart';
@@ -424,6 +425,10 @@ class PersonDeleteDialog extends StatelessWidget {
                       Person.delete(model.person.id, messengerKey: messengerKey);
                       Navigator.pop(context);
                       Navigator.pop(context);
+                      var stMngr = context.read<AppState>().personListStateManager;
+                      var eventMnger = stMngr!.eventManager;
+                      eventMnger?.addEvent(PlutoGridChangeColumnSortEvent(
+                          column: stMngr.columns[0], oldSort: PlutoColumnSort.none));
                     },
                     child: const Text('Yes'),
                   ),

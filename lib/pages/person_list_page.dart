@@ -32,7 +32,7 @@ class _PersonListPageState extends State<PersonListPage> {
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return Builder(builder: (context) {
-                      return PersonPage(-1);
+                      return const PersonPage(-1);
                     });
                   }));
                 },

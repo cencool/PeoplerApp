@@ -93,7 +93,7 @@ class _RelationEditState extends State<RelationEdit> {
                   children: [
                     DropdownMenu(
                       dropdownMenuEntries: createDropdownEntries(relationNameList),
-                      label: Text('New Relation'),
+                      label: const Text('New Relation'),
                       onSelected: (value) {
                         // newRelation["relation_ab_id"] = value.toString();
                         activeRelationRecord.relationAbId = value;
@@ -103,16 +103,16 @@ class _RelationEditState extends State<RelationEdit> {
                       initialSelection: activeRelationRecord.relationAbId,
                       menuHeight: 200,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10.0,
                     ),
-                    Icon(Icons.arrow_forward),
-                    SizedBox(
+                    const Icon(Icons.arrow_forward),
+                    const SizedBox(
                       width: 10.0,
                     ),
                     Text(
-                      '$toWhom',
-                      style: TextStyle(fontSize: 15.0),
+                      toWhom,
+                      style: const TextStyle(fontSize: 15.0),
                     ),
                   ],
                 ),
