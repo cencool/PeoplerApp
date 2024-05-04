@@ -427,8 +427,10 @@ class PersonDeleteDialog extends StatelessWidget {
                       Navigator.pop(context);
                       var stMngr = context.read<AppState>().personListStateManager;
                       var eventMnger = stMngr!.eventManager;
-                      eventMnger?.addEvent(PlutoGridChangeColumnSortEvent(
-                          column: stMngr.columns[0], oldSort: PlutoColumnSort.none));
+                      if (eventMnger != null && !eventMnger.subject.isClosed) {
+                        eventMnger.addEvent(PlutoGridChangeColumnSortEvent(
+                            column: stMngr.columns[0], oldSort: PlutoColumnSort.none));
+                      }
                     },
                     child: const Text('Yes'),
                   ),
