@@ -4,15 +4,16 @@ import 'package:peopler/models/person.dart';
 import 'package:peopler/models/api.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:peopler/models/credentials.dart';
+import 'package:peopler/widgets/photo_tab.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:peopler/models/person_detail.dart';
 import 'package:provider/provider.dart';
 
+enum PersonTabMode { view, editData, deletePerson, editPhoto }
+
 class PersonTab extends StatefulWidget {
-  // const PersonTab(this.activePerson, {super.key});
   const PersonTab({super.key});
-  // final Person activePerson;
 
   @override
   State<PersonTab> createState() => _PersonTabState();
@@ -21,13 +22,52 @@ class PersonTab extends StatefulWidget {
 class _PersonTabState extends State<PersonTab> {
   late Person activePerson = context.read<AppState>().activePerson;
   late Future<PersonDetail> personDetailFuture = PersonDetail.getPersonDetail(
-      // id: widget.activePerson.id,
-      id: activePerson.id,
-      messengerKey: context.read<AppState>().messengerKey);
+      id: activePerson.id, messengerKey: context.read<AppState>().messengerKey);
+  PersonTabMode tabMode = PersonTabMode.view;
+  void switchTabMode(PersonTabMode newMode) {
+    setState(() {
+      tabMode = newMode;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     var messengerKey = context.read<AppState>().messengerKey;
+    switch (tabMode) {
+      case (PersonTabMode.editData):
+      case (PersonTabMode.view):
+      case (PersonTabMode.deletePerson):
+        return ActivePersonView(
+            personDetailFuture: personDetailFuture,
+            activePerson: activePerson,
+            onModeSwitch: switchTabMode,
+            messengerKey: messengerKey);
+      case (PersonTabMode.editPhoto):
+        return PhotoTab(
+          onModeSwitch: switchTabMode,
+        );
+      default:
+        return const Placeholder();
+    }
+  }
+}
+
+class ActivePersonView extends StatelessWidget {
+  const ActivePersonView({
+    super.key,
+    required this.personDetailFuture,
+    required this.activePerson,
+    required this.onModeSwitch,
+    required this.messengerKey,
+  });
+
+  final Future<PersonDetail> personDetailFuture;
+  final Person activePerson;
+  final GlobalKey<ScaffoldMessengerState> messengerKey;
+  final void Function(PersonTabMode newMode) onModeSwitch;
+
+  @override
+  Widget build(BuildContext context) {
     return FutureBuilder(
         future: personDetailFuture,
         builder: (context, snapshot) {
@@ -37,21 +77,24 @@ class _PersonTabState extends State<PersonTab> {
             return ChangeNotifierProvider(
               create: (context) =>
                   PersonFormModel(person: activePerson, personDetail: activePersonDetail),
-              child: Consumer<PersonFormModel>(builder: (context, model, child) {
+              child: Consumer<PersonFormModel>(builder: (context, formModel, child) {
                 return Stack(children: [
                   ListView(
                     children: [
                       const SizedBox(height: 10.0),
                       SizedBox(
                         height: 200,
-                        child: PersonPhoto(activePerson.id),
+                        child: PersonPhoto(
+                          activePerson.id,
+                          onSwitchMode: onModeSwitch,
+                        ),
                       ),
                       const SizedBox(height: 10.0),
                       Padding(
                         padding: const EdgeInsets.only(left: 15.0),
                         child: TextField(
-                            readOnly: !model.editMode,
-                            controller: model.surnameController,
+                            readOnly: !formModel.editMode,
+                            controller: formModel.surnameController,
                             decoration: const InputDecoration(
                                 label: Text(
                               'Surname',
@@ -61,8 +104,8 @@ class _PersonTabState extends State<PersonTab> {
                       Padding(
                         padding: const EdgeInsets.only(left: 15.0),
                         child: TextField(
-                            readOnly: !model.editMode,
-                            controller: model.nameController,
+                            readOnly: !formModel.editMode,
+                            controller: formModel.nameController,
                             decoration: const InputDecoration(
                                 label: Text(
                               'Name',
@@ -72,8 +115,8 @@ class _PersonTabState extends State<PersonTab> {
                       Padding(
                         padding: const EdgeInsets.only(left: 15.0),
                         child: TextField(
-                            readOnly: !model.editMode,
-                            controller: model.placeController,
+                            readOnly: !formModel.editMode,
+                            controller: formModel.placeController,
                             decoration: const InputDecoration(
                                 label: Text(
                               'Place',
@@ -83,8 +126,8 @@ class _PersonTabState extends State<PersonTab> {
                       Padding(
                         padding: const EdgeInsets.only(left: 15.0),
                         child: TextField(
-                            readOnly: !model.editMode,
-                            controller: model.genderController,
+                            readOnly: !formModel.editMode,
+                            controller: formModel.genderController,
                             decoration: const InputDecoration(
                                 label: Text(
                               'Gender',
@@ -97,8 +140,8 @@ class _PersonTabState extends State<PersonTab> {
                               Padding(
                                 padding: const EdgeInsets.only(left: 15.0),
                                 child: TextField(
-                                    readOnly: !model.editMode,
-                                    controller: model.statusController,
+                                    readOnly: !formModel.editMode,
+                                    controller: formModel.statusController,
                                     decoration: const InputDecoration(
                                         label: Text(
                                       'Status',
@@ -110,8 +153,8 @@ class _PersonTabState extends State<PersonTab> {
                                   ? Padding(
                                       padding: const EdgeInsets.only(left: 15.0),
                                       child: TextField(
-                                          readOnly: !model.editMode,
-                                          controller: model.maidenController,
+                                          readOnly: !formModel.editMode,
+                                          controller: formModel.maidenController,
                                           decoration: const InputDecoration(
                                               label: Text(
                                             'Maiden Name',
@@ -124,8 +167,8 @@ class _PersonTabState extends State<PersonTab> {
                                 padding: const EdgeInsets.only(left: 15.0),
                                 child: TextField(
                                     maxLines: 2,
-                                    readOnly: !model.editMode,
-                                    controller: model.addressController,
+                                    readOnly: !formModel.editMode,
+                                    controller: formModel.addressController,
                                     decoration: const InputDecoration(
                                         label: Text(
                                       'Address',
@@ -138,8 +181,8 @@ class _PersonTabState extends State<PersonTab> {
                                 child: TextField(
                                     maxLength: 250,
                                     maxLines: 8,
-                                    readOnly: !model.editMode,
-                                    controller: model.noteController,
+                                    readOnly: !formModel.editMode,
+                                    controller: formModel.noteController,
                                     decoration: const InputDecoration(
                                         label: Text(
                                       'Note',
@@ -154,20 +197,22 @@ class _PersonTabState extends State<PersonTab> {
                     padding: const EdgeInsets.all(8.0),
                     child: FloatingActionButton(
                       onPressed: () {
-                        if (model.editMode) {
+                        if (formModel.editMode) {
                           showDialog(
                               context: context,
                               builder: (context) => PersonSaveDialog(
-                                    model: model,
+                                    formModel: formModel,
                                     messengerKey: messengerKey,
                                   ),
                               barrierDismissible: false);
+                          onModeSwitch(PersonTabMode.view);
                         }
-                        model.switchMode();
+                        formModel.switchFormMode();
+                        onModeSwitch(PersonTabMode.editData);
                       },
                       mini: true,
                       heroTag: null,
-                      child: (model.editMode == true)
+                      child: (formModel.editMode == true)
                           ? const Icon(Icons.done)
                           : const Icon(Icons.edit),
                     ),
@@ -177,23 +222,24 @@ class _PersonTabState extends State<PersonTab> {
                     child: Align(
                       alignment: Alignment.topRight,
                       child: FloatingActionButton(
-                        onPressed: (model.editMode == true)
+                        onPressed: (formModel.editMode == true)
                             ? null
                             : () {
                                 showDialog(
                                     context: context,
                                     builder: (context) => PersonDeleteDialog(
-                                          model: model,
+                                          model: formModel,
+                                          onModeSwitch: onModeSwitch,
                                           messengerKey: messengerKey,
                                         ),
                                     barrierDismissible: false);
-                                // model.switchMode();
+                                onModeSwitch(PersonTabMode.deletePerson);
                               },
                         mini: true,
                         heroTag: null,
                         child: Icon(
                           Icons.delete,
-                          color: (model.editMode == true) ? Colors.grey : null,
+                          color: (formModel.editMode == true) ? Colors.grey : null,
                         ),
                       ),
                     ),
@@ -209,8 +255,9 @@ class _PersonTabState extends State<PersonTab> {
 }
 
 class PersonPhoto extends StatefulWidget {
-  const PersonPhoto(this.personId, {super.key});
+  const PersonPhoto(this.personId, {required this.onSwitchMode, super.key});
   final int personId;
+  final void Function(PersonTabMode newMode) onSwitchMode;
 
   @override
   State<PersonPhoto> createState() => _PersonPhotoState();
@@ -224,12 +271,18 @@ class _PersonPhotoState extends State<PersonPhoto> {
         future: authString,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return FadeInImage(
-                placeholder: MemoryImage(kTransparentImage),
-                image: NetworkImage(
-                  '${Api.personPhotoUrl}?id=${widget.personId}',
-                  headers: {'Authorization': 'Basic ${snapshot.data}'},
-                ));
+            return GestureDetector(
+              onTap: () {
+                debugPrint('Image tapped');
+                widget.onSwitchMode(PersonTabMode.editPhoto);
+              },
+              child: FadeInImage(
+                  placeholder: MemoryImage(kTransparentImage),
+                  image: NetworkImage(
+                    '${Api.personPhotoUrl}?id=${widget.personId}',
+                    headers: {'Authorization': 'Basic ${snapshot.data}'},
+                  )),
+            );
           } else {
             return const SpinKitPouringHourGlass(color: Colors.blue);
           }
@@ -267,7 +320,7 @@ class PersonFormModel with ChangeNotifier {
     noteController = TextEditingController(text: personDetail.note);
   }
 
-  void switchMode() {
+  void switchFormMode() {
     editMode = !editMode;
     debugPrint('Editing:$editMode');
     notifyListeners();
@@ -352,8 +405,8 @@ class PersonFormModel with ChangeNotifier {
 }
 
 class PersonSaveDialog extends StatelessWidget {
-  const PersonSaveDialog({required this.model, required this.messengerKey, super.key});
-  final PersonFormModel model;
+  const PersonSaveDialog({required this.formModel, required this.messengerKey, super.key});
+  final PersonFormModel formModel;
   final GlobalKey<ScaffoldMessengerState> messengerKey;
 
   @override
@@ -375,7 +428,7 @@ class PersonSaveDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       debugPrint('Yes save pressed');
-                      model.saveData(messengerKey);
+                      formModel.saveData(messengerKey);
                       Navigator.pop(context);
                     },
                     child: const Text('Yes'),
@@ -383,7 +436,7 @@ class PersonSaveDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       debugPrint('No save pressed');
-                      model.restoreData();
+                      formModel.restoreData();
                       Navigator.pop(context);
                     },
                     child: const Text('No'),
@@ -399,9 +452,11 @@ class PersonSaveDialog extends StatelessWidget {
 }
 
 class PersonDeleteDialog extends StatelessWidget {
-  const PersonDeleteDialog({required this.model, required this.messengerKey, super.key});
+  const PersonDeleteDialog(
+      {required this.model, required this.onModeSwitch, required this.messengerKey, super.key});
   final PersonFormModel model;
   final GlobalKey<ScaffoldMessengerState> messengerKey;
+  final void Function(PersonTabMode newMode) onModeSwitch;
 
   @override
   Widget build(BuildContext context) {
@@ -423,6 +478,7 @@ class PersonDeleteDialog extends StatelessWidget {
                     onPressed: () {
                       debugPrint('Yes to delete pressed');
                       Person.delete(model.person.id, messengerKey: messengerKey);
+                      onModeSwitch(PersonTabMode.view);
                       Navigator.pop(context);
                       Navigator.pop(context);
                       var stMngr = context.read<AppState>().personListStateManager;
@@ -438,6 +494,7 @@ class PersonDeleteDialog extends StatelessWidget {
                     onPressed: () {
                       debugPrint('No to delete pressed');
                       model.restoreData();
+                      onModeSwitch(PersonTabMode.view);
                       Navigator.pop(context);
                     },
                     child: const Text('No'),
