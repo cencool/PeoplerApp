@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
@@ -279,7 +281,7 @@ class _PersonPhotoState extends State<PersonPhoto> {
               child: FadeInImage(
                   placeholder: MemoryImage(kTransparentImage),
                   image: NetworkImage(
-                    '${Api.personPhotoUrl}?id=${widget.personId}',
+                    '${Api.personPhotoReceiveUrl}?id=${widget.personId}&${DateTime.now().millisecondsSinceEpoch}',
                     headers: {'Authorization': 'Basic ${snapshot.data}'},
                   )),
             );

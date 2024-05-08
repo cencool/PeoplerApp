@@ -1,4 +1,7 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:io';
+import 'dart:math';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -7,6 +10,7 @@ import 'package:peopler/models/api.dart';
 import 'package:peopler/models/credentials.dart';
 import 'package:peopler/widgets/person_tab.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 enum PhotoTabMode { view, load, zoom }
 
@@ -21,10 +25,17 @@ class PhotoTab extends StatefulWidget {
 class _PhotoTabState extends State<PhotoTab> {
   Future<String> authString = Credentials.getAuthString();
   PhotoTabMode mode = PhotoTabMode.view;
+  dynamic fromFile;
 
   void switchPhotoTabMode(PhotoTabMode newMode) {
     setState(() {
       mode = newMode;
+    });
+  }
+
+  void showImageFromFile(Image loadedFromFile) {
+    setState(() {
+      fromFile = loadedFromFile;
     });
   }
 
@@ -36,13 +47,10 @@ class _PhotoTabState extends State<PhotoTab> {
         if (snapshot.hasData) {
           int personId = context.read<AppState>().activePerson.id;
           return Stack(children: [
-            PhotoView(personId: personId, snapshot: snapshot, mode: mode),
-            // Image(
-            //   image: NetworkImage(
-            //     '${Api.personPhotoUrl}?id=$personId',
-            //     headers: {'Authorization': 'Basic ${snapshot.data}'},
-            //   ),
-            // ),
+            ListView(children: [
+              PhotoView(personId: personId, snapshot: snapshot, mode: mode),
+              ...(fromFile != null) ? [fromFile] : [],
+            ]),
             Align(
               alignment: Alignment.topLeft,
               child: FloatingActionButton(
@@ -69,6 +77,36 @@ class _PhotoTabState extends State<PhotoTab> {
                 child: (mode == PhotoTabMode.view) ? Icon(Icons.zoom_in) : Icon(Icons.zoom_out),
               ),
             ),
+            Align(
+              alignment: Alignment.topCenter,
+              child: FloatingActionButton(
+                onPressed: () async {
+                  FilePickerResult? pickerResult = await FilePicker.platform
+                      .pickFiles(type: FileType.any); // widget.onModeSwitch(PersonTabMode.view);
+                  if (pickerResult != null) {
+                    print(pickerResult.files.first.path);
+                    var imageFile = File(pickerResult.files.first.path!);
+                    var fileBytes = imageFile.readAsBytes();
+                    showImageFromFile(Image.file(imageFile));
+                    String authString = await Credentials.getAuthString();
+                    var uri = Uri.parse('${Api.personPhotoSendUrl}');
+                    var request = http.MultipartRequest('POST', uri)
+                      ..fields['id'] = personId.toString()
+                      ..files.add(await http.MultipartFile.fromPath('personPhoto', imageFile.path))
+                      ..headers['Authorization'] = 'Basic $authString';
+                    var response = await request.send();
+                    if (response.statusCode == 200) {
+                      print('Photo Uploaded!');
+                    } else {
+                      debugPrint('Response code: ${response.statusCode}');
+                    }
+                  }
+                },
+                heroTag: null,
+                mini: true,
+                child: Icon(Icons.upload),
+              ),
+            ),
           ]);
         } else {
           return const SpinKitPouringHourGlass(color: Colors.blue);
@@ -90,7 +128,7 @@ class PhotoView extends StatelessWidget {
       case (PhotoTabMode.view):
         return Image(
           image: NetworkImage(
-            '${Api.personPhotoUrl}?id=$personId',
+            '${Api.personPhotoReceiveUrl}?id=$personId&${DateTime.now().millisecondsSinceEpoch}',
             headers: {'Authorization': 'Basic ${snapshot.data}'},
           ),
         );
@@ -101,7 +139,7 @@ class PhotoView extends StatelessWidget {
             scrollDirection: Axis.vertical,
             child: Image(
               image: NetworkImage(
-                '${Api.personPhotoUrl}?id=$personId',
+                '${Api.personPhotoReceiveUrl}?id=$personId&${DateTime.now().millisecondsSinceEpoch}',
                 headers: {'Authorization': 'Basic ${snapshot.data}'},
               ),
             ),
