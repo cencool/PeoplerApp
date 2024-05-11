@@ -41,6 +41,8 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
                   }));
                 },
               ),
+
+              /// this callback provides info to relation about ToWhom
               widget.idCallback != null
                   ? IconButton(
                       onPressed: () {

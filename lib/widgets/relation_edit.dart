@@ -98,7 +98,7 @@ class _RelationEditState extends State<RelationEdit> {
                         // newRelation["relation_ab_id"] = value.toString();
                         activeRelationRecord.relationAbId = value;
                         debugPrint('$value');
-                        print(activeRelationRecord.toString());
+                        debugPrint(activeRelationRecord.toString());
                       },
                       initialSelection: activeRelationRecord.relationAbId,
                       menuHeight: 200,

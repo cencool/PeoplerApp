@@ -88,7 +88,7 @@ class _RelationAddState extends State<RelationAdd> {
                         // newRelation["relation_ab_id"] = value.toString();
                         activeRelationRecord.relationAbId = value;
                         debugPrint('$value');
-                        print(activeRelationRecord.toString());
+                        debugPrint(activeRelationRecord.toString());
                       },
                       menuHeight: 200,
                     ),

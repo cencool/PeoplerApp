@@ -21,8 +21,6 @@ class _PeoplerAppState extends State<PeoplerApp> {
   final Future<bool> loginStatus = Credentials.isLoggedIn();
   @override
   Widget build(BuildContext context) {
-    var mediaData = MediaQuery.of(context);
-    debugPrint('${mediaData.size.width},${mediaData.size.height}');
     return Provider<AppState>(
       create: (_) => AppState(),
       child: Builder(builder: (context) {
