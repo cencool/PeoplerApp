@@ -26,12 +26,12 @@ class Person {
       required this.owner});
 
   factory Person.fromJson(Map<String, dynamic> json) => Person(
-        id: json["id"],
-        surname: json["surname"],
-        name: json["name"],
-        place: json["place"],
-        gender: json["gender"],
-        owner: json["owner"],
+        id: json["id"] ?? -1,
+        surname: json["surname"] ?? '',
+        name: json["name"] ?? '',
+        place: json["place"] ?? '',
+        gender: json["gender"] ?? '',
+        owner: json["owner"] ?? '',
       );
 
   Map<String, dynamic> toJson() => {
@@ -50,6 +50,14 @@ class Person {
         place: '',
         gender: "?",
         owner: "N/A",
+      );
+  factory Person.dummySearch() => Person(
+        id: -1,
+        surname: "",
+        name: '',
+        place: '',
+        gender: "",
+        owner: "",
       );
 
   /// deletes person with given id
@@ -74,6 +82,34 @@ class Person {
     try {
       http.Response serverResponse =
           await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
+      if (serverResponse.statusCode == 200) {
+        final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '0');
+        String jsonString = serverResponse.body;
+        var jsonObject = json.decode(jsonString);
+        final List<Person> personList =
+            List<Person>.from(jsonObject.map((el) => Person.fromJson(el)));
+        return PaginatedPersonList(persons: personList, pageCount: pageCount);
+      } else {
+        SnackMessage.showMessage(
+            messengerKey: messengerKey,
+            message: 'Person List - Unexpected response code:${serverResponse.statusCode} ',
+            messageType: MessageType.error);
+      }
+    } on http.ClientException catch (e) {
+      SnackMessage.showMessage(
+          messengerKey: messengerKey, message: e.message, messageType: MessageType.error);
+    }
+    return PaginatedPersonList(persons: <Person>[]);
+  }
+
+  static Future<PaginatedPersonList> getPaginatedPersonSearchList(
+      {required String searchParams, required query, required messengerKey}) async {
+    final String authString = await Credentials.getAuthString();
+    String url = '${Api.personSearchUrl}?$query';
+    try {
+      http.Response serverResponse = await http.post(Uri.parse(url),
+          headers: {'Authorization': 'Basic $authString', 'Content-Type': 'application/json'},
+          body: searchParams);
       if (serverResponse.statusCode == 200) {
         final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '0');
         String jsonString = serverResponse.body;
@@ -262,5 +298,7 @@ class Person {
 class PaginatedPersonList {
   final int pageCount;
   final List<Person> persons;
+
+  ///TODO shouldn't pageCount default be 0 ?
   PaginatedPersonList({required this.persons, this.pageCount = 1});
 }

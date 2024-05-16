@@ -23,17 +23,26 @@ class PersonDetail {
   });
 
   factory PersonDetail.fromJson(Map<String, dynamic> json) => PersonDetail(
-        id: json["id"],
-        personId: json["person_id"],
-        maritalStatus: json["marital_status"],
-        maidenName: json["maiden_name"],
-        note: json["note"],
-        address: json["address"],
+        id: json["id"] ?? -1,
+        personId: json["person_id"] ?? '',
+        maritalStatus: json["marital_status"] ?? '',
+        maidenName: json["maiden_name"] ?? '',
+        note: json["note"] ?? '',
+        address: json["address"] ?? '',
       );
 
   PersonDetail.dummy(int pId)
       : id = -1,
         personId = pId {
+    maritalStatus = '';
+    maidenName = '';
+    note = '';
+    address = '';
+  }
+
+  PersonDetail.dummySearch()
+      : id = -1,
+        personId = -1 {
     maritalStatus = '';
     maidenName = '';
     note = '';

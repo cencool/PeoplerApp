@@ -1,10 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/api.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:peopler/models/credentials.dart';
+import 'package:peopler/models/person_form.dart';
 import 'package:peopler/widgets/person_photo_view.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -293,7 +293,7 @@ class _PersonPhotoState extends State<PersonPhoto> {
         });
   }
 }
-
+/*
 class PersonFormModel with ChangeNotifier {
   bool editMode = false;
   Person person;
@@ -312,8 +312,6 @@ class PersonFormModel with ChangeNotifier {
   PersonFormModel({required this.person, required this.personDetail}) {
     personToCache(person, personOld);
     detailToCache(personDetail, detailOld);
-    // personOld = person;
-    // detailOld = personDetail;
     surnameController = TextEditingController(text: person.surname);
     nameController = TextEditingController(text: person.name);
     placeController = TextEditingController(text: person.place);
@@ -406,6 +404,7 @@ class PersonFormModel with ChangeNotifier {
     notifyListeners();
   }
 }
+*/
 
 class PersonSaveDialog extends StatelessWidget {
   const PersonSaveDialog({required this.personFormModel, required this.messengerKey, super.key});

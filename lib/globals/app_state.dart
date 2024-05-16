@@ -11,4 +11,5 @@ class AppState {
   RelationRecord activeRelationRecord = RelationRecord.dummy();
   PlutoGridStateManager? relationTableStateManager;
   PlutoGridStateManager? personListStateManager;
+  PlutoGridStateManager? personSearchListStateManager;
 }
