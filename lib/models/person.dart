@@ -2,6 +2,7 @@ import 'package:peopler/models/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:peopler/models/credentials.dart';
 import 'package:flutter/material.dart';
+import 'package:peopler/models/person_attachment.dart';
 import 'package:peopler/widgets/snack_message.dart';
 import 'dart:convert';
 
@@ -292,6 +293,32 @@ class Person {
           messageType: MessageType.error);
     }
     return false;
+  }
+
+  Future<List<PersonAttachment>> getAttachmentList(
+      {required int id, required GlobalKey<ScaffoldMessengerState> messengerKey}) async {
+    String url = '${Api.attachmentUrl}/list?personId=$id';
+    final String authString = await Credentials.getAuthString();
+    if (id > -1) {
+      try {
+        http.Response serverResponse =
+            await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
+        if (serverResponse.statusCode == 200) {
+          String jsonString = serverResponse.body;
+          // var jsonObject = json.decode(jsonString);
+          return personAttachmentFromJson(jsonString);
+        } else {
+          SnackMessage.showMessage(
+              messengerKey: messengerKey,
+              message: 'Get Person - Unexpected response code:${serverResponse.statusCode} ',
+              messageType: MessageType.error);
+        }
+      } on http.ClientException catch (e) {
+        SnackMessage.showMessage(
+            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+      }
+    }
+    return personAttachmentFromJson('[]');
   }
 }
 

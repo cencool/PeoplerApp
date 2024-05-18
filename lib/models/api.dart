@@ -10,4 +10,5 @@ class Api {
   static const String relationNamesUrl = '$serverUrl/v1/relation/relation-names';
   static const String relationRecordUrl = '$serverUrl/v1/relation/view-relation';
   static const String personSearchUrl = '$serverUrl/v1/person/search';
+  static const String attachmentUrl = '$serverUrl/v1/attachment';
 }
