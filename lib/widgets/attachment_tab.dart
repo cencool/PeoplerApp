@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:insta_image_viewer/insta_image_viewer.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/api.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/person_attachment.dart';
 import 'package:provider/provider.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class AttachmentTab extends StatefulWidget {
   const AttachmentTab({super.key});
@@ -30,13 +30,20 @@ class _AttachmentTabState extends State<AttachmentTab> {
             for (final item in snapshot.data!) {
               attachmentFiles
                   .add(Text('${item.id},${item.personId},${item.fileCaption},${item.fileName}'));
-              attachmentFiles.add(FadeInImage(
-                placeholder: MemoryImage(kTransparentImage),
-                image: NetworkImage(
-                  '${Api.attachmentUrl}/send-thumbnail?fileId=${item.id}&${DateTime.now().millisecondsSinceEpoch}',
+              attachmentFiles.add(
+                InstaImageViewer(
+                  imageUrl:
+                      '${Api.attachmentUrl}/send-file?fileId=${item.id}&${DateTime.now().millisecondsSinceEpoch}',
                   headers: {'Authorization': 'Basic $authString'},
+                  // child: Text('CHILD'),
+                  child: Image(
+                    image: NetworkImage(
+                      '${Api.attachmentUrl}/send-thumbnail?fileId=${item.id}&${DateTime.now().millisecondsSinceEpoch}',
+                      headers: {'Authorization': 'Basic $authString'},
+                    ),
+                  ),
                 ),
-              ));
+              );
             }
             return ListView(children: attachmentFiles);
           } else {
