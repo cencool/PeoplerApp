@@ -12,7 +12,7 @@ import 'package:peopler/models/person_attachment.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
-enum AttachmentTabMode { view, edit }
+enum AttachmentTabMode { view, edit, add }
 
 class AttachmentTab extends StatefulWidget {
   const AttachmentTab({super.key});
@@ -36,6 +36,8 @@ class _AttachmentTabState extends State<AttachmentTab> {
     setState(() {
       activeAttachmentId = itemId;
       attachmentTabMode = newMode;
+      attachmentList =
+          activePerson.getAttachmentList(id: activePerson.id, messengerKey: messengerKey);
     });
   }
 
@@ -87,14 +89,76 @@ class _AttachmentTabState extends State<AttachmentTab> {
                   );
                 }
                 if (attachmentFiles.isNotEmpty) {
-                  return ListView(children: attachmentFiles);
+                  return Stack(children: [
+                    ListView(children: attachmentFiles),
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            switchMode(AttachmentTabMode.add, -1);
+                          },
+                          child: Icon(Icons.add)),
+                    )
+                  ]);
                 } else {
-                  return Stack(
-                    children: [
-                      Placeholder(),
-                      ElevatedButton(onPressed: () {}, child: Icon(Icons.add))
-                    ],
-                  );
+                  return ListView(children: [
+                    Stack(
+                      children: [
+                        SizedBox(height: 40.0),
+                        (imageFromFile != null)
+                            ? ElevatedButton(
+                                onPressed: () {
+                                  Person activePerson = context.read<AppState>().activePerson;
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) => AttachmentSaveDialog(
+                                            imageFilePath: imageFilePath,
+                                            activePerson: activePerson,
+                                            onModeSwitch: switchMode,
+                                            activeAttachmentId: activeAttachmentId,
+                                            actionName: 'add',
+                                            key: ValueKey('add'),
+                                          ),
+                                      barrierDismissible: false);
+                                },
+                                child: Icon(Icons.add))
+                            : SizedBox(),
+                        Align(
+                            alignment: Alignment.topCenter,
+                            child: ElevatedButton(
+                                onPressed: () async {
+                                  FilePickerResult? pickerResult =
+                                      await FilePicker.platform.pickFiles(type: FileType.any);
+                                  if (pickerResult != null) {
+                                    debugPrint(pickerResult.files.first.path);
+                                    var imageFile = File(pickerResult.files.first.path!);
+                                    imageFilePath = imageFile.path;
+                                    showImageFromfile(Image.file(imageFile));
+                                  }
+                                },
+                                child: Icon(Icons.upload))),
+                      ],
+                    ),
+                    ...(imageFromFile != null)
+                        ? [
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Loaded File',
+                                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  child: imageFromFile,
+                                )),
+                          ]
+                        : [],
+                  ]);
                 }
               } else {
                 return const SpinKitPouringHourGlass(color: Colors.blue);
@@ -119,6 +183,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
                               onModeSwitch: switchMode,
                               activeAttachmentId: activeAttachmentId,
                               actionName: 'replace',
+                              key: ValueKey('replace'),
                             ),
                         barrierDismissible: false);
                   } else {
@@ -142,7 +207,22 @@ class _AttachmentTabState extends State<AttachmentTab> {
                     child: Icon(Icons.upload))),
             Align(
                 alignment: Alignment.topRight,
-                child: ElevatedButton(onPressed: () {}, child: Icon(Icons.delete))),
+                child: ElevatedButton(
+                    onPressed: () {
+                      Person activePerson = context.read<AppState>().activePerson;
+                      showDialog(
+                          context: context,
+                          builder: (context) => AttachmentSaveDialog(
+                                imageFilePath: imageFilePath,
+                                activePerson: activePerson,
+                                onModeSwitch: switchMode,
+                                activeAttachmentId: activeAttachmentId,
+                                actionName: 'delete',
+                                key: ValueKey('delete'),
+                              ),
+                          barrierDismissible: false);
+                    },
+                    child: Icon(Icons.delete))),
           ]),
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -164,6 +244,65 @@ class _AttachmentTabState extends State<AttachmentTab> {
                 ),
               )),
           ...(imageFromFile != null)
+              ? [
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Loaded File',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: imageFromFile,
+                      )),
+                ]
+              : [],
+        ]);
+      case (AttachmentTabMode.add):
+        return ListView(children: [
+          Stack(
+            children: [
+              SizedBox(height: 40.0),
+              (imageFromFile != null)
+                  ? ElevatedButton(
+                      onPressed: () {
+                        Person activePerson = context.read<AppState>().activePerson;
+                        showDialog(
+                            context: context,
+                            builder: (context) => AttachmentSaveDialog(
+                                  imageFilePath: imageFilePath,
+                                  activePerson: activePerson,
+                                  onModeSwitch: switchMode,
+                                  activeAttachmentId: activeAttachmentId,
+                                  actionName: 'add',
+                                  key: ValueKey('add'),
+                                ),
+                            barrierDismissible: false);
+                      },
+                      child: Icon(Icons.add))
+                  : SizedBox(),
+              Align(
+                  alignment: Alignment.topCenter,
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        FilePickerResult? pickerResult =
+                            await FilePicker.platform.pickFiles(type: FileType.any);
+                        if (pickerResult != null) {
+                          debugPrint(pickerResult.files.first.path);
+                          var imageFile = File(pickerResult.files.first.path!);
+                          imageFilePath = imageFile.path;
+                          showImageFromfile(Image.file(imageFile));
+                        }
+                      },
+                      child: Icon(Icons.upload))),
+            ],
+          ),
+          ...imageFromFile != null
               ? [
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -205,7 +344,7 @@ class AttachmentSaveDialog extends StatelessWidget {
       case ('add'):
         String authString = await Credentials.getAuthString();
         String url = Api.attachmentUrl;
-        url += '/upload/${activePerson.id}';
+        url += '/add?id=${activePerson.id}';
         Uri uri = Uri.parse(url);
         var request = http.MultipartRequest('POST', uri)
           ..fields['id'] = activePerson.id.toString()
@@ -221,6 +360,15 @@ class AttachmentSaveDialog extends StatelessWidget {
           ..files.add(await http.MultipartFile.fromPath('attachmentFile', imageFilePath))
           ..headers['Authorization'] = 'Basic $authString';
         return request;
+      case ('delete'):
+        String authString = await Credentials.getAuthString();
+        String url = Api.attachmentUrl;
+        url += '/delete?id=$activeAttachmentId';
+        Uri uri = Uri.parse(url);
+        var request = http.MultipartRequest('GET', uri)
+          ..headers['Authorization'] = 'Basic $authString';
+        return request;
+
       default:
         return http.MultipartRequest('POST', Uri.parse('www.google.com'));
     }
@@ -228,60 +376,115 @@ class AttachmentSaveDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      child: SizedBox(
-        width: 300.0,
-        child: Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text('Do you want to replace photo?'),
-              const SizedBox(height: 10),
-              Row(
+    switch (actionName) {
+      case ('add'):
+      case ('replace'):
+        return Dialog(
+          child: SizedBox(
+            width: 300.0,
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () async {
-                      debugPrint('Yes save pressed');
-                      // String authString = await Credentials.getAuthString();
-                      // var uri = Uri.parse(Api.attachmentUrl);
-                      // var request = http.MultipartRequest('POST', uri)
-                      //   ..fields['id'] = activePerson.id.toString()
-                      //   ..files
-                      //       .add(await http.MultipartFile.fromPath('attachmentFile', imageFilePath))
-                      //   ..headers['Authorization'] = 'Basic $authString';
-                      var request = await createRequest('replace');
-                      var response = await request.send();
-                      if (response.statusCode == 200) {
-                        debugPrint('Attachment Uploaded!');
-                      } else {
-                        debugPrint('Response code: ${response.statusCode}');
-                      }
+                children: <Widget>[
+                  const Text('Do you want to save loaded photo?'),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () async {
+                          debugPrint('Yes save pressed');
+                          // String authString = await Credentials.getAuthString();
+                          // var uri = Uri.parse(Api.attachmentUrl);
+                          // var request = http.MultipartRequest('POST', uri)
+                          //   ..fields['id'] = activePerson.id.toString()
+                          //   ..files
+                          //       .add(await http.MultipartFile.fromPath('attachmentFile', imageFilePath))
+                          //   ..headers['Authorization'] = 'Basic $authString';
+                          var request = await createRequest(actionName);
+                          var response = await request.send();
+                          if (response.statusCode == 200) {
+                            debugPrint('Attachment Uploaded!');
+                          } else {
+                            debugPrint('Response code: ${response.statusCode}');
+                          }
 
-                      /// TODO check if can be done better ie .then()...
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                      }
-                      onModeSwitch(AttachmentTabMode.view, activeAttachmentId);
-                    },
-                    child: const Text('Yes'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      debugPrint('No save pressed');
-                      Navigator.pop(context);
-                      onModeSwitch(AttachmentTabMode.view, activeAttachmentId);
-                    },
-                    child: const Text('No'),
+                          /// TODO check if can be done better ie .then()...
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
+                          onModeSwitch(AttachmentTabMode.view, activeAttachmentId);
+                        },
+                        child: const Text('Yes'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          debugPrint('No save pressed');
+                          Navigator.pop(context);
+                          onModeSwitch(AttachmentTabMode.view, activeAttachmentId);
+                        },
+                        child: const Text('No'),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        );
+      case ('delete'):
+        return Dialog(
+          child: SizedBox(
+            width: 300.0,
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Text('Do you want to delete this photo?'),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () async {
+                          debugPrint('Yes delete pressed');
+                          var request = await createRequest(actionName);
+                          var response = await request.send();
+                          if (response.statusCode == 200) {
+                            debugPrint('Attachment Deleted!');
+                          } else {
+                            debugPrint('Response code: ${response.statusCode}');
+                          }
+
+                          /// TODO check if can be done better ie .then()...
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
+                          onModeSwitch(AttachmentTabMode.view, activeAttachmentId);
+                        },
+                        child: const Text('Yes'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          debugPrint('No delete pressed');
+                          Navigator.pop(context);
+                          onModeSwitch(AttachmentTabMode.view, activeAttachmentId);
+                        },
+                        child: const Text('No'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      default:
+        return Placeholder();
+    }
   }
 }
