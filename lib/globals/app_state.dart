@@ -12,4 +12,5 @@ class AppState {
   PlutoGridStateManager? relationTableStateManager;
   PlutoGridStateManager? personListStateManager;
   PlutoGridStateManager? personSearchListStateManager;
+  String authString = '';
 }

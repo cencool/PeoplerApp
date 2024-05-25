@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
+import 'package:peopler/widgets/attachment_tab.dart';
 import 'package:peopler/widgets/general_search_tab.dart';
 import 'package:peopler/widgets/person_tab.dart';
 import 'package:peopler/widgets/relation_tab.dart';
@@ -63,8 +64,9 @@ class PersonPageBody extends StatefulWidget {
 
 class _PersonPageBodyState extends State<PersonPageBody> {
   // Person activePerson = Person.dummy();
+  late GlobalKey<ScaffoldMessengerState> messengerKey = context.read<AppState>().messengerKey;
   late Future<Person> personFuture =
-      Person.getPerson(id: widget.personId, messengerKey: context.read<AppState>().messengerKey);
+      Person.getPerson(id: widget.personId, messengerKey: messengerKey);
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -72,12 +74,12 @@ class _PersonPageBodyState extends State<PersonPageBody> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             context.read<AppState>().activePerson = snapshot.data!;
-            return const TabBarView(children: [
-              PersonTab(),
-              RelationTab(),
-              Placeholder(),
-              Placeholder(),
-              GeneralSearch(),
+            return TabBarView(children: [
+              const PersonTab(),
+              const RelationTab(),
+              const Placeholder(),
+              const AttachmentTab(),
+              const GeneralSearch(),
             ]);
           } else {
             return const SpinKitPouringHourGlass(color: Colors.blue);
