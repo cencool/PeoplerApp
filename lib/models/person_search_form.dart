@@ -3,7 +3,7 @@ import 'package:peopler/models/person.dart';
 import 'package:peopler/models/person_attachment.dart';
 import 'package:peopler/models/person_detail.dart';
 
-class PersonSearchFormModel with ChangeNotifier {
+class PersonSearchFormModel {
   bool editMode = false;
   Person person;
   PersonDetail personDetail;
@@ -17,13 +17,9 @@ class PersonSearchFormModel with ChangeNotifier {
   late TextEditingController addressController;
   late TextEditingController noteController;
   late TextEditingController captionController;
-  Map<String, dynamic> personOld = {};
-  Map<String, dynamic> detailOld = {};
 
   PersonSearchFormModel(
       {required this.person, required this.personDetail, required this.personAttachment}) {
-    personToCache(person, personOld);
-    detailToCache(personDetail, detailOld);
     surnameController = TextEditingController(text: person.surname);
     nameController = TextEditingController(text: person.name);
     placeController = TextEditingController(text: person.place);
@@ -33,88 +29,6 @@ class PersonSearchFormModel with ChangeNotifier {
     addressController = TextEditingController(text: personDetail.address);
     noteController = TextEditingController(text: personDetail.note);
     captionController = TextEditingController(text: personAttachment.fileCaption);
-  }
-
-  void switchPersonFormMode() {
-    editMode = !editMode;
-    debugPrint('Editing:$editMode');
-    notifyListeners();
-  }
-
-  static void detailToCache(PersonDetail personDetail, Map<String, dynamic> detailCache) {
-    detailCache['id'] = personDetail.id;
-    detailCache['personId'] = personDetail.personId;
-    detailCache['maritalStatus'] = personDetail.maritalStatus;
-    detailCache['maidenName'] = personDetail.maidenName;
-    detailCache['address'] = personDetail.address;
-    detailCache['note'] = personDetail.note;
-  }
-
-  static void personToCache(Person person, Map<String, dynamic> personCache) {
-    personCache['id'] = person.id;
-    personCache['surname'] = person.surname;
-    personCache['name'] = person.name;
-    personCache['place'] = person.place;
-    personCache['gender'] = person.gender;
-    personCache['owner'] = person.owner;
-  }
-
-  static void personFromCache(Person person, Map<String, dynamic> personCache) {
-    person.id = personCache['id'] ?? -1;
-    person.surname = personCache['surname'] ?? '';
-    person.name = personCache['name'] ?? '';
-    person.place = personCache['place'] ?? '';
-    person.gender = personCache['gender'] ?? '';
-    person.owner = personCache['owner'] ?? '';
-  }
-
-  static void detailFromCache(PersonDetail personDetail, Map<String, dynamic> detailCache) {
-    personDetail.id = detailCache['id'] ?? -1;
-    personDetail.personId = detailCache['personId'] ?? -1;
-    personDetail.maritalStatus = detailCache['maritalStatus'] ?? '';
-    personDetail.maidenName = detailCache['maidenName'] ?? '';
-    personDetail.address = detailCache['address'] ?? '';
-    personDetail.note = detailCache['note'] ?? '';
-  }
-
-  void restoreData() {
-    personFromCache(person, personOld);
-    detailFromCache(personDetail, detailOld);
-    surnameController.text = personOld['surname'];
-    nameController.text = personOld['name'];
-    placeController.text = personOld['place'];
-    genderController.text = personOld['gender'];
-    statusController.text = detailOld['maritalStatus'];
-    maidenController.text = detailOld['maidenName'];
-    addressController.text = detailOld['address'];
-    noteController.text = detailOld['note'];
-  }
-
-  void saveData(GlobalKey<ScaffoldMessengerState> messengerKey) async {
-    //treba zmenit obsah personDetail pred save z controllerov!
-    person.name = nameController.text;
-    person.surname = surnameController.text;
-    person.place = placeController.text;
-    person.gender = genderController.text;
-
-    personDetail.maritalStatus = statusController.text;
-    personDetail.maidenName = maidenController.text;
-    personDetail.address = addressController.text;
-    personDetail.note = noteController.text;
-    var personResult = await person.save(messengerKey);
-    if (personResult["error"] == null) {
-      person = await Person.getPerson(id: personResult["id"], messengerKey: messengerKey);
-      personDetail.personId = person.id;
-    }
-    var detailResult = await personDetail.save(messengerKey);
-    if ((personResult["error"] == null) && (detailResult["error"] == null)) {
-      personDetail = await PersonDetail.getPersonDetail(id: person.id, messengerKey: messengerKey);
-      personToCache(person, personOld);
-      detailToCache(personDetail, detailOld);
-    } else {
-      restoreData();
-    }
-    notifyListeners();
   }
 
   void setActiveData() {
