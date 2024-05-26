@@ -1,11 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
+import 'package:peopler/globals/dev_http.dart';
 import 'package:peopler/pages/login_page.dart';
 import 'package:peopler/pages/person_list_page.dart';
 import 'package:peopler/models/credentials.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+  /// Hack to enable using self signed certificate for https
+  HttpOverrides.global = DevHttpOverrides();
   runApp(const PeoplerApp());
 }
 

@@ -91,6 +91,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
                 Stack(
                   children: [
                     InstaImageViewer(
+                      key: ValueKey(DateTime.now().microsecondsSinceEpoch),
                       imageUrl:
                           '${Api.attachmentUrl}/send-file?fileId=${item.id}&${DateTime.now().millisecondsSinceEpoch}',
                       headers: {'Authorization': 'Basic $authString'},
@@ -115,7 +116,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
             }
             if (attachmentFiles.isNotEmpty) {
               return Stack(children: [
-                ListView(children: attachmentFiles),
+                ListView(key: ValueKey(activePerson.id), children: attachmentFiles),
                 Align(
                   alignment: Alignment.topRight,
                   child: ElevatedButton(
