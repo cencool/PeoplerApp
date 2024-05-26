@@ -26,6 +26,9 @@ class PersonAttachment {
         fileName: json["file_name"],
       );
 
+  factory PersonAttachment.dummySearch() =>
+      PersonAttachment(id: -1, personId: -1, fileName: '', fileCaption: '');
+
   Map<String, dynamic> toJson() => {
         "id": id,
         "person_id": personId,

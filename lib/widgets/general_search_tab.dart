@@ -6,8 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/general_search.dart';
 import 'package:peopler/models/person.dart';
+import 'package:peopler/models/person_attachment.dart';
 import 'package:peopler/models/person_detail.dart';
-import 'package:peopler/models/person_form.dart';
+import 'package:peopler/models/person_search_form.dart';
 import 'package:peopler/widgets/pluto_person_search_list.dart';
 import 'package:provider/provider.dart';
 
@@ -23,7 +24,9 @@ class GeneralSearch extends StatefulWidget {
 class _GeneralSearchState extends State<GeneralSearch> {
   Person person = Person.dummySearch();
   PersonDetail personDetail = PersonDetail.dummySearch();
-  late PersonFormModel formModel = PersonFormModel(person: person, personDetail: personDetail);
+  PersonAttachment personAttachment = PersonAttachment.dummySearch();
+  late PersonSearchFormModel formModel = PersonSearchFormModel(
+      person: person, personDetail: personDetail, personAttachment: personAttachment);
   late GlobalKey<ScaffoldMessengerState> messengerKey = context.read<AppState>().messengerKey;
   GeneralSearchMode generalSearchMode = GeneralSearchMode.search;
   Map<String, dynamic> searchParams = {};
@@ -138,6 +141,18 @@ class _GeneralSearchState extends State<GeneralSearch> {
                       )),
                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15.0),
+                  child: TextField(
+                      maxLines: 2,
+                      readOnly: !formModel.editMode,
+                      controller: formModel.captionController,
+                      decoration: const InputDecoration(
+                          label: Text(
+                        'Caption',
+                      )),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                ),
               ],
             )
           : PlutoPersonSearchList(searchParams: searchParams),
@@ -146,7 +161,7 @@ class _GeneralSearchState extends State<GeneralSearch> {
         child: FloatingActionButton(
           onPressed: () async {
             formModel.setActiveData();
-            searchParams = searchDataToMap(person, personDetail);
+            searchParams = searchDataToMap(person, personDetail, personAttachment);
             debugPrint('Search Json: ${searchMapToJson(searchParams)}');
             // PaginatedPersonList personList = await Person.getPaginatedPersonSearchList(
             //     searchParams: searchMapToJson(searchParams), messengerKey: messengerKey);
