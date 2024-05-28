@@ -381,7 +381,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
 }
 
 class AttachmentSaveDialog extends StatelessWidget {
-  AttachmentSaveDialog(
+  const AttachmentSaveDialog(
       {required this.activePerson,
       required this.imageFilePath,
       required this.onModeSwitch,

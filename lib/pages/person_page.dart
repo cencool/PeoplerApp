@@ -4,6 +4,7 @@ import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/widgets/attachment_tab.dart';
 import 'package:peopler/widgets/general_search_tab.dart';
+import 'package:peopler/widgets/item_tab.dart';
 import 'package:peopler/widgets/person_tab.dart';
 import 'package:peopler/widgets/relation_tab.dart';
 import 'package:provider/provider.dart';
@@ -74,12 +75,12 @@ class _PersonPageBodyState extends State<PersonPageBody> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             context.read<AppState>().activePerson = snapshot.data!;
-            return TabBarView(children: [
-              const PersonTab(),
-              const RelationTab(),
-              const Placeholder(),
-              const AttachmentTab(),
-              const GeneralSearch(),
+            return TabBarView(children: const [
+              PersonTab(),
+              RelationTab(),
+              ItemTab(),
+              AttachmentTab(),
+              GeneralSearch(),
             ]);
           } else {
             return const SpinKitPouringHourGlass(color: Colors.blue);

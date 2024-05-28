@@ -30,9 +30,15 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
           minWidth: 130,
           renderer: (cellContext) {
             return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text('${cellContext.cell.value}'),
+              Text(
+                '${cellContext.cell.value}',
+                style: TextStyle(fontSize: 10),
+              ),
               IconButton(
-                icon: const Icon(Icons.remove_red_eye_sharp),
+                icon: const Icon(
+                  Icons.remove_red_eye_sharp,
+                  size: 13,
+                ),
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return Builder(builder: (context) {
@@ -140,8 +146,11 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
         debugPrint(event.toString());
       },
       configuration: const PlutoGridConfiguration(
-        columnSize: PlutoGridColumnSizeConfig(autoSizeMode: PlutoAutoSizeMode.scale),
-      ),
+          columnSize: PlutoGridColumnSizeConfig(autoSizeMode: PlutoAutoSizeMode.scale),
+          style: PlutoGridStyleConfig(
+            cellTextStyle: TextStyle(fontSize: 12),
+            rowHeight: 24,
+          )),
     );
   }
 }

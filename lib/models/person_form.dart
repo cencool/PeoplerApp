@@ -29,6 +29,18 @@ class PersonFormModel with ChangeNotifier {
     addressController = TextEditingController(text: personDetail.address);
     noteController = TextEditingController(text: personDetail.note);
   }
+  @override
+  void dispose() {
+    surnameController.dispose();
+    nameController.dispose();
+    placeController.dispose();
+    genderController.dispose();
+    statusController.dispose();
+    maidenController.dispose();
+    addressController.dispose();
+    noteController.dispose();
+    super.dispose();
+  }
 
   void switchPersonFormMode() {
     editMode = !editMode;
