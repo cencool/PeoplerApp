@@ -26,6 +26,7 @@ class PersonSearchFormModel {
       required this.personDetail,
       required this.personAttachment,
       required this.personItem}) {
+    ///TODO mozno pridat dynamicke generovanie kontrollerov
     surnameController = TextEditingController(text: person.surname);
     nameController = TextEditingController(text: person.name);
     placeController = TextEditingController(text: person.place);

@@ -40,6 +40,15 @@ class PersonItem {
         "item_link": itemLink,
       };
 
+  Map<String, String> toMap() {
+    return {
+      "id": id.toString(),
+      "person_id": personId.toString(),
+      "item": item,
+      "item_link": itemLink,
+    };
+  }
+
   static Future<PaginatedPersonItemList> getPaginatedPersonItemList(
       {String query = '', required messengerKey}) async {
     final String url = '${Api.itemUrl}/list$query';

@@ -24,6 +24,7 @@ class _PlutoPersonItemListState extends State<PlutoPersonItemList> {
       PlutoColumn(
           title: 'Id',
           field: 'id',
+          hide: true,
           type: PlutoColumnType.text(),
           enableFilterMenuItem: false,
           enableContextMenu: false,
@@ -49,6 +50,8 @@ class _PlutoPersonItemListState extends State<PlutoPersonItemList> {
                   context.read<AppState>().activePersonItem.id = cellContext.row.cells['id']?.value;
                   context.read<AppState>().activePersonItem.personId =
                       context.read<AppState>().activePerson.id;
+                  context.read<AppState>().activePersonItem.item =
+                      cellContext.row.cells['item']?.value;
                   widget.onSwitch(ItemTabMode.edit);
                 },
                 child: Text(
@@ -106,6 +109,7 @@ class _PlutoPersonItemListState extends State<PlutoPersonItemList> {
 
   @override
   Widget build(BuildContext context) {
+    context.read<AppState>().activePersonItem = PersonItem.dummy();
     return PlutoGrid(
       columns: getColumns(context),
       rows: initRows,
