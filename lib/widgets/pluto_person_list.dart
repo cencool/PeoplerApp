@@ -22,31 +22,32 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
       PlutoColumn(
           title: 'Id',
           field: 'id',
+          hide: (widget.idCallback == null) ? true : false,
           type: PlutoColumnType.text(),
           enableFilterMenuItem: true,
           enableContextMenu: false,
           enableSorting: true,
-          width: 130,
-          minWidth: 130,
+          width: 100,
+          minWidth: 100,
           renderer: (cellContext) {
             return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text(
                 '${cellContext.cell.value}',
                 style: TextStyle(fontSize: 10),
               ),
-              IconButton(
-                icon: const Icon(
-                  Icons.remove_red_eye_sharp,
-                  size: 13,
-                ),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return Builder(builder: (context) {
-                      return PersonPage(cellContext.cell.value);
-                    });
-                  }));
-                },
-              ),
+              // IconButton(
+              //   icon: const Icon(
+              //     Icons.remove_red_eye_sharp,
+              //     size: 13,
+              //   ),
+              //   onPressed: () {
+              //     Navigator.push(context, MaterialPageRoute(builder: (context) {
+              //       return Builder(builder: (context) {
+              //         return PersonPage(cellContext.cell.value);
+              //       });
+              //     }));
+              //   },
+              // ),
 
               /// this callback provides info to relation about ToWhom
               widget.idCallback != null
@@ -54,12 +55,30 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
                       onPressed: () {
                         widget.idCallback!(cellContext.row.cells);
                       },
-                      icon: const Icon(Icons.add))
+                      icon: const Icon(Icons.add, size: 13))
                   : Container(),
             ]);
           }),
-      PlutoColumn(title: 'Surname', field: 'surname', type: PlutoColumnType.text()),
-      PlutoColumn(title: 'Name', field: 'name', type: PlutoColumnType.text(), hide: true),
+      PlutoColumn(
+          title: 'Surname',
+          field: 'surname',
+          type: PlutoColumnType.text(),
+          renderer: (cellContext) {
+            return InkWell(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return Builder(builder: (context) {
+                    return PersonPage(cellContext.row.cells['id']?.value);
+                  });
+                }));
+              },
+              child: Text(
+                cellContext.cell.value,
+                style: TextStyle(color: Colors.blue),
+              ),
+            );
+          }),
+      PlutoColumn(title: 'Name', field: 'name', type: PlutoColumnType.text(), hide: false),
       PlutoColumn(title: 'Gender', field: 'gender', type: PlutoColumnType.text(), hide: true),
       PlutoColumn(title: 'Place', field: 'place', type: PlutoColumnType.text()),
       PlutoColumn(title: 'Owner', field: 'owner', type: PlutoColumnType.text(), hide: true),
@@ -71,10 +90,9 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
     for (var person in persons) {
       tableRows.add(PlutoRow(
         cells: {
-          // 'id_action': PlutoCell(value: person.id),
           'id': PlutoCell(value: person.id),
-          'surname': PlutoCell(value: person.surname),
           'name': PlutoCell(value: person.name),
+          'surname': PlutoCell(value: person.surname),
           'gender': PlutoCell(value: person.gender),
           'place': PlutoCell(value: person.place),
           'owner': PlutoCell(value: person.owner),
