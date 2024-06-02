@@ -3,11 +3,12 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/widgets/attachment_tab.dart';
-import 'package:peopler/widgets/general_search_tab.dart';
 import 'package:peopler/widgets/item_tab.dart';
 import 'package:peopler/widgets/person_tab.dart';
 import 'package:peopler/widgets/relation_tab.dart';
 import 'package:provider/provider.dart';
+
+enum PersonPageMode { normal, search }
 
 class PersonPage extends StatefulWidget {
   const PersonPage(this.personId, {super.key});
@@ -18,14 +19,18 @@ class PersonPage extends StatefulWidget {
 }
 
 class _PersonPageState extends State<PersonPage> {
-  // Person activePerson = Person.dummy();
-  // late Future<Person> personFuture = Person.getPerson(
-  //     id: widget.personId, messengerKey: context.read<globals.AppKeys>().personViewMessengerKey);
+  PersonPageMode personPageMode = PersonPageMode.normal;
+
+  void switchMode(PersonPageMode newMode) {
+    setState(() {
+      personPageMode = newMode;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 4,
       child: Consumer<AppState>(
         builder: (context, appState, child) {
           return Scaffold(
@@ -40,7 +45,6 @@ class _PersonPageState extends State<PersonPage> {
                 Tooltip(message: 'Relations', child: Tab(icon: Icon(Icons.people))),
                 Tooltip(message: 'Items', child: Tab(icon: Icon(Icons.list))),
                 Tooltip(message: 'Attachments', child: Tab(icon: Icon(Icons.attach_file))),
-                Tooltip(message: 'Search', child: Tab(icon: Icon(Icons.search))),
               ]),
             ),
 
@@ -80,7 +84,6 @@ class _PersonPageBodyState extends State<PersonPageBody> {
               RelationTab(),
               ItemTab(),
               AttachmentTab(),
-              GeneralSearch(),
             ]);
           } else {
             return const SpinKitPouringHourGlass(color: Colors.blue);

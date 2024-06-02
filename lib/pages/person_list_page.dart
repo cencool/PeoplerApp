@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
+import 'package:peopler/pages/general_seach_page.dart';
 import 'package:peopler/pages/login_page.dart';
 import 'package:peopler/models/credentials.dart';
 import 'package:peopler/pages/person_page.dart';
@@ -26,6 +27,17 @@ class _PersonListPageState extends State<PersonListPage> {
             ),
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             actions: [
+              IconButton(
+                icon: const Icon(Icons.search),
+                tooltip: 'Search',
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return Builder(builder: (context) {
+                      return GeneralSearchPage();
+                    });
+                  }));
+                },
+              ),
               IconButton(
                 icon: const Icon(Icons.add),
                 tooltip: 'New Record',

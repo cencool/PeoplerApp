@@ -33,7 +33,7 @@ class _PeoplerAppState extends State<PeoplerApp> {
       child: Builder(builder: (context) {
         return MaterialApp(
           scaffoldMessengerKey: context.read<AppState>().messengerKey,
-          debugShowCheckedModeBanner: true,
+          debugShowCheckedModeBanner: false,
           title: 'Peopler',
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),

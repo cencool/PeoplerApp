@@ -274,6 +274,8 @@ class _PersonPhotoState extends State<PersonPhoto> {
     return FutureBuilder(
         future: authString,
         builder: (context, snapshot) {
+          String urlVal =
+              '${Api.personPhotoReceiveUrl}?id=${widget.personId}&${DateTime.now().millisecondsSinceEpoch}';
           if (snapshot.hasData) {
             return GestureDetector(
               onTap: () {
@@ -281,9 +283,10 @@ class _PersonPhotoState extends State<PersonPhoto> {
                 widget.onModeSwitch(PersonTabMode.viewPhoto);
               },
               child: FadeInImage(
+                  key: ValueKey(urlVal),
                   placeholder: MemoryImage(kTransparentImage),
                   image: NetworkImage(
-                    '${Api.personPhotoReceiveUrl}?id=${widget.personId}&${DateTime.now().millisecondsSinceEpoch}',
+                    urlVal,
                     headers: {'Authorization': 'Basic ${snapshot.data}'},
                   )),
             );

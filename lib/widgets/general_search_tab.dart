@@ -10,19 +10,21 @@ import 'package:peopler/models/person_attachment.dart';
 import 'package:peopler/models/person_detail.dart';
 import 'package:peopler/models/person_item.dart';
 import 'package:peopler/models/person_search_form.dart';
+import 'package:peopler/pages/general_seach_page.dart';
 import 'package:peopler/widgets/pluto_person_search_list.dart';
 import 'package:provider/provider.dart';
 
 enum GeneralSearchMode { search, results }
 
-class GeneralSearch extends StatefulWidget {
-  const GeneralSearch({super.key});
+class GeneralSearchTab extends StatefulWidget {
+  const GeneralSearchTab({required this.onModeSwitch, super.key});
+  final void Function(GeneralSearchPageMode newMode) onModeSwitch;
 
   @override
-  State<GeneralSearch> createState() => _GeneralSearchState();
+  State<GeneralSearchTab> createState() => _GeneralSearchTabState();
 }
 
-class _GeneralSearchState extends State<GeneralSearch> {
+class _GeneralSearchTabState extends State<GeneralSearchTab> {
   Person person = Person.dummySearch();
   PersonDetail personDetail = PersonDetail.dummySearch();
   PersonAttachment personAttachment = PersonAttachment.dummySearch();
@@ -198,8 +200,10 @@ class _GeneralSearchState extends State<GeneralSearch> {
             //     searchParams: searchMapToJson(searchParams), messengerKey: messengerKey);
             if (generalSearchMode == GeneralSearchMode.search) {
               switchGeneralSearchMode(GeneralSearchMode.results);
+              widget.onModeSwitch(GeneralSearchPageMode.results);
             } else {
               switchGeneralSearchMode(GeneralSearchMode.search);
+              widget.onModeSwitch(GeneralSearchPageMode.search);
             }
             // // for (var person in personList.persons) {
             // //   debugPrint(person.surname);
