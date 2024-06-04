@@ -1,6 +1,8 @@
-import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 
-import 'package:file_picker/file_picker.dart';
+import 'package:image/image.dart' as img;
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:insta_image_viewer/insta_image_viewer.dart';
@@ -32,6 +34,8 @@ class _AttachmentTabState extends State<AttachmentTab> {
   PersonAttachment? activeAttachment;
   dynamic imageFromFile;
   String imageFilePath = '';
+  List<int> imageData = [];
+  final int maxImageSize = 2000000;
 
   AttachmentTabMode attachmentTabMode = AttachmentTabMode.view;
 
@@ -69,6 +73,49 @@ class _AttachmentTabState extends State<AttachmentTab> {
         return attachmentEdit();
       case (AttachmentTabMode.add):
         return attachmentAdd();
+    }
+  }
+
+  Future<void> pickImage() async {
+    XFile? imagePick = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (imagePick != null) {
+      debugPrint('xfile:${imagePick.path}');
+      int? originalSize = await imagePick.length();
+      debugPrint('original size:$originalSize');
+      if (originalSize > maxImageSize) {
+        var decodedImage =
+            await imagePick.readAsBytes().then((imgBytes) => img.decodeImage(imgBytes));
+        int? decodedSize = decodedImage?.length;
+        int? decodedHeight = decodedImage?.height;
+        int? decodedWidth = decodedImage?.width;
+        double sideRatio =
+            (decodedHeight != null && decodedWidth != null) ? decodedHeight / decodedWidth : 1;
+        double compressRatio = (decodedSize != null) ? originalSize / decodedSize : 1;
+        int sizeDiff = (originalSize - maxImageSize) > 0 ? (originalSize - maxImageSize) : 0;
+        int newHeight = (sqrt(sideRatio * maxImageSize / (3 * compressRatio))).round();
+        debugPrint('side ratio: $sideRatio');
+        debugPrint('decoded size: $decodedSize');
+        debugPrint('decoded height: $decodedHeight');
+        debugPrint('decoded width: $decodedWidth');
+        debugPrint('compress ratio : $compressRatio');
+        debugPrint('sizeDiff : $sizeDiff');
+        debugPrint('newHeight : $newHeight');
+        var thumbnail = img.copyResize(decodedImage!, height: newHeight);
+        imageData = img.encodeJpg(thumbnail);
+        int quality = 100;
+        while (imageData.length > maxImageSize) {
+          quality = quality - 1;
+          imageData = img.encodeJpg(thumbnail, quality: quality);
+        }
+        debugPrint('Reduced size is:${imageData.length}');
+        debugPrint('With quality:$quality');
+        imageFilePath = imagePick.path;
+        showImageFromfile(Image.memory(imageData as Uint8List));
+      } else {
+        imageFilePath = imagePick.path;
+        imageData = await imagePick.readAsBytes();
+        showImageFromfile(Image.memory(imageData as Uint8List));
+      }
     }
   }
 
@@ -138,7 +185,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
                               showDialog(
                                   context: context,
                                   builder: (context) => AttachmentSaveDialog(
-                                        imageFilePath: imageFilePath,
+                                        imageData: imageData,
                                         activePerson: activePerson,
                                         onModeSwitch: switchMode,
                                         activeAttachmentId: activeAttachmentId,
@@ -153,14 +200,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
                         alignment: Alignment.topCenter,
                         child: ElevatedButton(
                             onPressed: () async {
-                              FilePickerResult? pickerResult =
-                                  await FilePicker.platform.pickFiles(type: FileType.any);
-                              if (pickerResult != null) {
-                                debugPrint(pickerResult.files.first.path);
-                                var imageFile = File(pickerResult.files.first.path!);
-                                imageFilePath = imageFile.path;
-                                showImageFromfile(Image.file(imageFile));
-                              }
+                              await pickImage();
                             },
                             child: Icon(Icons.upload))),
                   ],
@@ -210,7 +250,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
                 showDialog(
                     context: context,
                     builder: (context) => AttachmentSaveDialog(
-                          imageFilePath: imageFilePath,
+                          imageData: imageData,
                           activePerson: activePerson,
                           onModeSwitch: switchMode,
                           activeAttachmentId: activeAttachmentId,
@@ -223,7 +263,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
                 showDialog(
                     context: context,
                     builder: (context) => AttachmentSaveDialog(
-                          imageFilePath: imageFilePath,
+                          imageData: imageData,
                           activePerson: activePerson,
                           onModeSwitch: switchMode,
                           activeAttachmentId: activeAttachmentId,
@@ -241,6 +281,8 @@ class _AttachmentTabState extends State<AttachmentTab> {
             alignment: Alignment.topCenter,
             child: ElevatedButton(
                 onPressed: () async {
+                  pickImage();
+                  /*
                   FilePickerResult? pickerResult =
                       await FilePicker.platform.pickFiles(type: FileType.any);
                   if (pickerResult != null) {
@@ -249,6 +291,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
                     imageFilePath = imageFile.path;
                     showImageFromfile(Image.file(imageFile));
                   }
+                  */
                 },
                 child: Icon(Icons.upload))),
         Align(
@@ -259,7 +302,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
                   showDialog(
                       context: context,
                       builder: (context) => AttachmentSaveDialog(
-                            imageFilePath: imageFilePath,
+                            imageData: imageData,
                             activePerson: activePerson,
                             onModeSwitch: switchMode,
                             activeAttachmentId: activeAttachmentId,
@@ -330,7 +373,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
                     showDialog(
                         context: context,
                         builder: (context) => AttachmentSaveDialog(
-                              imageFilePath: imageFilePath,
+                              imageData: imageData,
                               activePerson: activePerson,
                               onModeSwitch: switchMode,
                               activeAttachmentId: activeAttachmentId,
@@ -345,6 +388,8 @@ class _AttachmentTabState extends State<AttachmentTab> {
               alignment: Alignment.topCenter,
               child: ElevatedButton(
                   onPressed: () async {
+                    pickImage();
+                    /*
                     FilePickerResult? pickerResult =
                         await FilePicker.platform.pickFiles(type: FileType.any);
                     if (pickerResult != null) {
@@ -353,6 +398,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
                       imageFilePath = imageFile.path;
                       showImageFromfile(Image.file(imageFile));
                     }
+                    */
                   },
                   child: Icon(Icons.upload))),
         ],
@@ -383,13 +429,14 @@ class _AttachmentTabState extends State<AttachmentTab> {
 class AttachmentSaveDialog extends StatelessWidget {
   AttachmentSaveDialog(
       {required this.activePerson,
-      required this.imageFilePath,
+      required this.imageData,
       required this.onModeSwitch,
       required this.actionName,
       required this.activeAttachmentId,
       this.activeAttachment,
       super.key});
-  final String imageFilePath;
+  // final String imageFilePath;
+  final List<int> imageData;
   final Person activePerson;
   final void Function(AttachmentTabMode newMode, int activeAttachmentId) onModeSwitch;
   final String actionName;
@@ -404,7 +451,8 @@ class AttachmentSaveDialog extends StatelessWidget {
         Uri uri = Uri.parse(url);
         var request = http.MultipartRequest('POST', uri)
           ..fields['id'] = activePerson.id.toString()
-          ..files.add(await http.MultipartFile.fromPath('attachmentFile', imageFilePath))
+          ..files.add(
+              http.MultipartFile.fromBytes('attachmentFile', imageData, filename: 'attachment.jpg'))
           ..headers['Authorization'] = 'Basic $authString';
         return request;
       case ('replace'):
@@ -414,7 +462,8 @@ class AttachmentSaveDialog extends StatelessWidget {
         Uri uri = Uri.parse(url);
         var request = http.MultipartRequest('POST', uri)
           ..fields['caption'] = activeAttachment?.fileCaption ?? ''
-          ..files.add(await http.MultipartFile.fromPath('attachmentFile', imageFilePath))
+          ..files.add(
+              http.MultipartFile.fromBytes('attachmentFile', imageData, filename: 'attachment.jpg'))
           ..headers['Authorization'] = 'Basic $authString';
         return request;
       case ('delete'):
@@ -437,6 +486,7 @@ class AttachmentSaveDialog extends StatelessWidget {
         return request;
 
       default:
+        // just default
         return http.MultipartRequest('POST', Uri.parse('www.google.com'));
     }
   }
