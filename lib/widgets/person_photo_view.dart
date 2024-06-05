@@ -1,6 +1,8 @@
-import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 
-import 'package:file_picker/file_picker.dart';
+import 'package:image/image.dart' as img;
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:peopler/models/api.dart';
@@ -25,6 +27,8 @@ class _PersonPhotoViewState extends State<PersonPhotoView> {
   PersonPhotoViewMode mode = PersonPhotoViewMode.view;
   dynamic imageFromFile;
   String imageFilePath = '';
+  final int maxImageSize = 2000000;
+  List<int> imageData = [];
 
   void switchPhotoTabMode(PersonPhotoViewMode newMode) {
     setState(() {
@@ -36,6 +40,49 @@ class _PersonPhotoViewState extends State<PersonPhotoView> {
     setState(() {
       imageFromFile = loadedFromFile;
     });
+  }
+
+  Future<void> pickImage() async {
+    XFile? imagePick = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (imagePick != null) {
+      debugPrint('xfile:${imagePick.path}');
+      int? originalSize = await imagePick.length();
+      debugPrint('original size:$originalSize');
+      if (originalSize > maxImageSize) {
+        var decodedImage =
+            await imagePick.readAsBytes().then((imgBytes) => img.decodeImage(imgBytes));
+        int? decodedSize = decodedImage?.length;
+        int? decodedHeight = decodedImage?.height;
+        int? decodedWidth = decodedImage?.width;
+        double sideRatio =
+            (decodedHeight != null && decodedWidth != null) ? decodedHeight / decodedWidth : 1;
+        double compressRatio = (decodedSize != null) ? originalSize / decodedSize : 1;
+        int sizeDiff = (originalSize - maxImageSize) > 0 ? (originalSize - maxImageSize) : 0;
+        int newHeight = (sqrt(sideRatio * maxImageSize / (3 * compressRatio))).round();
+        debugPrint('side ratio: $sideRatio');
+        debugPrint('decoded size: $decodedSize');
+        debugPrint('decoded height: $decodedHeight');
+        debugPrint('decoded width: $decodedWidth');
+        debugPrint('compress ratio : $compressRatio');
+        debugPrint('sizeDiff : $sizeDiff');
+        debugPrint('newHeight : $newHeight');
+        var thumbnail = img.copyResize(decodedImage!, height: newHeight);
+        imageData = img.encodeJpg(thumbnail);
+        int quality = 100;
+        while (imageData.length > maxImageSize) {
+          quality = quality - 1;
+          imageData = img.encodeJpg(thumbnail, quality: quality);
+        }
+        debugPrint('Reduced size is:${imageData.length}');
+        debugPrint('With quality:$quality');
+        imageFilePath = imagePick.path;
+        showImageFromFile(Image.memory(imageData as Uint8List));
+      } else {
+        imageFilePath = imagePick.path;
+        imageData = await imagePick.readAsBytes();
+        showImageFromFile(Image.memory(imageData as Uint8List));
+      }
+    }
   }
 
   @override
@@ -82,7 +129,7 @@ class _PersonPhotoViewState extends State<PersonPhotoView> {
                     showDialog(
                         context: context,
                         builder: (context) => PhotoSaveDialog(
-                              imageFilePath: imageFilePath,
+                              imageData: imageData,
                               activePerson: widget.activePerson,
                               onModeSwitch: widget.onModeSwitch,
                             ),
@@ -118,6 +165,8 @@ class _PersonPhotoViewState extends State<PersonPhotoView> {
               alignment: Alignment.topCenter,
               child: FloatingActionButton(
                 onPressed: () async {
+                  await pickImage();
+                  /*
                   FilePickerResult? pickerResult =
                       await FilePicker.platform.pickFiles(type: FileType.any);
                   if (pickerResult != null) {
@@ -126,6 +175,7 @@ class _PersonPhotoViewState extends State<PersonPhotoView> {
                     imageFilePath = imageFile.path;
                     showImageFromFile(Image.file(imageFile));
                   }
+                  */
                 },
                 heroTag: null,
                 mini: true,
@@ -180,10 +230,12 @@ class ActivePhoto extends StatelessWidget {
 class PhotoSaveDialog extends StatelessWidget {
   const PhotoSaveDialog(
       {required this.activePerson,
-      required this.imageFilePath,
+      // required this.imageFilePath,
+      required this.imageData,
       required this.onModeSwitch,
       super.key});
-  final String imageFilePath;
+  // final String imageFilePath;
+  final List<int> imageData;
   final Person activePerson;
   final void Function(PersonTabMode newMode) onModeSwitch;
   // final GlobalKey<ScaffoldMessengerState> messengerKey;
@@ -211,7 +263,8 @@ class PhotoSaveDialog extends StatelessWidget {
                       var uri = Uri.parse(Api.personPhotoSendUrl);
                       var request = http.MultipartRequest('POST', uri)
                         ..fields['id'] = activePerson.id.toString()
-                        ..files.add(await http.MultipartFile.fromPath('personPhoto', imageFilePath))
+                        ..files.add(http.MultipartFile.fromBytes('personPhoto', imageData,
+                            filename: 'photo.jpg'))
                         ..headers['Authorization'] = 'Basic $authString';
                       var response = await request.send();
                       if (response.statusCode == 200) {

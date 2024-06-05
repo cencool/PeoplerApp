@@ -58,7 +58,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
     });
   }
 
-  void showImageFromfile(Image uploadedImage) {
+  void showImageFromFile(Image uploadedImage) {
     setState(() {
       imageFromFile = uploadedImage;
     });
@@ -110,11 +110,11 @@ class _AttachmentTabState extends State<AttachmentTab> {
         debugPrint('Reduced size is:${imageData.length}');
         debugPrint('With quality:$quality');
         imageFilePath = imagePick.path;
-        showImageFromfile(Image.memory(imageData as Uint8List));
+        showImageFromFile(Image.memory(imageData as Uint8List));
       } else {
         imageFilePath = imagePick.path;
         imageData = await imagePick.readAsBytes();
-        showImageFromfile(Image.memory(imageData as Uint8List));
+        showImageFromFile(Image.memory(imageData as Uint8List));
       }
     }
   }
