@@ -1,6 +1,7 @@
 import 'dart:math';
-import 'dart:typed_data';
 
+import 'package:crop_your_image/crop_your_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ import 'package:peopler/models/person_attachment.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
-enum AttachmentTabMode { view, edit, add }
+enum AttachmentTabMode { view, edit, add, crop }
 
 ///TODO namiesto stringu enum v akciach
 enum AttachmnetSaveDialogAction { add, update, delete, caption }
@@ -34,8 +35,9 @@ class _AttachmentTabState extends State<AttachmentTab> {
   PersonAttachment? activeAttachment;
   dynamic imageFromFile;
   String imageFilePath = '';
-  List<int> imageData = [];
+  Uint8List imageData = Uint8List(0);
   final int maxImageSize = 2000000;
+  ImageProvider? imageToEditProvider;
 
   AttachmentTabMode attachmentTabMode = AttachmentTabMode.view;
 
@@ -73,6 +75,8 @@ class _AttachmentTabState extends State<AttachmentTab> {
         return attachmentEdit();
       case (AttachmentTabMode.add):
         return attachmentAdd();
+      case (AttachmentTabMode.crop):
+        return attachmentCrop();
     }
   }
 
@@ -116,6 +120,9 @@ class _AttachmentTabState extends State<AttachmentTab> {
         imageData = await imagePick.readAsBytes();
         showImageFromFile(Image.memory(imageData as Uint8List));
       }
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return ImageCrop(imageToCrop: imageData);
+      }));
     }
   }
 
@@ -237,6 +244,9 @@ class _AttachmentTabState extends State<AttachmentTab> {
     TextEditingController captionController =
         TextEditingController(text: activeAttachment?.fileCaption);
     String? captionControllerInit = captionController.text;
+    imageToEditProvider = NetworkImage(
+        '${Api.attachmentUrl}/send-file?fileId=$activeAttachmentId&${DateTime.now().millisecondsSinceEpoch}',
+        headers: {'Authorization': 'Basic $authString'});
     return ListView(children: [
       Stack(children: [
         SizedBox(
@@ -282,18 +292,20 @@ class _AttachmentTabState extends State<AttachmentTab> {
             child: ElevatedButton(
                 onPressed: () async {
                   pickImage();
-                  /*
-                  FilePickerResult? pickerResult =
-                      await FilePicker.platform.pickFiles(type: FileType.any);
-                  if (pickerResult != null) {
-                    debugPrint(pickerResult.files.first.path);
-                    var imageFile = File(pickerResult.files.first.path!);
-                    imageFilePath = imageFile.path;
-                    showImageFromfile(Image.file(imageFile));
-                  }
-                  */
                 },
                 child: Icon(Icons.upload))),
+        Align(
+          alignment: Alignment(0.5, -1.0),
+          child: Tooltip(
+            message: 'Crop',
+            child: ElevatedButton(
+              onPressed: () {
+                switchMode(AttachmentTabMode.crop, activeAttachmentId);
+              },
+              child: Icon(Icons.crop),
+            ),
+          ),
+        ),
         Align(
             alignment: Alignment.topRight,
             child: ElevatedButton(
@@ -333,11 +345,11 @@ class _AttachmentTabState extends State<AttachmentTab> {
           scrollDirection: Axis.horizontal,
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
-            child: Image(
-              image: NetworkImage(
-                  '${Api.attachmentUrl}/send-file?fileId=$activeAttachmentId&${DateTime.now().millisecondsSinceEpoch}',
-                  headers: {'Authorization': 'Basic $authString'}),
-            ),
+            child: Image(image: imageToEditProvider!
+                // image: NetworkImage(
+                //     '${Api.attachmentUrl}/send-file?fileId=$activeAttachmentId&${DateTime.now().millisecondsSinceEpoch}',
+                //     headers: {'Authorization': 'Basic $authString'}),
+                ),
           )),
       ...(imageFromFile != null)
           ? [
@@ -423,6 +435,19 @@ class _AttachmentTabState extends State<AttachmentTab> {
             ]
           : [],
     ]);
+  }
+
+  Widget attachmentCrop() {
+    String authString = context.read<AppState>().authString;
+    return ImageCropFromBytes(
+      imageBytesFuture: http.readBytes(
+          Uri.parse(
+              '${Api.attachmentUrl}/send-file?fileId=$activeAttachmentId&${DateTime.now().millisecondsSinceEpoch}'),
+          headers: {'Authorization': 'Basic $authString'}),
+      controller: CropController(),
+      activeAttachmentId: activeAttachmentId,
+      onModeSwitch: switchMode,
+    );
   }
 }
 
@@ -645,5 +670,133 @@ class AttachmentSaveDialog extends StatelessWidget {
       default:
         return Placeholder();
     }
+  }
+}
+
+class ImageCrop extends StatefulWidget {
+  const ImageCrop({required this.imageToCrop, super.key});
+  final List<int> imageToCrop;
+
+  @override
+  State<ImageCrop> createState() => _ImageCropState();
+}
+
+class _ImageCropState extends State<ImageCrop> {
+  final _controller = CropController();
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Crop(
+            controller: _controller,
+            image: widget.imageToCrop as Uint8List,
+            onCropped: (croppedImage) {}),
+        ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Icon(Icons.crop)),
+      ],
+    );
+  }
+}
+
+class ImageCropFromBytes extends StatefulWidget {
+  const ImageCropFromBytes(
+      {required this.imageBytesFuture,
+      required this.controller,
+      required this.onModeSwitch,
+      required this.activeAttachmentId,
+      super.key});
+
+  final Future<Uint8List> imageBytesFuture;
+  final CropController controller;
+  final void Function(AttachmentTabMode newMode, int attachmentId) onModeSwitch;
+  final int activeAttachmentId;
+
+  @override
+  State<ImageCropFromBytes> createState() => _ImageCropFromBytesState();
+}
+
+class _ImageCropFromBytesState extends State<ImageCropFromBytes> {
+  Uint8List? initialImage;
+  Uint8List? croppedImage;
+  bool imageCropped = false;
+  late Size croppedAreaSize;
+
+  void setCroppedArea(Uint8List croppedArea) {
+    setState(() {
+      croppedImage = croppedArea;
+      img.Image? tmpImg = img.decodeImage(croppedImage!);
+      // var tmpImg = img.Image.fromBytes(
+      //     width: width,
+      //     height: height,
+      //     bytes: croppedArea.buffer,
+      //     bytesOffset: croppedArea.offsetInBytes);
+      // debugPrint('Is image valid: ${tmpImg.isValid}');
+      croppedImage = img.encodeJpg(tmpImg!);
+      imageCropped = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: widget.imageBytesFuture,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            initialImage = snapshot.data;
+            return Stack(children: [
+              (imageCropped)
+                  ? Center(child: Image.memory(croppedImage!))
+                  : Crop(
+                      image: initialImage!,
+                      controller: widget.controller,
+                      onCropped: setCroppedArea,
+                      interactive: true,
+                    ),
+              (!imageCropped)
+                  ? ElevatedButton(
+                      onPressed: () {
+                        widget.controller.crop();
+                      },
+                      child: Icon(Icons.crop),
+                    )
+                  : ElevatedButton(
+                      onPressed: () {
+                        Person activePerson = context.read<AppState>().activePerson;
+                        showDialog(
+                            context: context,
+                            builder: (context) => AttachmentSaveDialog(
+                                  imageData: croppedImage as List<int>,
+                                  activePerson: activePerson,
+                                  onModeSwitch: widget.onModeSwitch,
+                                  activeAttachmentId: widget.activeAttachmentId,
+                                  actionName: 'replace',
+                                  key: ValueKey('replace'),
+                                ),
+                            barrierDismissible: false);
+                      },
+                      child: Icon(Icons.check)),
+              Align(
+                alignment: Alignment.topRight,
+                child: ElevatedButton(
+                  onPressed: (imageCropped)
+                      ? () {
+                          setState(() {
+                            imageCropped = false;
+                          });
+                        }
+                      : () {
+                          widget.onModeSwitch(AttachmentTabMode.edit, widget.activeAttachmentId);
+                        },
+                  child: Icon(Icons.undo),
+                ),
+              ),
+            ]);
+          } else {
+            return SpinKitPouringHourGlass(color: Colors.blue);
+          }
+        });
   }
 }

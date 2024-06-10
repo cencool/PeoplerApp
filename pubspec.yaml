@@ -45,6 +45,7 @@ dependencies:
   insta_image_viewer: ^1.0.4
   image_picker: ^1.1.2
   image: ^4.2.0
+  crop_your_image: ^1.1.0
 
 dev_dependencies:
   flutter_test:
