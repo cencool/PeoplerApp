@@ -728,12 +728,6 @@ class _ImageCropFromBytesState extends State<ImageCropFromBytes> {
     setState(() {
       croppedImage = croppedArea;
       img.Image? tmpImg = img.decodeImage(croppedImage!);
-      // var tmpImg = img.Image.fromBytes(
-      //     width: width,
-      //     height: height,
-      //     bytes: croppedArea.buffer,
-      //     bytesOffset: croppedArea.offsetInBytes);
-      // debugPrint('Is image valid: ${tmpImg.isValid}');
       croppedImage = img.encodeJpg(tmpImg!);
       imageCropped = true;
     });

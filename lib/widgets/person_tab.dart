@@ -11,7 +11,7 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:peopler/models/person_detail.dart';
 import 'package:provider/provider.dart';
 
-enum PersonTabMode { view, editData, deletePerson, viewPhoto }
+enum PersonTabMode { view, editData, deletePerson, editPhoto }
 
 class PersonTab extends StatefulWidget {
   const PersonTab({super.key});
@@ -43,7 +43,7 @@ class _PersonTabState extends State<PersonTab> {
             activePerson: activePerson,
             switchPersonTabMode: switchPersonTabMode,
             messengerKey: messengerKey);
-      case (PersonTabMode.viewPhoto):
+      case (PersonTabMode.editPhoto):
         return PersonPhotoView(
           activePerson: activePerson,
           onModeSwitch: switchPersonTabMode,
@@ -280,7 +280,7 @@ class _PersonPhotoState extends State<PersonPhoto> {
             return GestureDetector(
               onTap: () {
                 debugPrint('Image tapped');
-                widget.onModeSwitch(PersonTabMode.viewPhoto);
+                widget.onModeSwitch(PersonTabMode.editPhoto);
               },
               child: FadeInImage(
                   key: ValueKey(urlVal),

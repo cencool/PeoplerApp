@@ -1,17 +1,20 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:crop_your_image/crop_your_image.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/api.dart';
 import 'package:peopler/models/credentials.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/widgets/person_tab.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
-enum PersonPhotoViewMode { view, loadFromFile, zoom }
+enum PersonPhotoViewMode { view, loadFromFile, zoom, crop }
 
 class PersonPhotoView extends StatefulWidget {
   const PersonPhotoView({required this.activePerson, required this.onModeSwitch, super.key});
@@ -87,107 +90,233 @@ class _PersonPhotoViewState extends State<PersonPhotoView> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: authString,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return Stack(children: [
-            ListView(children: [
-              const SizedBox(
-                height: 40,
-              ),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Original Photo',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    switch (mode) {
+      case (PersonPhotoViewMode.view):
+      case (PersonPhotoViewMode.zoom):
+        return FutureBuilder(
+          future: authString,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Stack(children: [
+                ListView(children: [
+                  const SizedBox(
+                    height: 40,
                   ),
-                ],
-              ),
-              ActivePhoto(personId: widget.activePerson.id, snapshot: snapshot, mode: mode),
-              ...(imageFromFile != null)
-                  ? [
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Loaded Photo',
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                        ],
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Original Photo',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
-                      imageFromFile
-                    ]
-                  : [],
-            ]),
-            Align(
-              alignment: Alignment.topLeft,
-              child: FloatingActionButton(
-                onPressed: () {
-                  if (imageFromFile != null) {
-                    showDialog(
-                        context: context,
-                        builder: (context) => PhotoSaveDialog(
-                              imageData: imageData,
-                              activePerson: widget.activePerson,
-                              onModeSwitch: widget.onModeSwitch,
-                            ),
-                        barrierDismissible: false);
-                    // Navigator.pop(context);
-                  } else {
-                    widget.onModeSwitch(PersonTabMode.view);
-                  }
-                },
-                heroTag: null,
-                mini: true,
-                child: const Icon(Icons.check),
-              ),
-            ),
-            Align(
-              alignment: Alignment.topRight,
-              child: FloatingActionButton(
-                onPressed: () {
-                  if (mode == PersonPhotoViewMode.view) {
-                    switchPhotoTabMode(PersonPhotoViewMode.zoom);
-                  } else if (mode == PersonPhotoViewMode.zoom) {
-                    switchPhotoTabMode(PersonPhotoViewMode.view);
-                  }
-                },
-                heroTag: null,
-                mini: true,
-                child: (mode == PersonPhotoViewMode.view)
-                    ? const Icon(Icons.zoom_in)
-                    : const Icon(Icons.zoom_out),
-              ),
-            ),
-            Align(
-              alignment: Alignment.topCenter,
-              child: FloatingActionButton(
-                onPressed: () async {
-                  await pickImage();
-                  /*
-                  FilePickerResult? pickerResult =
-                      await FilePicker.platform.pickFiles(type: FileType.any);
-                  if (pickerResult != null) {
-                    debugPrint(pickerResult.files.first.path);
-                    var imageFile = File(pickerResult.files.first.path!);
-                    imageFilePath = imageFile.path;
-                    showImageFromFile(Image.file(imageFile));
-                  }
-                  */
-                },
-                heroTag: null,
-                mini: true,
-                child: const Icon(Icons.upload),
-              ),
-            ),
-          ]);
-        } else {
-          return const SpinKitPouringHourGlass(color: Colors.blue);
-        }
-      },
+                    ],
+                  ),
+                  ActivePhoto(personId: widget.activePerson.id, snapshot: snapshot, mode: mode),
+                  ...(imageFromFile != null)
+                      ? [
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Loaded Photo',
+                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          imageFromFile
+                        ]
+                      : [],
+                ]),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      if (imageFromFile != null) {
+                        showDialog(
+                            context: context,
+                            builder: (context) => PhotoSaveDialog(
+                                  imageData: imageData,
+                                  activePerson: widget.activePerson,
+                                  onModeSwitch: widget.onModeSwitch,
+                                ),
+                            barrierDismissible: false);
+                        // Navigator.pop(context);
+                      } else {
+                        widget.onModeSwitch(PersonTabMode.view);
+                      }
+                    },
+                    heroTag: null,
+                    mini: true,
+                    child: const Icon(Icons.check),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      if (mode == PersonPhotoViewMode.view) {
+                        switchPhotoTabMode(PersonPhotoViewMode.zoom);
+                      } else if (mode == PersonPhotoViewMode.zoom) {
+                        switchPhotoTabMode(PersonPhotoViewMode.view);
+                      }
+                    },
+                    heroTag: null,
+                    mini: true,
+                    child: (mode == PersonPhotoViewMode.view)
+                        ? const Icon(Icons.zoom_in)
+                        : const Icon(Icons.zoom_out),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: FloatingActionButton(
+                    onPressed: () async {
+                      await pickImage();
+                    },
+                    heroTag: null,
+                    mini: true,
+                    child: const Icon(Icons.upload),
+                  ),
+                ),
+                Align(
+                    alignment: Alignment(0.5, -1),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        switchPhotoTabMode(PersonPhotoViewMode.crop);
+                      },
+                      child: Icon(Icons.crop),
+                    ))
+              ]);
+            } else {
+              return const SpinKitPouringHourGlass(color: Colors.blue);
+            }
+          },
+        );
+      case (PersonPhotoViewMode.crop):
+        return PersonPhotoCrop(
+          activePerson: widget.activePerson,
+          onPersonTabModeSwitch: widget.onModeSwitch,
+        );
+      default:
+        return Placeholder();
+    }
+  }
+}
+
+class PersonPhotoCrop extends StatefulWidget {
+  const PersonPhotoCrop(
+      {required this.activePerson, required this.onPersonTabModeSwitch, super.key});
+  final Person activePerson;
+  final Function(PersonTabMode) onPersonTabModeSwitch;
+
+  @override
+  State<PersonPhotoCrop> createState() => _PersonPhotoCropState();
+}
+
+class _PersonPhotoCropState extends State<PersonPhotoCrop> {
+  @override
+  Widget build(BuildContext context) {
+    String authString = context.read<AppState>().authString;
+    int personId = widget.activePerson.id;
+    return ImageCropFromBytes(
+      imageBytesFuture: http.readBytes(
+        Uri.parse(
+            '${Api.personPhotoReceiveUrl}?id=$personId&${DateTime.now().millisecondsSinceEpoch}'),
+        headers: {'Authorization': 'Basic $authString'},
+      ),
+      controller: CropController(),
+      onModeSwitch: widget.onPersonTabModeSwitch,
     );
+  }
+}
+
+class ImageCropFromBytes extends StatefulWidget {
+  const ImageCropFromBytes(
+      {required this.imageBytesFuture,
+      required this.controller,
+      required this.onModeSwitch,
+      super.key});
+
+  final Future<Uint8List> imageBytesFuture;
+  final CropController controller;
+  final void Function(PersonTabMode newMode) onModeSwitch;
+
+  @override
+  State<ImageCropFromBytes> createState() => _ImageCropFromBytesState();
+}
+
+class _ImageCropFromBytesState extends State<ImageCropFromBytes> {
+  Uint8List? initialImage;
+  Uint8List? croppedImage;
+  bool imageCropped = false;
+  late Size croppedAreaSize;
+
+  void setCroppedArea(Uint8List croppedArea) {
+    setState(() {
+      croppedImage = croppedArea;
+      img.Image? tmpImg = img.decodeImage(croppedImage!);
+      croppedImage = img.encodeJpg(tmpImg!);
+      imageCropped = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: widget.imageBytesFuture,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            initialImage = snapshot.data;
+            return Stack(children: [
+              (imageCropped)
+                  ? Center(child: Image.memory(croppedImage!))
+                  : Crop(
+                      image: initialImage!,
+                      controller: widget.controller,
+                      onCropped: setCroppedArea,
+                      interactive: true,
+                    ),
+              (!imageCropped)
+                  ? ElevatedButton(
+                      onPressed: () {
+                        widget.controller.crop();
+                      },
+                      child: Icon(Icons.crop),
+                    )
+                  : ElevatedButton(
+                      onPressed: () {
+                        Person activePerson = context.read<AppState>().activePerson;
+                        showDialog(
+                            context: context,
+                            builder: (context) => PhotoSaveDialog(
+                                  imageData: croppedImage as List<int>,
+                                  activePerson: activePerson,
+                                  onModeSwitch: widget.onModeSwitch,
+                                  key: ValueKey('replace'),
+                                ),
+                            barrierDismissible: false);
+                      },
+                      child: Icon(Icons.check)),
+              Align(
+                alignment: Alignment.topRight,
+                child: ElevatedButton(
+                  onPressed: (imageCropped)
+                      ? () {
+                          setState(() {
+                            imageCropped = false;
+                          });
+                        }
+                      : () {
+                          widget.onModeSwitch(PersonTabMode.view);
+                        },
+                  child: Icon(Icons.undo),
+                ),
+              ),
+            ]);
+          } else {
+            return SpinKitPouringHourGlass(color: Colors.blue);
+          }
+        });
   }
 }
 
