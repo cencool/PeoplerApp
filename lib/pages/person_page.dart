@@ -40,12 +40,14 @@ class _PersonPageState extends State<PersonPage> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              bottom: const TabBar(tabs: [
-                Tooltip(message: 'Person', child: Tab(icon: Icon(Icons.person))),
-                Tooltip(message: 'Relations', child: Tab(icon: Icon(Icons.people))),
-                Tooltip(message: 'Items', child: Tab(icon: Icon(Icons.list))),
-                Tooltip(message: 'Attachments', child: Tab(icon: Icon(Icons.attach_file))),
-              ]),
+              bottom: const TabBar(
+                tabs: [
+                  Tooltip(message: 'Person', child: Tab(icon: Icon(Icons.person))),
+                  Tooltip(message: 'Relations', child: Tab(icon: Icon(Icons.people))),
+                  Tooltip(message: 'Items', child: Tab(icon: Icon(Icons.list))),
+                  Tooltip(message: 'Attachments', child: Tab(icon: Icon(Icons.attach_file))),
+                ],
+              ),
             ),
 
             /// separated widget so that scaffold is already available for Snack message
@@ -79,12 +81,15 @@ class _PersonPageBodyState extends State<PersonPageBody> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             context.read<AppState>().activePerson = snapshot.data!;
-            return TabBarView(children: const [
-              PersonTab(),
-              RelationTab(),
-              ItemTab(),
-              AttachmentTab(),
-            ]);
+            return TabBarView(
+              physics: NeverScrollableScrollPhysics(),
+              children: const [
+                PersonTab(),
+                RelationTab(),
+                ItemTab(),
+                AttachmentTab(),
+              ],
+            );
           } else {
             return const SpinKitPouringHourGlass(color: Colors.blue);
           }
