@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/credentials.dart';
 import 'package:peopler/pages/person_list_page.dart';
+import 'package:peopler/widgets/snack_message.dart';
+import 'package:provider/provider.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -11,9 +14,11 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final userCtl = TextEditingController();
-  final pwdCtl = TextEditingController();
+  final userController = TextEditingController();
+  final passwordController = TextEditingController();
+  late final messengerKey = context.read<AppState>().messengerKey;
   bool isProcessing = false;
+  bool hidePassword = true;
 
   VoidCallback submitAction() {
     if (isProcessing) {
@@ -24,12 +29,12 @@ class _LoginFormState extends State<LoginForm> {
           setState(() {
             isProcessing = true;
           });
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Processing'),
-            duration: Duration(seconds: 0, milliseconds: 500),
-            backgroundColor: Colors.blue,
-          ));
-          Credentials.login(userName: userCtl.text, password: pwdCtl.text, context: context)
+          SnackMessage.showMessage(
+              messengerKey: messengerKey, message: 'Processing', messageType: MessageType.info);
+          Credentials.login(
+                  userName: userController.text,
+                  password: passwordController.text,
+                  context: context)
               .then((loggedIn) {
             setState(() {
               isProcessing = false;
@@ -38,11 +43,10 @@ class _LoginFormState extends State<LoginForm> {
               Navigator.push(
                   context, MaterialPageRoute(builder: (context) => const PersonListPage()));
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text('Login failed'),
-                duration: Duration(seconds: 0, milliseconds: 500),
-                backgroundColor: Colors.red,
-              ));
+              SnackMessage.showMessage(
+                  messengerKey: messengerKey,
+                  message: 'Login Failed',
+                  messageType: MessageType.error);
             }
           });
         }
@@ -61,7 +65,7 @@ class _LoginFormState extends State<LoginForm> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
-                controller: userCtl,
+                controller: userController,
                 decoration: const InputDecoration(
                   hintText: 'User id',
                 ),
@@ -76,7 +80,8 @@ class _LoginFormState extends State<LoginForm> {
                 },
               ),
               TextFormField(
-                controller: pwdCtl,
+                controller: passwordController,
+                obscureText: hidePassword,
                 decoration: const InputDecoration(
                   hintText: 'User password',
                 ),
@@ -93,9 +98,25 @@ class _LoginFormState extends State<LoginForm> {
               const SizedBox(
                 height: 20,
               ),
-              ElevatedButton(
-                onPressed: submitAction(),
-                child: const Text('Submit'),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: submitAction(),
+                    child: const Text('Submit'),
+                  ),
+                  SizedBox(
+                    width: 90,
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          hidePassword = !hidePassword;
+                        });
+                      },
+                      child: (hidePassword)
+                          ? Icon(Icons.visibility_outlined)
+                          : Icon(Icons.visibility_off_outlined)),
+                ],
               ),
             ],
           ),

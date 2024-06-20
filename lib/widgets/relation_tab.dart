@@ -1,21 +1,3 @@
-// relation list
-// mode button (add, save)
-// mode (view, edit, add)  ako stav
-// skusit ci ten messenger nemoze byt active
-// ako refreshnut po uspesnom SAVE relation list ?
-// relation page
-// relation selector widget (select box + name selected) -> data update newRelation
-// person list in ADD mode
-// relation list updating on success save
-
-// RELATION TAB
-// relation list with EDIT button in row (view mode ?)
-// mode button ADD
-// ako  sa budu editovat relacie a ako mazat ?
-// klucove slovo ACTIVE RELATION (ACTIVE DATA OBJECT) - ten bude reflektovat aktualne data na/s ktorymi robim
-// activeRelation bude bud prazdna alebo obsahovat uz existujuce data
-//
-
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';

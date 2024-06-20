@@ -42,8 +42,9 @@ class _PeoplerAppState extends State<PeoplerApp> {
           home: FutureBuilder(
               future: futureResults,
               builder: (context, snapshot) {
-                ///TODO check if data content should be checked before using
-                if (snapshot.connectionState == ConnectionState.done && snapshot.data?[0]) {
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData &&
+                    snapshot.data?[0]) {
                   context.read<AppState>().authString = snapshot.data?[1];
                   return const PersonListPage();
                 } else {

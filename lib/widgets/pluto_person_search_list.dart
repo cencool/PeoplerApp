@@ -24,6 +24,7 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
       PlutoColumn(
           title: 'Id',
           field: 'id',
+          hide: true,
           type: PlutoColumnType.text(),
           enableFilterMenuItem: false,
           enableContextMenu: false,
@@ -36,11 +37,25 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
               IconButton(
                 icon: const Icon(Icons.remove_red_eye_sharp),
                 onPressed: () {
+                  /// TODO check if refresh needed for plutoList here - need to reload real rows after delete...
+                  PlutoGridStateManager? currentStateManager =
+                      context.read<AppState>().personSearchListStateManager;
+                  GlobalKey<ScaffoldMessengerState> messengerKey =
+                      context.read<AppState>().messengerKey;
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return Builder(builder: (context) {
                       return PersonPage(cellContext.cell.value);
                     });
-                  }));
+                  })).then((val) async {
+                    List<PlutoRow> rows;
+                    var persons = await Person.getPaginatedPersonSearchList(
+                        searchParams: searchMapToJson(widget.searchParams),
+                        query: '',
+                        messengerKey: messengerKey);
+                    rows = getPlutoRows(persons.persons);
+                    currentStateManager?.removeAllRows();
+                    currentStateManager?.appendRows(rows);
+                  });
                 },
               ),
 
@@ -55,18 +70,41 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
             ]);
           }),
       PlutoColumn(
-        title: 'Surname',
-        field: 'surname',
-        type: PlutoColumnType.text(),
-        enableFilterMenuItem: false,
-        enableContextMenu: false,
-        enableSorting: true,
-      ),
+          title: 'Surname',
+          field: 'surname',
+          type: PlutoColumnType.text(),
+          enableFilterMenuItem: false,
+          enableContextMenu: false,
+          enableSorting: true,
+          renderer: (cellContext) {
+            return InkWell(
+              onTap: () {
+                var personSearchListStateManager =
+                    context.read<AppState>().personSearchListStateManager;
+                var messengerKey = context.read<AppState>().messengerKey;
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return Builder(builder: (context) {
+                    return PersonPage(cellContext.row.cells['id']?.value);
+                  });
+                })).then((popVal) {
+                  return Person.getPaginatedPersonList(messengerKey: messengerKey);
+                }).then((paginatedPersonList) {
+                  var plutoRows = Person.getPlutoRows(paginatedPersonList.persons);
+                  personSearchListStateManager?.removeAllRows();
+                  personSearchListStateManager?.appendRows(plutoRows);
+                });
+              },
+              child: Text(
+                cellContext.cell.value,
+                style: TextStyle(color: Colors.blue),
+              ),
+            );
+          }),
       PlutoColumn(
         title: 'Name',
         field: 'name',
         type: PlutoColumnType.text(),
-        hide: true,
+        hide: false,
         enableFilterMenuItem: false,
         enableContextMenu: false,
         enableSorting: true,

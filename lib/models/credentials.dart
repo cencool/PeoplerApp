@@ -1,20 +1,16 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:peopler/globals/app_state.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:peopler/models/api.dart';
 import 'package:http/http.dart' as http;
 
 class Credentials {
-  /* bude ukladat a citat api key z uloziska,
-  aktualizovat, ci sa zmenil login
-  { 'loggedIn': true/false, 'token': null/string}
-  */
-
   static Future<bool> login(
       {required String userName, required String password, required BuildContext context}) async {
-    // skusi login a ulozit status a token do persistent...
-    late ScaffoldMessengerState messengerRef = ScaffoldMessenger.of(context);
+    late ScaffoldMessengerState messenger = context.read<AppState>().messengerKey.currentState!;
     await deleteToken();
     final prefs = await SharedPreferences.getInstance();
     final bodyData = {'user': userName, 'password': password};
@@ -35,14 +31,7 @@ class Credentials {
       return false;
     } on http.ClientException catch (e) {
       debugPrint('Connection error: ${e.message}');
-      // if (context.mounted) {
-      //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      //     content: Text(e.message),
-      //     duration: const Duration(seconds: 0, milliseconds: 1500),
-      //     backgroundColor: Colors.red,
-      //   ));
-      // }
-      messengerRef.showSnackBar(SnackBar(
+      messenger.showSnackBar(SnackBar(
         content: Text(e.message),
         duration: const Duration(seconds: 0, milliseconds: 1500),
         backgroundColor: Colors.red,

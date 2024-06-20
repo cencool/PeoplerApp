@@ -114,15 +114,15 @@ class _AttachmentTabState extends State<AttachmentTab> {
         debugPrint('Reduced size is:${imageData.length}');
         debugPrint('With quality:$quality');
         imageFilePath = imagePick.path;
-        showImageFromFile(Image.memory(imageData as Uint8List));
+        showImageFromFile(Image.memory(imageData));
       } else {
         imageFilePath = imagePick.path;
         imageData = await imagePick.readAsBytes();
-        showImageFromFile(Image.memory(imageData as Uint8List));
+        showImageFromFile(Image.memory(imageData));
       }
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return ImageCrop(imageToCrop: imageData);
-      }));
+      // Navigator.push(context, MaterialPageRoute(builder: (context) {
+      //   return ImageCrop(imageToCrop: imageData);
+      // }));
     }
   }
 

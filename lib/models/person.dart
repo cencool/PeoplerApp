@@ -6,6 +6,8 @@ import 'package:peopler/models/person_attachment.dart';
 import 'package:peopler/widgets/snack_message.dart';
 import 'dart:convert';
 
+import 'package:pluto_grid/pluto_grid.dart';
+
 Person personFromJson(String str) => Person.fromJson(json.decode(str));
 
 String personToJson(Person data) => json.encode(data.toJson());
@@ -101,6 +103,24 @@ class Person {
           messengerKey: messengerKey, message: e.message, messageType: MessageType.error);
     }
     return PaginatedPersonList(persons: <Person>[]);
+  }
+
+  static List<PlutoRow> getPlutoRows(List<Person> persons) {
+    var tableRows = <PlutoRow>[];
+    for (var person in persons) {
+      tableRows.add(PlutoRow(
+        cells: {
+          'id': PlutoCell(value: person.id),
+          'name': PlutoCell(value: person.name),
+          'surname': PlutoCell(value: person.surname),
+          'gender': PlutoCell(value: person.gender),
+          'place': PlutoCell(value: person.place),
+          'owner': PlutoCell(value: person.owner),
+        },
+        checked: false,
+      ));
+    }
+    return tableRows;
   }
 
   static Future<PaginatedPersonList> getPaginatedPersonSearchList(

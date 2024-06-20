@@ -72,11 +72,24 @@ class _RelationTableState extends State<RelationTable> {
             return InkWell(
               onTap: () {
                 debugPrint('tapped:${cellContext.row.cells["toWhomId"]?.value}');
+                var relationTabStateManager = context.read<AppState>().relationTableStateManager;
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
                   return Builder(builder: (context) {
                     return PersonPage(cellContext.row.cells["toWhomId"]?.value);
                   });
-                }));
+                })).then((popVal) {
+                  /// to refresh plutoList after pop
+                  // var personListStateManager = context.read<AppState>().personListStateManager;
+                  if (relationTabStateManager != null) {
+                    var relationTabListEventManager = relationTabStateManager.eventManager;
+                    if (relationTabListEventManager != null &&
+                        !relationTabListEventManager.subject.isClosed) {
+                      relationTabListEventManager.addEvent(PlutoGridChangeColumnSortEvent(
+                          column: relationTabStateManager.columns[1],
+                          oldSort: PlutoColumnSort.none));
+                    }
+                  }
+                });
               },
               child: Text(
                 '${cellContext.cell.value}',
