@@ -218,6 +218,10 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
       },
       configuration: const PlutoGridConfiguration(
         columnSize: PlutoGridColumnSizeConfig(autoSizeMode: PlutoAutoSizeMode.scale),
+        style: PlutoGridStyleConfig(
+          cellTextStyle: TextStyle(fontSize: 12),
+          rowHeight: 24,
+        ),
       ),
     );
   }

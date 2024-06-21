@@ -83,6 +83,8 @@ class _RelationAddState extends State<RelationAdd> {
                   children: [
                     DropdownMenu(
                       dropdownMenuEntries: createDropdownEntries(relationNameList),
+                      textStyle: TextStyle(fontSize: 15),
+                      width: 135.0,
                       label: const Text('New Relation'),
                       onSelected: (value) {
                         // newRelation["relation_ab_id"] = value.toString();
@@ -99,15 +101,17 @@ class _RelationAddState extends State<RelationAdd> {
                     const SizedBox(
                       width: 10.0,
                     ),
-                    Text(
-                      toWhom,
-                      style: const TextStyle(fontSize: 15.0),
+                    Expanded(
+                      child: Text(
+                        toWhom,
+                        style: const TextStyle(fontSize: 15.0),
+                      ),
                     ),
                   ],
                 ),
               ),
               LimitedBox(
-                  maxHeight: 300,
+                  maxHeight: 400,
                   child: PlutoPersonList(
                     idCallback: personIdCallback,
                   )),

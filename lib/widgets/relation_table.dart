@@ -29,23 +29,33 @@ class _RelationTableState extends State<RelationTable> {
           type: PlutoColumnType.text(),
           enableContextMenu: false,
           enableSorting: true,
-          width: 130,
-          minWidth: 130,
+          width: 100,
+          minWidth: 100,
           renderer: (cellContext) {
             return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text('${cellContext.cell.value}'),
+              // Text('${cellContext.cell.value}'),
               cellContext.cell.value > -1
                   ? IconButton(
-                      icon: const Icon(Icons.edit),
+                      iconSize: 20.0,
+                      padding: EdgeInsets.all(0),
+                      icon: const Icon(
+                        Icons.edit,
+                      ),
                       onPressed: () {
                         debugPrint('Edit button pressed:${cellContext.cell.value}');
                         print(cellContext.row.cells);
                         context.read<AppState>().activeRelationRecord.id = cellContext.cell.value;
                         widget.switchMode(RelationTabMode.edit);
                       })
-                  : const Icon(Icons.edit_off),
+                  : SizedBox(),
+              // : const Icon(
+              //     Icons.edit_off,
+              //     size: 20.0,
+              //   ),
               cellContext.cell.value > -1
                   ? IconButton(
+                      iconSize: 20.0,
+                      padding: EdgeInsets.all(0),
                       icon: const Icon(Icons.delete),
                       onPressed: () {
                         debugPrint('Delete button pressed:${cellContext.cell.value}');
@@ -53,7 +63,11 @@ class _RelationTableState extends State<RelationTable> {
                         context.read<AppState>().activeRelationRecord.id = cellContext.cell.value;
                         widget.switchMode(RelationTabMode.delete);
                       })
-                  : const Icon(Icons.delete_forever),
+                  : SizedBox(),
+              // : const Icon(
+              //     Icons.delete_forever,
+              //     size: 20.0,
+              //   ),
             ]);
           }),
       PlutoColumn(
@@ -185,6 +199,10 @@ class _RelationTableState extends State<RelationTable> {
       },
       configuration: const PlutoGridConfiguration(
         columnSize: PlutoGridColumnSizeConfig(autoSizeMode: PlutoAutoSizeMode.scale),
+        style: PlutoGridStyleConfig(
+          rowHeight: 24,
+          cellTextStyle: TextStyle(fontSize: 12),
+        ),
       ),
     );
   }

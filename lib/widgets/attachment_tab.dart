@@ -12,6 +12,7 @@ import 'package:peopler/models/api.dart';
 import 'package:peopler/models/credentials.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/person_attachment.dart';
+import 'package:peopler/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -537,6 +538,7 @@ class AttachmentSaveDialog extends StatelessWidget {
                     children: [
                       TextButton(
                         onPressed: () async {
+                          var messengerKey = context.read<AppState>().messengerKey;
                           debugPrint('Yes save pressed');
                           var request = await createRequest(actionName);
                           var response = await request.send();
@@ -544,6 +546,10 @@ class AttachmentSaveDialog extends StatelessWidget {
                             debugPrint('File save action successfull');
                           } else {
                             debugPrint('Response code: ${response.statusCode}');
+                            SnackMessage.showMessage(
+                                messengerKey: messengerKey,
+                                message: '${response.reasonPhrase}',
+                                messageType: MessageType.error);
                           }
 
                           /// TODO check if can be done better ie .then()...

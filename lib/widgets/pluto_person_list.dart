@@ -26,14 +26,14 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
         enableFilterMenuItem: true,
         enableContextMenu: false,
         enableSorting: true,
-        width: 100,
-        minWidth: 100,
+        width: 80,
+        minWidth: 80,
         renderer: (cellContext) {
           return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text(
-              '${cellContext.cell.value}',
-              style: TextStyle(fontSize: 10),
-            ),
+            // Text(
+            //   '${cellContext.cell.value}',
+            //   style: TextStyle(fontSize: 10),
+            // ),
 
             /// this callback provides info to relation about ToWhom
             widget.idCallback != null
