@@ -80,40 +80,51 @@ class PersonPageBody extends StatefulWidget {
 
 class _PersonPageBodyState extends State<PersonPageBody> {
   // Person activePerson = Person.dummy();
-  late GlobalKey<ScaffoldMessengerState> messengerKey = context.read<AppState>().messengerKey;
-  late Future<Person> personFuture =
-      Person.getPerson(id: widget.personId, messengerKey: messengerKey);
-  late Future<PersonDetail> personDetailFuture =
-      PersonDetail.getPersonDetail(id: widget.personId, messengerKey: messengerKey);
-  late Future<List<dynamic>> personDataFuture = Future.wait([personFuture, personDetailFuture]);
+  late GlobalKey<ScaffoldMessengerState> messengerKey;
+  late Future<Person> personFuture;
+  late Future<PersonDetail> personDetailFuture;
+  late Future<List<dynamic>> personDataFuture;
+  bool dataReady = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    messengerKey = context.read<AppState>().messengerKey;
+    personFuture = Person.getPerson(id: widget.personId, messengerKey: messengerKey);
+    personDetailFuture =
+        PersonDetail.getPersonDetail(id: widget.personId, messengerKey: messengerKey);
+    personDataFuture = Future.wait([personFuture, personDetailFuture]);
+    personDataFuture.then((data) {
+      context.read<AppState>().activePerson = data[0];
+      context.read<AppState>().activePersonDetail = data[1];
+      setState(() {
+        dataReady = true;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: personDataFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            context.read<AppState>().activePerson = snapshot.data![0];
-            context.read<AppState>().activePersonDetail = snapshot.data![1];
-            return TabBarView(
-              physics: NeverScrollableScrollPhysics(),
-              children: (widget.personId > 0)
-                  ? [
-                      PersonTab(
-                        updatePersonId: widget.updatePersonId,
-                      ),
-                      RelationTab(),
-                      ItemTab(),
-                      AttachmentTab(),
-                    ]
-                  : [
-                      PersonTab(
-                        updatePersonId: widget.updatePersonId,
-                      ),
-                    ],
-            );
-          } else {
-            return const SpinKitPouringHourGlass(color: Colors.blue);
-          }
-        });
+    if (dataReady) {
+      return TabBarView(
+        physics: NeverScrollableScrollPhysics(),
+        children: (widget.personId > 0)
+            ? [
+                PersonTab(
+                  updatePersonId: widget.updatePersonId,
+                ),
+                RelationTab(),
+                ItemTab(),
+                AttachmentTab(),
+              ]
+            : [
+                PersonTab(
+                  updatePersonId: widget.updatePersonId,
+                ),
+              ],
+      );
+    } else {
+      return const SpinKitPouringHourGlass(color: Colors.blue);
+    }
   }
 }

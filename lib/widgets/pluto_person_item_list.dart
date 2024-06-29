@@ -109,7 +109,6 @@ class _PlutoPersonItemListState extends State<PlutoPersonItemList> {
 
   @override
   Widget build(BuildContext context) {
-    context.read<AppState>().activePersonItem = PersonItem.dummy();
     return PlutoGrid(
       columns: getColumns(context),
       rows: initRows,

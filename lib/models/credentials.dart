@@ -23,6 +23,7 @@ class Credentials {
         final responseData = jsonDecode(response.body);
         if ((responseData is Map) && responseData['token'] != null) {
           prefs.setString('peoplerToken', responseData['token']);
+          prefs.setString('userName', userName);
           final token = prefs.getString('peoplerToken');
           debugPrint('Token is: $token');
           return true;
@@ -45,6 +46,15 @@ class Credentials {
     return prefs.getString('peoplerToken');
   }
 
+  static Future<String?> getUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userName = prefs.getString('userName');
+    if (userName == null) {
+      return '';
+    }
+    return userName;
+  }
+
   static Future<bool> isLoggedIn() async {
     if (await getToken() != null) {
       return true;
@@ -61,6 +71,7 @@ class Credentials {
 
   static Future<bool> deleteToken() async {
     var prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userName');
     return await (prefs.remove('peoplerToken'));
   }
 }

@@ -28,6 +28,12 @@ class _ItemTabState extends State<ItemTab> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.read<AppState>().activePersonItem = PersonItem.dummy();
+  }
+
+  @override
   Widget build(BuildContext context) {
     switch (itemTabMode) {
       case (ItemTabMode.view):
@@ -48,8 +54,8 @@ class _ItemTabState extends State<ItemTab> {
           )
         ]);
       case (ItemTabMode.edit):
-        var personId = context.read<AppState>().activePerson.id;
-        var itemId = context.read<AppState>().activePersonItem.id;
+        var personId = context.watch<AppState>().activePerson.id;
+        var itemId = context.watch<AppState>().activePersonItem.id;
         debugPrint('Person id:$personId');
         debugPrint('Item id:$itemId');
         return ItemEdit(
@@ -207,7 +213,7 @@ class ItemSaveDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    PersonItem activeItem = context.read<AppState>().activePersonItem;
+    PersonItem activeItem = context.watch<AppState>().activePersonItem;
     return Dialog(
       child: SizedBox(
         width: 300.0,

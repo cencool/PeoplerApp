@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/credentials.dart';
-import 'package:peopler/pages/person_list_page.dart';
 import 'package:peopler/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 
@@ -21,37 +20,30 @@ class _LoginFormState extends State<LoginForm> {
   bool hidePassword = true;
 
   VoidCallback submitAction() {
-    if (isProcessing) {
-      return () {};
-    } else {
-      return () {
-        if (_formKey.currentState!.validate()) {
+    return () {
+      if (_formKey.currentState!.validate()) {
+        setState(() {
+          isProcessing = true;
+        });
+        SnackMessage.showMessage(
+            messengerKey: messengerKey, message: 'Processing', messageType: MessageType.info);
+        Credentials.login(
+                userName: userController.text, password: passwordController.text, context: context)
+            .then((loggedIn) {
           setState(() {
-            isProcessing = true;
+            isProcessing = false;
           });
-          SnackMessage.showMessage(
-              messengerKey: messengerKey, message: 'Processing', messageType: MessageType.info);
-          Credentials.login(
-                  userName: userController.text,
-                  password: passwordController.text,
-                  context: context)
-              .then((loggedIn) {
-            setState(() {
-              isProcessing = false;
-            });
-            if (loggedIn) {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => const PersonListPage()));
-            } else {
-              SnackMessage.showMessage(
-                  messengerKey: messengerKey,
-                  message: 'Login Failed',
-                  messageType: MessageType.error);
-            }
-          });
-        }
-      };
-    }
+          if (loggedIn) {
+            context.read<AppState>().login();
+          } else {
+            SnackMessage.showMessage(
+                messengerKey: messengerKey,
+                message: 'Login Failed',
+                messageType: MessageType.error);
+          }
+        });
+      }
+    };
   }
 
   @override
@@ -101,7 +93,7 @@ class _LoginFormState extends State<LoginForm> {
               Row(
                 children: [
                   ElevatedButton(
-                    onPressed: submitAction(),
+                    onPressed: isProcessing ? null : submitAction(),
                     child: const Text('Submit'),
                   ),
                   SizedBox(
