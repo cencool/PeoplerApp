@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
-import 'package:peopler/models/person.dart';
 import 'package:peopler/pages/general_seach_page.dart';
-import 'package:peopler/pages/login_page.dart';
-import 'package:peopler/models/credentials.dart';
-import 'package:peopler/pages/person_page.dart';
 import 'package:peopler/widgets/pluto_person_list.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +9,7 @@ class PersonListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('PersonListPage build');
     return Scaffold(
       appBar: AppBar(
         title: const Text(

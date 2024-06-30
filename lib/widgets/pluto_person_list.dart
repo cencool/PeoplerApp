@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
+import 'package:peopler/models/person_detail.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-import 'package:peopler/pages/person_page.dart';
 import 'package:provider/provider.dart';
 
 class PlutoPersonList extends StatefulWidget {
@@ -55,19 +55,28 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
         renderer: (cellContext) {
           return InkWell(
             onTap: () {
-              var personListStateManager = context.read<AppState>().personListStateManager;
+              // var personListStateManager = context.read<AppState>().personListStateManager;
               var messengerKey = context.read<AppState>().messengerKey;
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return Builder(builder: (context) {
-                  return PersonPage(cellContext.row.cells['id']?.value);
+              Person.getPerson(id: cellContext.row.cells['id']?.value, messengerKey: messengerKey)
+                  .then((person) {
+                context.read<AppState>().activePerson = person;
+                PersonDetail.getPersonDetail(id: person.id, messengerKey: messengerKey)
+                    .then((personDetail) {
+                  context.read<AppState>().activePersonDetail = personDetail;
+                  context.read<AppState>().activePage = ActivePage.person;
                 });
-              })).then((popVal) {
-                return Person.getPaginatedPersonList(messengerKey: messengerKey);
-              }).then((paginatedPersonList) {
-                var plutoRows = Person.getPlutoRows(paginatedPersonList.persons);
-                personListStateManager?.removeAllRows();
-                personListStateManager?.appendRows(plutoRows);
               });
+              // Navigator.push(context, MaterialPageRoute(builder: (context) {
+              //   return Builder(builder: (context) {
+              //     return PersonPage(cellContext.row.cells['id']?.value);
+              //   });
+              // })).then((popVal) {
+              //   return Person.getPaginatedPersonList(messengerKey: messengerKey);
+              // }).then((paginatedPersonList) {
+              //   var plutoRows = Person.getPlutoRows(paginatedPersonList.persons);
+              //   personListStateManager?.removeAllRows();
+              //   personListStateManager?.appendRows(plutoRows);
+              // });
             },
             child: Text(
               cellContext.cell.value,
@@ -142,6 +151,7 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('PlutPersonList build');
     return PlutoGrid(
       columns: getColumns(context),
       rows: initRows,

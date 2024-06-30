@@ -21,7 +21,17 @@ class PeoplerApp extends StatelessWidget {
     return ChangeNotifierProvider<AppState>(
       create: (_) => AppState(),
       child: Builder(builder: (context) {
-        return StartPage();
+        return MaterialApp(
+          scaffoldMessengerKey: context.read<AppState>().messengerKey,
+          debugShowCheckedModeBanner: false,
+          title: 'Peopler',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+            useMaterial3: true,
+          ),
+          // home: (context.watch<AppState>().isLoggedIn) ? PersonListPage() : LoginPage(),
+          home: StartPage(),
+        );
       }),
     );
   }

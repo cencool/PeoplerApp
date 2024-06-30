@@ -44,7 +44,7 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
                       context.read<AppState>().messengerKey;
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return Builder(builder: (context) {
-                      return PersonPage(cellContext.cell.value);
+                      return PersonPage();
                     });
                   })).then((val) async {
                     List<PlutoRow> rows;
@@ -84,7 +84,7 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
                 var messengerKey = context.read<AppState>().messengerKey;
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return Builder(builder: (context) {
-                    return PersonPage(cellContext.row.cells['id']?.value);
+                    return PersonPage();
                   });
                 })).then((popVal) {
                   return Person.getPaginatedPersonList(messengerKey: messengerKey);

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
-import 'package:peopler/pages/person_page.dart';
+import 'package:peopler/models/person_detail.dart';
+import 'package:peopler/pages/start_page.dart';
 import 'package:peopler/widgets/relation_tab.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:peopler/models/person_relation.dart';
@@ -86,23 +87,20 @@ class _RelationTableState extends State<RelationTable> {
             return InkWell(
               onTap: () {
                 debugPrint('tapped:${cellContext.row.cells["toWhomId"]?.value}');
-                var relationTabStateManager = context.read<AppState>().relationTableStateManager;
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-                  return Builder(builder: (context) {
-                    return PersonPage(cellContext.row.cells["toWhomId"]?.value);
+                var messengerKey = context.read<AppState>().messengerKey;
+                Person.getPerson(
+                        id: cellContext.row.cells['toWhomId']?.value, messengerKey: messengerKey)
+                    .then((person) {
+                  context.read<AppState>().activePerson = person;
+                  PersonDetail.getPersonDetail(id: person.id, messengerKey: messengerKey)
+                      .then((personDetail) {
+                    context.read<AppState>().activePersonDetail = personDetail;
+                    // context.read<AppState>().activePage = ActivePage.person;
+                  }).then((_) {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) {
+                      return StartPage();
+                    }));
                   });
-                })).then((popVal) {
-                  /// to refresh plutoList after pop
-                  // var personListStateManager = context.read<AppState>().personListStateManager;
-                  if (relationTabStateManager != null) {
-                    var relationTabListEventManager = relationTabStateManager.eventManager;
-                    if (relationTabListEventManager != null &&
-                        !relationTabListEventManager.subject.isClosed) {
-                      relationTabListEventManager.addEvent(PlutoGridChangeColumnSortEvent(
-                          column: relationTabStateManager.columns[1],
-                          oldSort: PlutoColumnSort.none));
-                    }
-                  }
                 });
               },
               child: Text(

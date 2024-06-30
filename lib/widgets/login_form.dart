@@ -48,6 +48,7 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('LoginForm build');
     return Form(
       key: _formKey,
       child: Center(

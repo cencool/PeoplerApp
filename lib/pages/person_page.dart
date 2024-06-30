@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/person_detail.dart';
@@ -9,70 +8,51 @@ import 'package:peopler/widgets/person_tab.dart';
 import 'package:peopler/widgets/relation_tab.dart';
 import 'package:provider/provider.dart';
 
-class PersonPage extends StatefulWidget {
-  const PersonPage(this.personId, {super.key});
-  final int personId;
-
-  @override
-  State<PersonPage> createState() => _PersonPageState();
-}
-
-class _PersonPageState extends State<PersonPage> {
-  late int _personId = widget.personId;
-
-  void updatePersonId(int newPersonId) {
-    setState(() {
-      _personId = newPersonId;
-    });
-  }
+class PersonPage extends StatelessWidget {
+  const PersonPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('PersonPage build');
     return DefaultTabController(
-      length: (_personId > -1) ? 4 : 1,
-      child: Consumer<AppState>(
-        builder: (context, appState, child) {
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text(
-                'Person Data',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              bottom: TabBar(
-                tabs: (_personId > -1)
-                    ? [
-                        Tooltip(message: 'Person', child: Tab(icon: Icon(Icons.person))),
-                        Tooltip(message: 'Relations', child: Tab(icon: Icon(Icons.people))),
-                        Tooltip(message: 'Items', child: Tab(icon: Icon(Icons.list))),
-                        Tooltip(message: 'Attachments', child: Tab(icon: Icon(Icons.attach_file))),
-                      ]
-                    : [
-                        Tooltip(message: 'Person', child: Tab(icon: Icon(Icons.person))),
-                      ],
-              ),
-            ),
+      length: (context.watch<AppState>().activePerson.id > -1) ? 4 : 1,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Person Data',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          actions: [
+            IconButton(
+                onPressed: () {
+                  context.read<AppState>().activePage = ActivePage.personList;
+                },
+                icon: Icon(Icons.home))
+          ],
+          bottom: TabBar(
+            tabs: (context.watch<AppState>().activePerson.id > -1)
+                ? [
+                    Tooltip(message: 'Person', child: Tab(icon: Icon(Icons.person))),
+                    Tooltip(message: 'Relations', child: Tab(icon: Icon(Icons.people))),
+                    Tooltip(message: 'Items', child: Tab(icon: Icon(Icons.list))),
+                    Tooltip(message: 'Attachments', child: Tab(icon: Icon(Icons.attach_file))),
+                  ]
+                : [
+                    Tooltip(message: 'Person', child: Tab(icon: Icon(Icons.person))),
+                  ],
+          ),
+        ),
 
-            /// separated widget so that scaffold is already available for Snack message
-            body: PersonPageBody(
-              personId: _personId,
-              updatePersonId: updatePersonId,
-            ),
-          );
-        },
+        /// separated widget so that scaffold is already available for Snack message
+        body: PersonPageBody(),
       ),
     );
   }
 }
 
 class PersonPageBody extends StatefulWidget {
-  const PersonPageBody({
-    required this.personId,
-    required this.updatePersonId,
-    super.key,
-  });
-  final int personId;
-  final void Function(int newPersonId) updatePersonId;
+  const PersonPageBody({super.key});
 
   @override
   State<PersonPageBody> createState() => _PersonPageBodyState();
@@ -84,47 +64,22 @@ class _PersonPageBodyState extends State<PersonPageBody> {
   late Future<Person> personFuture;
   late Future<PersonDetail> personDetailFuture;
   late Future<List<dynamic>> personDataFuture;
-  bool dataReady = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    messengerKey = context.read<AppState>().messengerKey;
-    personFuture = Person.getPerson(id: widget.personId, messengerKey: messengerKey);
-    personDetailFuture =
-        PersonDetail.getPersonDetail(id: widget.personId, messengerKey: messengerKey);
-    personDataFuture = Future.wait([personFuture, personDetailFuture]);
-    personDataFuture.then((data) {
-      context.read<AppState>().activePerson = data[0];
-      context.read<AppState>().activePersonDetail = data[1];
-      setState(() {
-        dataReady = true;
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    if (dataReady) {
-      return TabBarView(
-        physics: NeverScrollableScrollPhysics(),
-        children: (widget.personId > 0)
-            ? [
-                PersonTab(
-                  updatePersonId: widget.updatePersonId,
-                ),
-                RelationTab(),
-                ItemTab(),
-                AttachmentTab(),
-              ]
-            : [
-                PersonTab(
-                  updatePersonId: widget.updatePersonId,
-                ),
-              ],
-      );
-    } else {
-      return const SpinKitPouringHourGlass(color: Colors.blue);
-    }
+    debugPrint('PersonPageBody build');
+    return TabBarView(
+      physics: NeverScrollableScrollPhysics(),
+      children: (context.watch<AppState>().activePerson.id > 0)
+          ? [
+              PersonTab(),
+              RelationTab(),
+              ItemTab(),
+              AttachmentTab(),
+            ]
+          : [
+              PersonTab(),
+            ],
+    );
   }
 }

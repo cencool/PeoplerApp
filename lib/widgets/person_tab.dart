@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:peopler/globals/app_state.dart';
+import 'package:peopler/models/credentials.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/api.dart';
 import 'package:peopler/models/person_form.dart';
@@ -11,8 +13,7 @@ import 'package:provider/provider.dart';
 enum PersonTabMode { view, editData, deletePerson, editPhoto }
 
 class PersonTab extends StatefulWidget {
-  const PersonTab({required this.updatePersonId, super.key});
-  final Function(int newPersonId) updatePersonId;
+  const PersonTab({super.key});
 
   @override
   State<PersonTab> createState() => _PersonTabState();
@@ -31,7 +32,6 @@ class _PersonTabState extends State<PersonTab> {
         context.read<AppState>().activePersonDetail = PersonDetail.dummy(-1);
         activePerson = context.read<AppState>().activePerson;
         activePersonDetail = context.read<AppState>().activePersonDetail;
-        widget.updatePersonId(-1);
         personTabMode = newMode;
       } else {
         personTabMode = newMode;
@@ -41,6 +41,7 @@ class _PersonTabState extends State<PersonTab> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('PersonTab build');
     var messengerKey = context.read<AppState>().messengerKey;
     switch (personTabMode) {
       case (PersonTabMode.editData):
@@ -57,14 +58,6 @@ class _PersonTabState extends State<PersonTab> {
           activePerson: activePerson,
           onModeSwitch: switchPersonTabMode,
         );
-      // case (PersonTabMode.deletePerson):
-      //   {
-      //     context.read<AppState>().activePerson = Person.dummy();
-      //     context.read<AppState>().activePersonDetail = PersonDetail.dummy(-1);
-      //     widget.updatePersonId(-1);
-      //     return Placeholder();
-      //   }
-
       default:
         return const Placeholder();
     }
@@ -264,25 +257,34 @@ class PersonPhoto extends StatefulWidget {
 }
 
 class _PersonPhotoState extends State<PersonPhoto> {
-  // Future<String> authString = Credentials.getAuthString();
-  late String authString = context.read<AppState>().authString;
+  Future<String> authStringFuture = Credentials.getAuthString();
+  // late String authString = context.read<AppState>().authString;
   @override
   Widget build(BuildContext context) {
     String urlVal =
         '${Api.personPhotoReceiveUrl}?id=${widget.personId}&${DateTime.now().millisecondsSinceEpoch}';
-    return GestureDetector(
-      onTap: () {
-        debugPrint('Image tapped');
-        widget.onModeSwitch(PersonTabMode.editPhoto);
-      },
-      child: FadeInImage(
-          key: ValueKey('fadeInImagw'),
-          placeholder: MemoryImage(kTransparentImage),
-          image: NetworkImage(
-            urlVal,
-            headers: {'Authorization': 'Basic $authString'},
-          )),
-    );
+    return FutureBuilder(
+        future: authStringFuture,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            String authString = snapshot.data!;
+            return GestureDetector(
+              onTap: () {
+                debugPrint('Image tapped');
+                widget.onModeSwitch(PersonTabMode.editPhoto);
+              },
+              child: FadeInImage(
+                  key: ValueKey('fadeInImagw'),
+                  placeholder: MemoryImage(kTransparentImage),
+                  image: NetworkImage(
+                    urlVal,
+                    headers: {'Authorization': 'Basic $authString'},
+                  )),
+            );
+          } else {
+            return SpinKitPouringHourGlass(color: Colors.blue);
+          }
+        });
   }
 }
 

@@ -11,7 +11,18 @@ enum ActivePage { login, personList, person }
 class AppState extends ChangeNotifier {
   bool _isLoggedIn = false;
   String _userName = '';
-  ActivePage activePage = ActivePage.login;
+  String _authString = '';
+
+  Person _activePerson = Person.dummy();
+  PersonDetail _activePersonDetail = PersonDetail.dummy(-1);
+  RelationRecord _activeRelationRecord = RelationRecord.dummy();
+  PersonItem _activePersonItem = PersonItem.dummy();
+
+  PlutoGridStateManager? _personListStateManager;
+  PlutoGridStateManager? _relationTableStateManager;
+  PlutoGridStateManager? _personSearchListStateManager;
+
+  ActivePage _activePage = ActivePage.login;
   late GlobalKey<ScaffoldMessengerState> _messengerKey;
 
   AppState() {
@@ -22,9 +33,9 @@ class AppState extends ChangeNotifier {
         Credentials.getUserName().then((name) {
           _userName = name!;
         });
-        activePage = ActivePage.personList;
+        _activePage = ActivePage.personList;
       } else {
-        activePage = ActivePage.login;
+        _activePage = ActivePage.login;
       }
     });
   }
@@ -47,71 +58,72 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Person _activePerson = Person.dummy();
   Person get activePerson => _activePerson;
   set activePerson(Person person) {
     _activePerson = person;
     notifyListeners();
   }
 
-  PersonDetail _activePersonDetail = PersonDetail.dummy(-1);
   PersonDetail get activePersonDetail => _activePersonDetail;
   set activePersonDetail(PersonDetail detail) {
     _activePersonDetail = detail;
     notifyListeners();
   }
 
-  RelationRecord _activeRelationRecord = RelationRecord.dummy();
   RelationRecord get activeRelationRecord => _activeRelationRecord;
   set activeRelationRecord(RelationRecord record) {
     _activeRelationRecord = record;
     notifyListeners();
   }
 
-  PersonItem _activePersonItem = PersonItem.dummy();
   PersonItem get activePersonItem => _activePersonItem;
   set activePersonItem(PersonItem item) {
     _activePersonItem = item;
     notifyListeners();
   }
 
-  PlutoGridStateManager? _relationTableStateManager;
   PlutoGridStateManager? get relationTableStateManager => _relationTableStateManager;
   set relationTableStateManager(PlutoGridStateManager? manager) {
     _relationTableStateManager = manager;
     notifyListeners();
   }
 
-  PlutoGridStateManager? _personListStateManager;
   PlutoGridStateManager? get personListStateManager => _personListStateManager;
   set personListStateManager(PlutoGridStateManager? manager) {
     _personListStateManager = manager;
     notifyListeners();
   }
 
-  PlutoGridStateManager? _personSearchListStateManager;
   PlutoGridStateManager? get personSearchListStateManager => _personSearchListStateManager;
   set personSearchListStateManager(PlutoGridStateManager? manager) {
     _personSearchListStateManager = manager;
     notifyListeners();
   }
 
-  String _authString = '';
   String get authString => _authString;
   set authString(String auth) {
     _authString = auth;
     notifyListeners();
   }
 
+  ActivePage get activePage => _activePage;
+  set activePage(ActivePage val) {
+    _activePage = val;
+    notifyListeners();
+  }
+
   void logout() async {
     await Credentials.deleteToken();
     _userName = '';
-    activePage = ActivePage.login;
+    _activePage = ActivePage.login;
     isLoggedIn = false;
   }
 
   void login() {
-    activePage = ActivePage.personList;
+    _activePage = ActivePage.personList;
     isLoggedIn = true;
+    Credentials.getUserName().then((name) {
+      _userName = name!;
+    });
   }
 }
