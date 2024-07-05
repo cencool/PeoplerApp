@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/general_search.dart';
 import 'package:peopler/models/person.dart';
+import 'package:peopler/models/person_detail.dart';
+import 'package:peopler/pages/start_page.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:peopler/pages/person_page.dart';
 import 'package:provider/provider.dart';
@@ -79,19 +81,21 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
           renderer: (cellContext) {
             return InkWell(
               onTap: () {
-                var personSearchListStateManager =
-                    context.read<AppState>().personSearchListStateManager;
                 var messengerKey = context.read<AppState>().messengerKey;
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return Builder(builder: (context) {
-                    return PersonPage();
+                Person.getPerson(id: cellContext.row.cells['id']?.value, messengerKey: messengerKey)
+                    .then((person) {
+                  context.read<AppState>().activePerson = person;
+                  PersonDetail.getPersonDetail(id: person.id, messengerKey: messengerKey)
+                      .then((personDetail) {
+                    context.read<AppState>().activePersonDetail = personDetail;
+                  }).then((_) {
+                    context.read<AppState>().activePage = ActivePage.person;
+                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return Builder(builder: (context) {
+                        return StartPage();
+                      });
+                    }));
                   });
-                })).then((popVal) {
-                  return Person.getPaginatedPersonList(messengerKey: messengerKey);
-                }).then((paginatedPersonList) {
-                  var plutoRows = Person.getPlutoRows(paginatedPersonList.persons);
-                  personSearchListStateManager?.removeAllRows();
-                  personSearchListStateManager?.appendRows(plutoRows);
                 });
               },
               child: Text(
