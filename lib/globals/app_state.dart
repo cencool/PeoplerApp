@@ -32,6 +32,10 @@ class AppState extends ChangeNotifier {
       if (isLoggedIn) {
         Credentials.getUserName().then((name) {
           _userName = name!;
+        }).then((_) {
+          Credentials.getAuthString().then((val) {
+            authString = val;
+          });
         });
         _activePage = ActivePage.personList;
       } else {

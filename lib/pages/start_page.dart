@@ -14,7 +14,7 @@ class StartPage extends StatelessWidget {
     debugPrint('StartPage build');
     return switch (context.watch<AppState>().activePage) {
       ActivePage.login => LoginPage(),
-      ActivePage.personList => PersonListPage(key: ValueKey('fromStartPage')),
+      ActivePage.personList => PersonListPage(),
       ActivePage.person => PersonPage(),
     };
   }

@@ -97,7 +97,7 @@ class PersonFormModel with ChangeNotifier {
     noteController.text = detailOld['note'];
   }
 
-  void saveData(GlobalKey<ScaffoldMessengerState> messengerKey) async {
+  Future<void> saveData(GlobalKey<ScaffoldMessengerState> messengerKey) async {
     //treba zmenit obsah personDetail pred save z controllerov!
     person.name = nameController.text;
     person.surname = surnameController.text;
@@ -121,7 +121,7 @@ class PersonFormModel with ChangeNotifier {
     } else {
       restoreData();
     }
-    notifyListeners();
+    // notifyListeners();
   }
 
   void setActiveData() {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
+import 'package:peopler/models/person.dart';
+import 'package:peopler/models/person_detail.dart';
 import 'package:peopler/pages/general_seach_page.dart';
 import 'package:peopler/widgets/pluto_person_list.dart';
 import 'package:provider/provider.dart';
@@ -33,20 +35,9 @@ class PersonListPage extends StatelessWidget {
             icon: const Icon(Icons.add),
             tooltip: 'New Record',
             onPressed: () {
-              // var personListStateManager = context.read<AppState>().personListStateManager;
-              // GlobalKey<ScaffoldMessengerState> messengerKey =
-              //     context.read<AppState>().messengerKey;
-              // Navigator.push(context, MaterialPageRoute(builder: (context) {
-              //   return Builder(builder: (context) {
-              //     return const PersonPage(-1);
-              //   });
-              // })).then((val) {
-              //   return Person.getPaginatedPersonList(messengerKey: messengerKey);
-              // }).then((paginatedPersonList) {
-              //   var plutoRows = Person.getPlutoRows(paginatedPersonList.persons);
-              //   personListStateManager?.removeAllRows();
-              //   personListStateManager?.appendRows(plutoRows);
-              // });
+              context.read<AppState>().activePerson = Person.dummy();
+              context.read<AppState>().activePersonDetail = PersonDetail.dummy(-1);
+              context.read<AppState>().activePage = ActivePage.person;
             },
           ),
           IconButton(

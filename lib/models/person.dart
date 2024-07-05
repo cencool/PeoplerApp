@@ -48,11 +48,11 @@ class Person {
 
   factory Person.dummy() => Person(
         id: -1,
-        surname: "N/A",
+        surname: "N-A",
         name: '',
         place: '',
         gender: "?",
-        owner: "N/A",
+        owner: "N-A",
       );
   factory Person.dummySearch() => Person(
         id: -1,

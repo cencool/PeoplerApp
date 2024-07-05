@@ -28,13 +28,8 @@ class _ItemTabState extends State<ItemTab> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    context.read<AppState>().activePersonItem = PersonItem.dummy();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    debugPrint("ItemTab build");
     switch (itemTabMode) {
       case (ItemTabMode.view):
         return Stack(children: [

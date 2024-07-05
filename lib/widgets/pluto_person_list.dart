@@ -142,8 +142,8 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
     }
 
     debugPrint(queryString);
-    final List<PlutoRow> rows;
-    final persons = await Person.getPaginatedPersonList(
+    List<PlutoRow> rows;
+    PaginatedPersonList persons = await Person.getPaginatedPersonList(
         query: queryString, messengerKey: context.read<AppState>().messengerKey);
     rows = getPlutoRows(persons.persons);
     return PlutoLazyPaginationResponse(totalPage: persons.pageCount, rows: rows);

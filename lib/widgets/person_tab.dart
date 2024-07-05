@@ -26,17 +26,15 @@ class _PersonTabState extends State<PersonTab> {
   //     id: activePerson.id, messengerKey: context.read<AppState>().messengerKey);
   PersonTabMode personTabMode = PersonTabMode.view;
   void switchPersonTabMode(PersonTabMode newMode) {
-    setState(() {
-      if (newMode == PersonTabMode.deletePerson) {
-        context.read<AppState>().activePerson = Person.dummy();
-        context.read<AppState>().activePersonDetail = PersonDetail.dummy(-1);
-        activePerson = context.read<AppState>().activePerson;
-        activePersonDetail = context.read<AppState>().activePersonDetail;
+    if (newMode == PersonTabMode.deletePerson) {
+      context.read<AppState>().activePerson = Person.dummy();
+      context.read<AppState>().activePersonDetail = PersonDetail.dummy(-1);
+      context.read<AppState>().activePage = ActivePage.personList;
+    } else {
+      setState(() {
         personTabMode = newMode;
-      } else {
-        personTabMode = newMode;
-      }
-    });
+      });
+    }
   }
 
   @override
@@ -46,7 +44,6 @@ class _PersonTabState extends State<PersonTab> {
     switch (personTabMode) {
       case (PersonTabMode.editData):
       case (PersonTabMode.view):
-      case (PersonTabMode.deletePerson):
         return PersonView(
             key: ValueKey(activePerson.id),
             personDetail: activePersonDetail,
@@ -90,7 +87,7 @@ class PersonView extends StatelessWidget {
               SizedBox(
                 height: 200,
 
-                /// TODO check if this can be stateless widget
+                /// TODO check if this whole form widget can be stateless widget
                 child: PersonPhoto(
                   activePerson.id,
                   onModeSwitch: switchPersonTabMode,
@@ -198,14 +195,21 @@ class PersonView extends StatelessWidget {
               onPressed: () {
                 if (formModel.editMode) {
                   showDialog(
-                      context: context,
-                      builder: (context) => PersonSaveDialog(
-                            personFormModel: formModel,
-                            messengerKey: messengerKey,
-                          ),
-                      barrierDismissible: false);
-                  switchPersonTabMode(PersonTabMode.view);
+                          context: context,
+                          builder: (context) => PersonSaveDialog(
+                                personFormModel: formModel,
+                                messengerKey: messengerKey,
+                              ),
+                          barrierDismissible: false)
+                      .then((_) {
+                    /// Pokus na obnovu tab state
+                    context.read<AppState>().activePerson = formModel.person;
+                    context.read<AppState>().activePersonDetail = formModel.personDetail;
+                    context.read<AppState>().activePage = ActivePage.person;
+                    // switchPersonTabMode(PersonTabMode.view);
+                  });
                 }
+
                 formModel.switchPersonFormMode();
                 switchPersonTabMode(PersonTabMode.editData);
               },
@@ -312,8 +316,9 @@ class PersonSaveDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       debugPrint('Yes save pressed');
-                      personFormModel.saveData(messengerKey);
-                      Navigator.pop(context);
+                      personFormModel.saveData(messengerKey).then((_) {
+                        Navigator.pop(context);
+                      });
                     },
                     child: const Text('Yes'),
                   ),

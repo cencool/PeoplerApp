@@ -171,6 +171,7 @@ class _RelationTableState extends State<RelationTable> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("Relation Table build");
     return PlutoGrid(
       columns: getColumns(context),
       rows: initRows,
@@ -190,7 +191,9 @@ class _RelationTableState extends State<RelationTable> {
         debugPrint('State manager assigned');
         stateManager = event.stateManager;
         stateManager.setShowColumnFilter(true);
-        context.read<AppState>().relationTableStateManager = stateManager;
+        if (mounted) {
+          context.read<AppState>().relationTableStateManager = stateManager;
+        }
       },
       onChanged: (PlutoGridOnChangedEvent event) {
         debugPrint(event.toString());

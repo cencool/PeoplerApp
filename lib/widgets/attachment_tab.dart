@@ -39,6 +39,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
   Uint8List imageData = Uint8List(0);
   final int maxImageSize = 2000000;
   ImageProvider? imageToEditProvider;
+  String authString = '';
 
   AttachmentTabMode attachmentTabMode = AttachmentTabMode.view;
 
@@ -47,6 +48,8 @@ class _AttachmentTabState extends State<AttachmentTab> {
     super.initState();
     attachmentList =
         activePerson.getAttachmentList(id: activePerson.id, messengerKey: messengerKey);
+    // authString = context.read<AppState>().authString;
+    // debugPrint('attachment tab auth string is:$authString');
   }
 
   void switchMode(AttachmentTabMode newMode, int itemId) {
@@ -69,6 +72,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('AttachmentTab build');
     switch (attachmentTabMode) {
       case (AttachmentTabMode.view):
         return attachmentListView();
@@ -132,7 +136,8 @@ class _AttachmentTabState extends State<AttachmentTab> {
         future: attachmentList,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            String authString = context.read<AppState>().authString;
+            authString = context.read<AppState>().authString;
+            debugPrint('attachment tab auth string is:$authString');
             List<Widget> attachmentFiles = [];
             for (final item in snapshot.data!) {
               attachmentFiles.add(

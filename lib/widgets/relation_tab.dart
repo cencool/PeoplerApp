@@ -18,7 +18,7 @@ class RelationTab extends StatefulWidget {
 }
 
 class _RelationTabState extends State<RelationTab> {
-  late Person activePerson = context.read<AppState>().activePerson;
+  // late Person activePerson = context.read<AppState>().activePerson;
   RelationTabMode mode = RelationTabMode.view;
   late GlobalKey<ScaffoldMessengerState> messengerKey = context.read<AppState>().messengerKey;
 
@@ -72,9 +72,11 @@ class _RelationTabState extends State<RelationTab> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('Relation tab build');
+    debugPrint('relation tab auth:${context.read<AppState>().authString}');
     return Stack(children: [
       ActiveContent(
-        activePerson: activePerson,
+        activePerson: context.watch<AppState>().activePerson,
         mode: mode,
         switchMode: switchMode,
       ),

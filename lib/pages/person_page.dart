@@ -18,8 +18,8 @@ class PersonPage extends StatelessWidget {
       length: (context.watch<AppState>().activePerson.id > -1) ? 4 : 1,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
-            'Person Data',
+          title: Text(
+            'Person: ${context.watch<AppState>().activePerson.surname}, ${context.watch<AppState>().activePerson.name}',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -70,7 +70,7 @@ class _PersonPageBodyState extends State<PersonPageBody> {
     debugPrint('PersonPageBody build');
     return TabBarView(
       physics: NeverScrollableScrollPhysics(),
-      children: (context.watch<AppState>().activePerson.id > 0)
+      children: (context.watch<AppState>().activePerson.id > -1)
           ? [
               PersonTab(),
               RelationTab(),
