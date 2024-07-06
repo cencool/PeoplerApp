@@ -91,9 +91,7 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
                   }).then((_) {
                     context.read<AppState>().activePage = ActivePage.person;
                     Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return Builder(builder: (context) {
-                        return StartPage();
-                      });
+                      return StartPage();
                     }));
                   });
                 });

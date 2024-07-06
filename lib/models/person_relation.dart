@@ -75,7 +75,7 @@ class PersonRelation {
       } else {
         SnackMessage.showMessage(
             messengerKey: messengerKey,
-            message: 'Unexpected response code:${serverResponse.statusCode} ',
+            message: 'Relation :${serverResponse.statusCode} ',
             messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {
@@ -150,7 +150,7 @@ class RelationName {
       } else {
         SnackMessage.showMessage(
             messengerKey: messengerKey,
-            message: 'Unexpected response code:${serverResponse.statusCode} ',
+            message: 'Relation names :${serverResponse.statusCode} ',
             messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {

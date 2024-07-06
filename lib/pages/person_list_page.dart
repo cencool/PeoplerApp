@@ -28,7 +28,9 @@ class PersonListPage extends StatelessWidget {
                 return Builder(builder: (context) {
                   return GeneralSearchPage();
                 });
-              }));
+              })).then((_) {
+                debugPrint('After app bar pop from general search');
+              });
             },
           ),
           IconButton(

@@ -20,10 +20,6 @@ class PersonTab extends StatefulWidget {
 }
 
 class _PersonTabState extends State<PersonTab> {
-  late Person activePerson = context.read<AppState>().activePerson;
-  late PersonDetail activePersonDetail = context.read<AppState>().activePersonDetail;
-  // late Future<PersonDetail> personDetailFuture = PersonDetail.getPersonDetail(
-  //     id: activePerson.id, messengerKey: context.read<AppState>().messengerKey);
   PersonTabMode personTabMode = PersonTabMode.view;
   void switchPersonTabMode(PersonTabMode newMode) {
     if (newMode == PersonTabMode.deletePerson) {
@@ -45,14 +41,13 @@ class _PersonTabState extends State<PersonTab> {
       case (PersonTabMode.editData):
       case (PersonTabMode.view):
         return PersonView(
-            key: ValueKey(activePerson.id),
-            personDetail: activePersonDetail,
-            activePerson: activePerson,
+            personDetail: context.watch<AppState>().activePersonDetail,
+            activePerson: context.watch<AppState>().activePerson,
             switchPersonTabMode: switchPersonTabMode,
             messengerKey: messengerKey);
       case (PersonTabMode.editPhoto):
         return PersonPhotoView(
-          activePerson: activePerson,
+          activePerson: context.watch<AppState>().activePerson,
           onModeSwitch: switchPersonTabMode,
         );
       default:
@@ -88,9 +83,14 @@ class PersonView extends StatelessWidget {
                 height: 200,
 
                 /// TODO check if this whole form widget can be stateless widget
-                child: PersonPhoto(
-                  activePerson.id,
-                  onModeSwitch: switchPersonTabMode,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    PersonPhoto(
+                      activePerson.id,
+                      onModeSwitch: switchPersonTabMode,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 10.0),

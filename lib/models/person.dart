@@ -63,20 +63,6 @@ class Person {
         owner: "",
       );
 
-  /// deletes person with given id
-  /// TODO is not checked yet
-  static Future<http.Response> deletePerson({required int id, required messengerKey}) async {
-    final String url = '${Api.personRestUrl}/$id';
-    final String authString = await Credentials.getAuthString();
-    try {
-      return await http.delete(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-    } on http.ClientException catch (e) {
-      SnackMessage.showMessage(
-          messengerKey: messengerKey, message: e.message, messageType: MessageType.error);
-      return http.Response('', 599);
-    }
-  }
-
   /// returns [PaginatedPersonList] based on query
   static Future<PaginatedPersonList> getPaginatedPersonList(
       {String query = '', required messengerKey}) async {

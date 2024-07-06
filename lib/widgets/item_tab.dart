@@ -4,6 +4,7 @@ import 'package:peopler/models/api.dart';
 import 'package:peopler/models/credentials.dart';
 import 'package:peopler/models/person_item.dart';
 import 'package:peopler/widgets/pluto_person_item_list.dart';
+import 'package:peopler/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -230,13 +231,29 @@ class ItemSaveDialog extends StatelessWidget {
                       debugPrint('Yes save pressed');
                       String authString = await Credentials.getAuthString();
                       String url = createUrl(action);
-                      var response = await http.post(Uri.parse(url),
-                          headers: {'Authorization': 'Basic $authString'},
-                          body: activeItem.toMap());
-                      if (response.statusCode == 200) {
-                        debugPrint('Item save action successfull');
-                      } else {
-                        debugPrint('Response code: ${response.statusCode}');
+                      var messengerKey = context.read<AppState>().messengerKey;
+                      try {
+                        var response = await http.post(Uri.parse(url),
+                            headers: {'Authorization': 'Basic $authString'},
+                            body: activeItem.toMap());
+                        if (response.statusCode == 200) {
+                          debugPrint('Item save action successfull');
+                          SnackMessage.showMessage(
+                              messengerKey: messengerKey,
+                              message: action == ApiAction.delete ? 'Item deleted' : 'Item saved',
+                              messageType: MessageType.info);
+                        } else {
+                          debugPrint('Response code: ${response.statusCode}');
+                          SnackMessage.showMessage(
+                              messengerKey: messengerKey,
+                              message: 'Item save: ${response.reasonPhrase}',
+                              messageType: MessageType.error);
+                        }
+                      } on http.ClientException catch (e) {
+                        SnackMessage.showMessage(
+                            messengerKey: messengerKey,
+                            message: 'Item save: ${e.message}',
+                            messageType: MessageType.error);
                       }
 
                       /// TODO: check if can be done better ie .then()...

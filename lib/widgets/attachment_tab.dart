@@ -546,14 +546,25 @@ class AttachmentSaveDialog extends StatelessWidget {
                           var messengerKey = context.read<AppState>().messengerKey;
                           debugPrint('Yes save pressed');
                           var request = await createRequest(actionName);
-                          var response = await request.send();
-                          if (response.statusCode == 200) {
-                            debugPrint('File save action successfull');
-                          } else {
-                            debugPrint('Response code: ${response.statusCode}');
+                          try {
+                            var response = await request.send();
+                            if (response.statusCode == 200) {
+                              debugPrint('File save action successfull');
+                              SnackMessage.showMessage(
+                                  messengerKey: messengerKey,
+                                  message: 'Attachment saved',
+                                  messageType: MessageType.info);
+                            } else {
+                              debugPrint('Response code: ${response.statusCode}');
+                              SnackMessage.showMessage(
+                                  messengerKey: messengerKey,
+                                  message: 'Att.save: ${response.reasonPhrase}',
+                                  messageType: MessageType.error);
+                            }
+                          } on http.ClientException catch (e) {
                             SnackMessage.showMessage(
                                 messengerKey: messengerKey,
-                                message: '${response.reasonPhrase}',
+                                message: 'Attachment save: ${e.message}',
                                 messageType: MessageType.error);
                           }
 
@@ -598,12 +609,28 @@ class AttachmentSaveDialog extends StatelessWidget {
                       TextButton(
                         onPressed: () async {
                           debugPrint('Yes delete pressed');
+                          var messengerKey = context.read<AppState>().messengerKey;
                           var request = await createRequest(actionName);
-                          var response = await request.send();
-                          if (response.statusCode == 200) {
-                            debugPrint('Attachment Deleted!');
-                          } else {
-                            debugPrint('Response code: ${response.statusCode}');
+                          try {
+                            var response = await request.send();
+                            if (response.statusCode == 200) {
+                              debugPrint('Attachment Deleted!');
+                              SnackMessage.showMessage(
+                                  messengerKey: messengerKey,
+                                  message: 'Att.deleted',
+                                  messageType: MessageType.info);
+                            } else {
+                              debugPrint('Response code: ${response.statusCode}');
+                              SnackMessage.showMessage(
+                                  messengerKey: messengerKey,
+                                  message: 'Att.delete: ${response.reasonPhrase}',
+                                  messageType: MessageType.error);
+                            }
+                          } on http.ClientException catch (e) {
+                            SnackMessage.showMessage(
+                                messengerKey: messengerKey,
+                                message: 'Att.delete: ${e.message}',
+                                messageType: MessageType.error);
                           }
 
                           /// TODO check if can be done better ie .then()...

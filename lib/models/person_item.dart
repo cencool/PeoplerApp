@@ -66,7 +66,7 @@ class PersonItem {
       } else {
         SnackMessage.showMessage(
             messengerKey: messengerKey,
-            message: 'Person List - Unexpected response code:${serverResponse.statusCode} ',
+            message: 'Person Item :${serverResponse.statusCode} ',
             messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {
