@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/person_detail.dart';
+import 'package:peopler/pages/start_page.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:provider/provider.dart';
 
@@ -64,6 +65,9 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
                     .then((personDetail) {
                   context.read<AppState>().activePersonDetail = personDetail;
                   context.read<AppState>().activePage = ActivePage.person;
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) {
+                    return StartPage();
+                  }));
                 });
               });
               // Navigator.push(context, MaterialPageRoute(builder: (context) {
