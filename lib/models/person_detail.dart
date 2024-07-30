@@ -49,7 +49,7 @@ class PersonDetail {
     address = '';
   }
 
-  Future<Map<String, dynamic>> save(GlobalKey<ScaffoldMessengerState> messengerKey) async {
+  Future<Map<String, dynamic>> save() async {
     final String authString = await Credentials.getAuthString();
 
     if (id > -1) {
@@ -65,30 +65,25 @@ class PersonDetail {
           }
           Map<String, dynamic> response = json.decode(jsonString);
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'Details for:${response["person_id"]} saved',
-              messageType: MessageType.info);
+              message: 'Details for:${response["person_id"]} saved', messageType: MessageType.info);
           return response;
         } else if (serverResponse.statusCode == 404) {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'No details data available...',
-              messageType: MessageType.info);
+              message: 'No details data available...', messageType: MessageType.info);
         } else {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
               message: 'Detail Save - Unexpected response code:${serverResponse.statusCode} ',
               messageType: MessageType.error);
         }
       } on http.ClientException catch (e) {
         SnackMessage.showMessage(
-            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+          message: e.message,
+          messageType: MessageType.error,
+        );
       } catch (e) {
         debugPrint(e.toString());
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Exceptions:${e.toString()}',
-            messageType: MessageType.error);
+            message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
       }
     } else {
       // create new record
@@ -103,30 +98,25 @@ class PersonDetail {
           }
           Map<String, dynamic> response = json.decode(jsonString);
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'Details for:${response["person_id"]} saved',
-              messageType: MessageType.info);
+              message: 'Details for:${response["person_id"]} saved', messageType: MessageType.info);
           return response;
         } else if (serverResponse.statusCode == 404) {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'No details data available...',
-              messageType: MessageType.info);
+              message: 'No details data available...', messageType: MessageType.info);
         } else {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
               message: 'Detail Save - Unexpected response code:${serverResponse.statusCode} ',
               messageType: MessageType.error);
         }
       } on http.ClientException catch (e) {
         SnackMessage.showMessage(
-            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+          message: e.message,
+          messageType: MessageType.error,
+        );
       } catch (e) {
         debugPrint(e.toString());
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Exceptions:${e.toString()}',
-            messageType: MessageType.error);
+            message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
       }
     }
     return {"error": true};
@@ -155,8 +145,7 @@ class PersonDetail {
         "address": address,
       };
 
-  static Future<PersonDetail> getPersonDetail(
-      {required int id, required GlobalKey<ScaffoldMessengerState> messengerKey}) async {
+  static Future<PersonDetail> getPersonDetail({required int id}) async {
     String url = '${Api.personDetailUrl}/$id';
     final String authString = await Credentials.getAuthString();
     try {
@@ -171,21 +160,22 @@ class PersonDetail {
         return PersonDetail.fromJson(jsonObject);
       } else if (serverResponse.statusCode == 404) {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'No details data available...',
-            messageType: MessageType.info);
+            message: 'No details data available...', messageType: MessageType.info);
       } else {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
             message: 'Get Detail - Unexpected response code:${serverResponse.statusCode} ',
             messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {
       SnackMessage.showMessage(
-          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+        message: e.message,
+        messageType: MessageType.error,
+      );
     } catch (e) {
       debugPrint(e.toString());
-      SnackMessage.showMessage(messageType: MessageType.error, messengerKey: messengerKey);
+      SnackMessage.showMessage(
+        messageType: MessageType.error,
+      );
     }
     return PersonDetail.dummy(id);
   }

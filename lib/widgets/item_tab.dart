@@ -231,7 +231,6 @@ class ItemSaveDialog extends StatelessWidget {
                       debugPrint('Yes save pressed');
                       String authString = await Credentials.getAuthString();
                       String url = createUrl(action);
-                      var messengerKey = context.read<AppState>().messengerKey;
                       try {
                         var response = await http.post(Uri.parse(url),
                             headers: {'Authorization': 'Basic $authString'},
@@ -239,21 +238,17 @@ class ItemSaveDialog extends StatelessWidget {
                         if (response.statusCode == 200) {
                           debugPrint('Item save action successfull');
                           SnackMessage.showMessage(
-                              messengerKey: messengerKey,
                               message: action == ApiAction.delete ? 'Item deleted' : 'Item saved',
                               messageType: MessageType.info);
                         } else {
                           debugPrint('Response code: ${response.statusCode}');
                           SnackMessage.showMessage(
-                              messengerKey: messengerKey,
                               message: 'Item save: ${response.reasonPhrase}',
                               messageType: MessageType.error);
                         }
                       } on http.ClientException catch (e) {
                         SnackMessage.showMessage(
-                            messengerKey: messengerKey,
-                            message: 'Item save: ${e.message}',
-                            messageType: MessageType.error);
+                            message: 'Item save: ${e.message}', messageType: MessageType.error);
                       }
 
                       /// TODO: check if can be done better ie .then()...

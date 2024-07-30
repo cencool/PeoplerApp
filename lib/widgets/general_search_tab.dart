@@ -34,7 +34,6 @@ class _GeneralSearchTabState extends State<GeneralSearchTab> {
       personDetail: personDetail,
       personAttachment: personAttachment,
       personItem: personItem);
-  late GlobalKey<ScaffoldMessengerState> messengerKey = context.read<AppState>().messengerKey;
   GeneralSearchMode generalSearchMode = GeneralSearchMode.search;
   Map<String, dynamic> searchParams = {};
 
@@ -196,8 +195,6 @@ class _GeneralSearchTabState extends State<GeneralSearchTab> {
             formModel.setActiveData();
             searchParams = searchDataToMap(person, personDetail, personAttachment, personItem);
             debugPrint('Search Json: ${searchMapToJson(searchParams)}');
-            // PaginatedPersonList personList = await Person.getPaginatedPersonSearchList(
-            //     searchParams: searchMapToJson(searchParams), messengerKey: messengerKey);
             if (generalSearchMode == GeneralSearchMode.search) {
               switchGeneralSearchMode(GeneralSearchMode.results);
               widget.onModeSwitch(GeneralSearchPageMode.results);

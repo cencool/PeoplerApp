@@ -29,7 +29,6 @@ class AttachmentTab extends StatefulWidget {
 }
 
 class _AttachmentTabState extends State<AttachmentTab> {
-  late GlobalKey<ScaffoldMessengerState> messengerKey = context.read<AppState>().messengerKey;
   late Future<List<PersonAttachment>> attachmentList;
   late Person activePerson = context.read<AppState>().activePerson;
   int activeAttachmentId = -1;
@@ -46,8 +45,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
   @override
   void initState() {
     super.initState();
-    attachmentList =
-        activePerson.getAttachmentList(id: activePerson.id, messengerKey: messengerKey);
+    attachmentList = activePerson.getAttachmentList(id: activePerson.id);
     // authString = context.read<AppState>().authString;
     // debugPrint('attachment tab auth string is:$authString');
   }
@@ -59,8 +57,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
       if (newMode == AttachmentTabMode.view) {
         imageFromFile = null;
       }
-      attachmentList =
-          activePerson.getAttachmentList(id: activePerson.id, messengerKey: messengerKey);
+      attachmentList = activePerson.getAttachmentList(id: activePerson.id);
     });
   }
 
@@ -543,7 +540,6 @@ class AttachmentSaveDialog extends StatelessWidget {
                     children: [
                       TextButton(
                         onPressed: () async {
-                          var messengerKey = context.read<AppState>().messengerKey;
                           debugPrint('Yes save pressed');
                           var request = await createRequest(actionName);
                           try {
@@ -551,19 +547,15 @@ class AttachmentSaveDialog extends StatelessWidget {
                             if (response.statusCode == 200) {
                               debugPrint('File save action successfull');
                               SnackMessage.showMessage(
-                                  messengerKey: messengerKey,
-                                  message: 'Attachment saved',
-                                  messageType: MessageType.info);
+                                  message: 'Attachment saved', messageType: MessageType.info);
                             } else {
                               debugPrint('Response code: ${response.statusCode}');
                               SnackMessage.showMessage(
-                                  messengerKey: messengerKey,
                                   message: 'Att.save: ${response.reasonPhrase}',
                                   messageType: MessageType.error);
                             }
                           } on http.ClientException catch (e) {
                             SnackMessage.showMessage(
-                                messengerKey: messengerKey,
                                 message: 'Attachment save: ${e.message}',
                                 messageType: MessageType.error);
                           }
@@ -609,26 +601,21 @@ class AttachmentSaveDialog extends StatelessWidget {
                       TextButton(
                         onPressed: () async {
                           debugPrint('Yes delete pressed');
-                          var messengerKey = context.read<AppState>().messengerKey;
                           var request = await createRequest(actionName);
                           try {
                             var response = await request.send();
                             if (response.statusCode == 200) {
                               debugPrint('Attachment Deleted!');
                               SnackMessage.showMessage(
-                                  messengerKey: messengerKey,
-                                  message: 'Att.deleted',
-                                  messageType: MessageType.info);
+                                  message: 'Att.deleted', messageType: MessageType.info);
                             } else {
                               debugPrint('Response code: ${response.statusCode}');
                               SnackMessage.showMessage(
-                                  messengerKey: messengerKey,
                                   message: 'Att.delete: ${response.reasonPhrase}',
                                   messageType: MessageType.error);
                             }
                           } on http.ClientException catch (e) {
                             SnackMessage.showMessage(
-                                messengerKey: messengerKey,
                                 message: 'Att.delete: ${e.message}',
                                 messageType: MessageType.error);
                           }

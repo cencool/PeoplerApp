@@ -49,8 +49,7 @@ class PersonItem {
     };
   }
 
-  static Future<PaginatedPersonItemList> getPaginatedPersonItemList(
-      {String query = '', required messengerKey}) async {
+  static Future<PaginatedPersonItemList> getPaginatedPersonItemList({String query = ''}) async {
     final String url = '${Api.itemUrl}/list$query';
     final String authString = await Credentials.getAuthString();
     try {
@@ -65,13 +64,10 @@ class PersonItem {
         return PaginatedPersonItemList(items: personItemList, pageCount: pageCount);
       } else {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Person Item :${serverResponse.statusCode} ',
-            messageType: MessageType.error);
+            message: 'Person Item :${serverResponse.statusCode} ', messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {
-      SnackMessage.showMessage(
-          messengerKey: messengerKey, message: e.message, messageType: MessageType.error);
+      SnackMessage.showMessage(message: e.message, messageType: MessageType.error);
     }
     return PaginatedPersonItemList(items: <PersonItem>[]);
   }

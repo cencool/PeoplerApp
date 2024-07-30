@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:peopler/globals/app_state.dart';
-import 'package:peopler/models/credentials.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/api.dart';
 import 'package:peopler/models/person_form.dart';
@@ -36,15 +34,13 @@ class _PersonTabState extends State<PersonTab> {
   @override
   Widget build(BuildContext context) {
     debugPrint('PersonTab build');
-    var messengerKey = context.read<AppState>().messengerKey;
     switch (personTabMode) {
       case (PersonTabMode.editData):
       case (PersonTabMode.view):
         return PersonView(
             personDetail: context.watch<AppState>().activePersonDetail,
             activePerson: context.watch<AppState>().activePerson,
-            switchPersonTabMode: switchPersonTabMode,
-            messengerKey: messengerKey);
+            switchPersonTabMode: switchPersonTabMode);
       case (PersonTabMode.editPhoto):
         return PersonPhotoView(
           activePerson: context.watch<AppState>().activePerson,
@@ -62,12 +58,10 @@ class PersonView extends StatelessWidget {
     required this.personDetail,
     required this.activePerson,
     required this.switchPersonTabMode,
-    required this.messengerKey,
   });
 
   final PersonDetail personDetail;
   final Person activePerson;
-  final GlobalKey<ScaffoldMessengerState> messengerKey;
   final void Function(PersonTabMode newMode) switchPersonTabMode;
 
   @override
@@ -87,7 +81,6 @@ class PersonView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     PersonPhoto(
-                      activePerson.id,
                       onModeSwitch: switchPersonTabMode,
                     ),
                   ],
@@ -196,10 +189,7 @@ class PersonView extends StatelessWidget {
                 if (formModel.editMode) {
                   showDialog(
                           context: context,
-                          builder: (context) => PersonSaveDialog(
-                                personFormModel: formModel,
-                                messengerKey: messengerKey,
-                              ),
+                          builder: (context) => PersonSaveDialog(personFormModel: formModel),
                           barrierDismissible: false)
                       .then((_) {
                     /// Pokus na obnovu tab state
@@ -229,10 +219,7 @@ class PersonView extends StatelessWidget {
                         showDialog(
                             context: context,
                             builder: (context) => PersonDeleteDialog(
-                                  model: formModel,
-                                  onModeSwitch: switchPersonTabMode,
-                                  messengerKey: messengerKey,
-                                ),
+                                model: formModel, onModeSwitch: switchPersonTabMode),
                             barrierDismissible: false);
                         // switchPersonTabMode(PersonTabMode.deletePerson);
                       },
@@ -251,51 +238,37 @@ class PersonView extends StatelessWidget {
   }
 }
 
-class PersonPhoto extends StatefulWidget {
-  const PersonPhoto(this.personId, {required this.onModeSwitch, super.key});
-  final int personId;
+class PersonPhoto extends StatelessWidget {
+  const PersonPhoto({required this.onModeSwitch, super.key});
+  // final int personId;
   final void Function(PersonTabMode newMode) onModeSwitch;
 
   @override
-  State<PersonPhoto> createState() => _PersonPhotoState();
-}
-
-class _PersonPhotoState extends State<PersonPhoto> {
-  Future<String> authStringFuture = Credentials.getAuthString();
-  // late String authString = context.read<AppState>().authString;
-  @override
   Widget build(BuildContext context) {
+    int personId = context.watch<AppState>().activePerson.id;
     String urlVal =
-        '${Api.personPhotoReceiveUrl}?id=${widget.personId}&${DateTime.now().millisecondsSinceEpoch}';
-    return FutureBuilder(
-        future: authStringFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            String authString = snapshot.data!;
-            return GestureDetector(
-              onTap: () {
-                debugPrint('Image tapped');
-                widget.onModeSwitch(PersonTabMode.editPhoto);
-              },
-              child: FadeInImage(
-                  key: ValueKey('fadeInImagw'),
-                  placeholder: MemoryImage(kTransparentImage),
-                  image: NetworkImage(
-                    urlVal,
-                    headers: {'Authorization': 'Basic $authString'},
-                  )),
-            );
-          } else {
-            return SpinKitPouringHourGlass(color: Colors.blue);
-          }
-        });
+        '${Api.personPhotoReceiveUrl}?id=$personId&${DateTime.now().millisecondsSinceEpoch}';
+    String authString = context.watch<AppState>().authString;
+
+    return GestureDetector(
+      onTap: () {
+        debugPrint('Image tapped');
+        onModeSwitch(PersonTabMode.editPhoto);
+      },
+      child: FadeInImage(
+          key: ValueKey(urlVal),
+          placeholder: MemoryImage(kTransparentImage),
+          image: NetworkImage(
+            urlVal,
+            headers: {'Authorization': 'Basic $authString'},
+          )),
+    );
   }
 }
 
 class PersonSaveDialog extends StatelessWidget {
-  const PersonSaveDialog({required this.personFormModel, required this.messengerKey, super.key});
+  const PersonSaveDialog({required this.personFormModel, super.key});
   final PersonFormModel personFormModel;
-  final GlobalKey<ScaffoldMessengerState> messengerKey;
 
   @override
   Widget build(BuildContext context) {
@@ -316,7 +289,7 @@ class PersonSaveDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       debugPrint('Yes save pressed');
-                      personFormModel.saveData(messengerKey).then((_) {
+                      personFormModel.saveData().then((_) {
                         Navigator.pop(context);
                       });
                     },
@@ -341,10 +314,8 @@ class PersonSaveDialog extends StatelessWidget {
 }
 
 class PersonDeleteDialog extends StatelessWidget {
-  const PersonDeleteDialog(
-      {required this.model, required this.onModeSwitch, required this.messengerKey, super.key});
+  const PersonDeleteDialog({required this.model, required this.onModeSwitch, super.key});
   final PersonFormModel model;
-  final GlobalKey<ScaffoldMessengerState> messengerKey;
   final void Function(PersonTabMode newMode) onModeSwitch;
 
   @override
@@ -366,7 +337,7 @@ class PersonDeleteDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       debugPrint('Yes to delete pressed');
-                      Person.delete(model.person.id, messengerKey: messengerKey);
+                      Person.delete(model.person.id);
                       Navigator.pop(context);
                       onModeSwitch(PersonTabMode.deletePerson);
                       // Navigator.pop(context);

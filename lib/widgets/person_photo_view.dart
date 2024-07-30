@@ -391,7 +391,6 @@ class PhotoSaveDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () async {
                       debugPrint('Yes save pressed');
-                      var messengerKey = context.read<AppState>().messengerKey;
                       String authString = await Credentials.getAuthString();
                       var uri = Uri.parse(Api.personPhotoSendUrl);
                       var request = http.MultipartRequest('POST', uri)
@@ -405,7 +404,6 @@ class PhotoSaveDialog extends StatelessWidget {
                       } else {
                         debugPrint('Response code: ${response.reasonPhrase}');
                         SnackMessage.showMessage(
-                            messengerKey: messengerKey,
                             message: 'Photo upload: ${response.reasonPhrase}',
                             messageType: MessageType.error);
                       }

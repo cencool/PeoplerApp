@@ -12,6 +12,9 @@ class StartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint('StartPage build');
+
+    /// TODO neviem preco to rapluje s hlaskou 404 ked tam je select...
+    // return switch (context.select((AppState appState) => appState.activePage)) {
     return switch (context.watch<AppState>().activePage) {
       ActivePage.login => LoginPage(),
       ActivePage.personList => PersonListPage(),

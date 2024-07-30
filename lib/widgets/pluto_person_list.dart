@@ -57,12 +57,9 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
           return InkWell(
             onTap: () {
               // var personListStateManager = context.read<AppState>().personListStateManager;
-              var messengerKey = context.read<AppState>().messengerKey;
-              Person.getPerson(id: cellContext.row.cells['id']?.value, messengerKey: messengerKey)
-                  .then((person) {
+              Person.getPerson(id: cellContext.row.cells['id']?.value).then((person) {
                 context.read<AppState>().activePerson = person;
-                PersonDetail.getPersonDetail(id: person.id, messengerKey: messengerKey)
-                    .then((personDetail) {
+                PersonDetail.getPersonDetail(id: person.id).then((personDetail) {
                   context.read<AppState>().activePersonDetail = personDetail;
                   context.read<AppState>().activePage = ActivePage.person;
                   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) {
@@ -70,17 +67,6 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
                   }));
                 });
               });
-              // Navigator.push(context, MaterialPageRoute(builder: (context) {
-              //   return Builder(builder: (context) {
-              //     return PersonPage(cellContext.row.cells['id']?.value);
-              //   });
-              // })).then((popVal) {
-              //   return Person.getPaginatedPersonList(messengerKey: messengerKey);
-              // }).then((paginatedPersonList) {
-              //   var plutoRows = Person.getPlutoRows(paginatedPersonList.persons);
-              //   personListStateManager?.removeAllRows();
-              //   personListStateManager?.appendRows(plutoRows);
-              // });
             },
             child: Text(
               cellContext.cell.value,
@@ -148,7 +134,8 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
     debugPrint(queryString);
     List<PlutoRow> rows;
     PaginatedPersonList persons = await Person.getPaginatedPersonList(
-        query: queryString, messengerKey: context.read<AppState>().messengerKey);
+      query: queryString,
+    );
     rows = getPlutoRows(persons.persons);
     return PlutoLazyPaginationResponse(totalPage: persons.pageCount, rows: rows);
   }

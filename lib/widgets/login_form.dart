@@ -15,7 +15,6 @@ class _LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final userController = TextEditingController();
   final passwordController = TextEditingController();
-  late final messengerKey = context.read<AppState>().messengerKey;
   bool isProcessing = false;
   bool hidePassword = true;
 
@@ -25,10 +24,8 @@ class _LoginFormState extends State<LoginForm> {
         setState(() {
           isProcessing = true;
         });
-        SnackMessage.showMessage(
-            messengerKey: messengerKey, message: 'Processing', messageType: MessageType.info);
-        Credentials.login(
-                userName: userController.text, password: passwordController.text, context: context)
+        SnackMessage.showMessage(message: 'Processing', messageType: MessageType.info);
+        Credentials.login(userName: userController.text, password: passwordController.text)
             .then((loggedIn) {
           setState(() {
             isProcessing = false;
@@ -36,10 +33,7 @@ class _LoginFormState extends State<LoginForm> {
           if (loggedIn) {
             context.read<AppState>().login();
           } else {
-            SnackMessage.showMessage(
-                messengerKey: messengerKey,
-                message: 'Login Failed',
-                messageType: MessageType.error);
+            SnackMessage.showMessage(message: 'Login Failed', messageType: MessageType.error);
           }
         });
       }

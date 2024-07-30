@@ -20,14 +20,13 @@ class RelationTab extends StatefulWidget {
 class _RelationTabState extends State<RelationTab> {
   // late Person activePerson = context.read<AppState>().activePerson;
   RelationTabMode mode = RelationTabMode.view;
-  late GlobalKey<ScaffoldMessengerState> messengerKey = context.read<AppState>().messengerKey;
 
   void switchMode(RelationTabMode newMode) {
     switch (newMode) {
       case (RelationTabMode.add):
         {
           debugPrint('Switiching to add mode');
-          SnackMessage.showMessage(messengerKey: messengerKey, message: 'Switching to add mode');
+          SnackMessage.showMessage(message: 'Switching to add mode');
           setState(() {
             mode = RelationTabMode.add;
           });
@@ -41,7 +40,7 @@ class _RelationTabState extends State<RelationTab> {
               builder: (dialogContext) {
                 return const RelationSaveDialog();
               }).then((r) {
-            SnackMessage.showMessage(messengerKey: messengerKey, message: 'Switching to view mode');
+            SnackMessage.showMessage(message: 'Switching to view mode');
           }).then((r) {
             setState(() {
               mode = RelationTabMode.view;
@@ -176,10 +175,7 @@ class RelationSaveDialog extends StatelessWidget {
                     onPressed: () async {
                       debugPrint('Yes save pressed');
                       // model.saveData(messengerKey);
-                      await context
-                          .read<AppState>()
-                          .activeRelationRecord
-                          .save(messengerKey: context.read<AppState>().messengerKey);
+                      await context.read<AppState>().activeRelationRecord.save();
                       if (context.mounted) {
                         Navigator.pop(context);
                         context.read<AppState>().activeRelationRecord.reset();
@@ -228,8 +224,7 @@ class RelationDeleteDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () async {
                       debugPrint('Yes delete pressed');
-                      await RelationRecord.delete(context.read<AppState>().activeRelationRecord.id,
-                          messengerKey: context.read<AppState>().messengerKey);
+                      await RelationRecord.delete(context.read<AppState>().activeRelationRecord.id);
                       if (context.mounted) {
                         Navigator.pop(context);
                         var stMngr = context.read<AppState>().relationTableStateManager;

@@ -1,16 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:peopler/globals/app_state.dart';
-import 'package:provider/provider.dart';
+import 'package:peopler/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:peopler/models/api.dart';
 import 'package:http/http.dart' as http;
 
 class Credentials {
-  static Future<bool> login(
-      {required String userName, required String password, required BuildContext context}) async {
-    late ScaffoldMessengerState messenger = context.read<AppState>().messengerKey.currentState!;
+  static Future<bool> login({required String userName, required String password}) async {
     await deleteToken();
     final prefs = await SharedPreferences.getInstance();
     final bodyData = {'user': userName, 'password': password};
@@ -32,11 +29,7 @@ class Credentials {
       return false;
     } on http.ClientException catch (e) {
       debugPrint('Connection error: ${e.message}');
-      messenger.showSnackBar(SnackBar(
-        content: Text(e.message),
-        duration: const Duration(seconds: 0, milliseconds: 1500),
-        backgroundColor: Colors.red,
-      ));
+      SnackMessage.showMessage(message: e.message, messageType: MessageType.error);
       return false;
     }
   }

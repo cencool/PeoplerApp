@@ -60,7 +60,7 @@ class RelationRecord {
     return 'id:$id\npersonAid:$personAId\npersonBid:$personBId\nrelationAbId:$relationAbId';
   }
 
-  Future<bool> save({required GlobalKey<ScaffoldMessengerState> messengerKey}) async {
+  Future<bool> save() async {
     final String authString = await Credentials.getAuthString();
     if (id > -1) {
       // update
@@ -75,30 +75,27 @@ class RelationRecord {
             return false;
           }
           SnackMessage.showMessage(
-              message: 'Relation :$id saved',
-              messageType: MessageType.info,
-              messengerKey: messengerKey);
+            message: 'Relation :$id saved',
+            messageType: MessageType.info,
+          );
           return true;
         } else if (serverResponse.statusCode == 404) {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'No relation data available...',
-              messageType: MessageType.info);
+              message: 'No relation data available...', messageType: MessageType.info);
         } else {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
               message: 'Relation Save - Unexpected response code:${serverResponse.statusCode} ',
               messageType: MessageType.error);
         }
       } on http.ClientException catch (e) {
         SnackMessage.showMessage(
-            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+          message: e.message,
+          messageType: MessageType.error,
+        );
       } catch (e) {
         debugPrint(e.toString());
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Exceptions:${e.toString()}',
-            messageType: MessageType.error);
+            message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
       }
     } else {
       // create new record
@@ -114,39 +111,32 @@ class RelationRecord {
           }
           var responseRelationRecord = RelationRecord.fromJson(jsonDecode(jsonString));
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
               message: 'Relation: ${responseRelationRecord.id} saved',
               messageType: MessageType.info);
           return true;
         } else if (serverResponse.statusCode == 404) {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'No relation data available...',
-              messageType: MessageType.info);
+              message: 'No relation data available...', messageType: MessageType.info);
         } else {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
               message: 'Relation Save - Unexpected response code:${serverResponse.statusCode} ',
               messageType: MessageType.error);
         }
       } on http.ClientException catch (e) {
         SnackMessage.showMessage(
-            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+          message: e.message,
+          messageType: MessageType.error,
+        );
       } catch (e) {
         debugPrint(e.toString());
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Exceptions:${e.toString()}',
-            messageType: MessageType.error);
+            message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
       }
     }
     return false;
   }
 
-  static Future<RelationRecord> getRelationRecord(
-    int id, {
-    required GlobalKey<ScaffoldMessengerState> messengerKey,
-  }) async {
+  static Future<RelationRecord> getRelationRecord(int id) async {
     final String authString = await Credentials.getAuthString();
     String url = '${Api.relationRecordUrl}?relationId=$id';
     try {
@@ -159,38 +149,31 @@ class RelationRecord {
         }
         var responseRelationRecord = RelationRecord.fromJson(jsonDecode(jsonString));
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
             message: 'Relation: ${responseRelationRecord.id} received',
             messageType: MessageType.info);
         return responseRelationRecord;
       } else if (serverResponse.statusCode == 404) {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'No relation data available...',
-            messageType: MessageType.info);
+            message: 'No relation data available...', messageType: MessageType.info);
       } else {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
             message: 'RelationRecord get - Unexpected response code:${serverResponse.statusCode} ',
             messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {
       SnackMessage.showMessage(
-          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+        message: e.message,
+        messageType: MessageType.error,
+      );
     } catch (e) {
       debugPrint(e.toString());
       SnackMessage.showMessage(
-          messengerKey: messengerKey,
-          message: 'Exceptions:${e.toString()}',
-          messageType: MessageType.error);
+          message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
     }
     return RelationRecord.dummy();
   }
 
-  static Future<bool> delete(
-    int id, {
-    required GlobalKey<ScaffoldMessengerState> messengerKey,
-  }) async {
+  static Future<bool> delete(int id) async {
     final String authString = await Credentials.getAuthString();
     String url = '${Api.relationUrl}/$id';
     try {
@@ -203,31 +186,26 @@ class RelationRecord {
         }
         var response = jsonDecode(jsonString);
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Relation: ${response['deleted_id']} deleted',
-            messageType: MessageType.info);
+            message: 'Relation: ${response['deleted_id']} deleted', messageType: MessageType.info);
         return true;
       } else if (serverResponse.statusCode == 404) {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'No relation data available...',
-            messageType: MessageType.info);
+            message: 'No relation data available...', messageType: MessageType.info);
       } else {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
             message:
                 'RelationRecord delete - Unexpected response code:${serverResponse.statusCode} ',
             messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {
       SnackMessage.showMessage(
-          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+        message: e.message,
+        messageType: MessageType.error,
+      );
     } catch (e) {
       debugPrint(e.toString());
       SnackMessage.showMessage(
-          messengerKey: messengerKey,
-          message: 'Exceptions:${e.toString()}',
-          messageType: MessageType.error);
+          message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
     }
     return false;
   }

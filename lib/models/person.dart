@@ -64,8 +64,7 @@ class Person {
       );
 
   /// returns [PaginatedPersonList] based on query
-  static Future<PaginatedPersonList> getPaginatedPersonList(
-      {String query = '', required messengerKey}) async {
+  static Future<PaginatedPersonList> getPaginatedPersonList({String query = ''}) async {
     final String url = Api.personRestUrl + query;
     final String authString = await Credentials.getAuthString();
     try {
@@ -80,13 +79,11 @@ class Person {
         return PaginatedPersonList(persons: personList, pageCount: pageCount);
       } else {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
             message: 'Person List - Unexpected response code:${serverResponse.statusCode} ',
             messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {
-      SnackMessage.showMessage(
-          messengerKey: messengerKey, message: e.message, messageType: MessageType.error);
+      SnackMessage.showMessage(message: e.message, messageType: MessageType.error);
     }
     return PaginatedPersonList(persons: <Person>[]);
   }
@@ -110,7 +107,7 @@ class Person {
   }
 
   static Future<PaginatedPersonList> getPaginatedPersonSearchList(
-      {required String searchParams, required query, required messengerKey}) async {
+      {required String searchParams, required query}) async {
     final String authString = await Credentials.getAuthString();
     String url = '${Api.personSearchUrl}?$query';
     try {
@@ -126,18 +123,16 @@ class Person {
         return PaginatedPersonList(persons: personList, pageCount: pageCount);
       } else {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
             message: 'Person List - Unexpected response code:${serverResponse.statusCode} ',
             messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {
-      SnackMessage.showMessage(
-          messengerKey: messengerKey, message: e.message, messageType: MessageType.error);
+      SnackMessage.showMessage(message: e.message, messageType: MessageType.error);
     }
     return PaginatedPersonList(persons: <Person>[]);
   }
 
-  static Future<Person> getPerson({required int id, required messengerKey}) async {
+  static Future<Person> getPerson({required int id}) async {
     String url = '${Api.personRestUrl}/$id';
     final String authString = await Credentials.getAuthString();
     if (id > -1) {
@@ -150,13 +145,11 @@ class Person {
           return Person.fromJson(jsonObject);
         } else {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
               message: 'Get Person - Unexpected response code:${serverResponse.statusCode} ',
               messageType: MessageType.error);
         }
       } on http.ClientException catch (e) {
-        SnackMessage.showMessage(
-            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+        SnackMessage.showMessage(message: e.message, messageType: MessageType.error);
       }
     }
     return Person.dummy();
@@ -176,7 +169,7 @@ class Person {
         "gender": gender,
         "owner": owner,
       };
-  Future<Map<String, dynamic>> save(GlobalKey<ScaffoldMessengerState> messengerKey) async {
+  Future<Map<String, dynamic>> save() async {
     final String authString = await Credentials.getAuthString();
 
     if (id > -1) {
@@ -193,30 +186,27 @@ class Person {
             return {"error": true};
           }
           SnackMessage.showMessage(
-              message: 'Person :$id saved',
-              messageType: MessageType.info,
-              messengerKey: messengerKey);
+            message: 'Person :$id saved',
+            messageType: MessageType.info,
+          );
           return json.decode(jsonString);
         } else if (serverResponse.statusCode == 404) {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'No person data available...',
-              messageType: MessageType.info);
+              message: 'No person data available...', messageType: MessageType.info);
         } else {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
               message: 'Person Save - Unexpected response code:${serverResponse.statusCode} ',
               messageType: MessageType.error);
         }
       } on http.ClientException catch (e) {
         SnackMessage.showMessage(
-            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+          message: e.message,
+          messageType: MessageType.error,
+        );
       } catch (e) {
         debugPrint(e.toString());
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Exceptions:${e.toString()}',
-            messageType: MessageType.error);
+            message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
       }
     } else {
       // create new record
@@ -233,76 +223,61 @@ class Person {
           }
           Map<String, dynamic> response = json.decode(jsonString);
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'Person: ${response["id"]} saved',
-              messageType: MessageType.info);
+              message: 'Person: ${response["id"]} saved', messageType: MessageType.info);
           return response;
         } else if (serverResponse.statusCode == 404) {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'No person data available...',
-              messageType: MessageType.info);
+              message: 'No person data available...', messageType: MessageType.info);
         } else {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
               message: 'Person Save - Unexpected response code:${serverResponse.statusCode} ',
               messageType: MessageType.error);
         }
       } on http.ClientException catch (e) {
         SnackMessage.showMessage(
-            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+          message: e.message,
+          messageType: MessageType.error,
+        );
       } catch (e) {
         debugPrint(e.toString());
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Exceptions:${e.toString()}',
-            messageType: MessageType.error);
+            message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
       }
     }
     return {"error": true};
   }
 
-  static Future<bool> delete(
-    int id, {
-    required GlobalKey<ScaffoldMessengerState> messengerKey,
-  }) async {
+  static Future<bool> delete(int id) async {
     final String authString = await Credentials.getAuthString();
     String url = '${Api.personRestUrl}/$id';
     try {
       http.Response serverResponse =
           await http.delete(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
       if (serverResponse.statusCode >= 200 && serverResponse.statusCode < 300) {
-        SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Person: $id deleted',
-            messageType: MessageType.info);
+        SnackMessage.showMessage(message: 'Person: $id deleted', messageType: MessageType.info);
         return true;
       } else if (serverResponse.statusCode == 404) {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'No Person $id available...',
-            messageType: MessageType.error);
+            message: 'No Person $id available...', messageType: MessageType.error);
       } else {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
             message: 'Person delete - Unexpected response code:${serverResponse.statusCode} ',
             messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {
       SnackMessage.showMessage(
-          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+        message: e.message,
+        messageType: MessageType.error,
+      );
     } catch (e) {
       debugPrint(e.toString());
       SnackMessage.showMessage(
-          messengerKey: messengerKey,
-          message: 'Exceptions:${e.toString()}',
-          messageType: MessageType.error);
+          message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
     }
     return false;
   }
 
-  Future<List<PersonAttachment>> getAttachmentList(
-      {required int id, required GlobalKey<ScaffoldMessengerState> messengerKey}) async {
+  Future<List<PersonAttachment>> getAttachmentList({required int id}) async {
     String url = '${Api.attachmentUrl}/list?personId=$id';
     final String authString = await Credentials.getAuthString();
     if (id > -1) {
@@ -315,13 +290,14 @@ class Person {
           return personAttachmentFromJson(jsonString);
         } else {
           SnackMessage.showMessage(
-              messengerKey: messengerKey,
               message: 'Get Person - Unexpected response code:${serverResponse.statusCode} ',
               messageType: MessageType.error);
         }
       } on http.ClientException catch (e) {
         SnackMessage.showMessage(
-            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+          message: e.message,
+          messageType: MessageType.error,
+        );
       }
     }
     return personAttachmentFromJson('[]');

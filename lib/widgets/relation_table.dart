@@ -30,8 +30,8 @@ class _RelationTableState extends State<RelationTable> {
           type: PlutoColumnType.text(),
           enableContextMenu: false,
           enableSorting: true,
-          width: 100,
-          minWidth: 100,
+          width: 120,
+          minWidth: 120,
           renderer: (cellContext) {
             return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               // Text('${cellContext.cell.value}'),
@@ -44,7 +44,6 @@ class _RelationTableState extends State<RelationTable> {
                       ),
                       onPressed: () {
                         debugPrint('Edit button pressed:${cellContext.cell.value}');
-                        print(cellContext.row.cells);
                         context.read<AppState>().activeRelationRecord.id = cellContext.cell.value;
                         widget.switchMode(RelationTabMode.edit);
                       })
@@ -87,13 +86,9 @@ class _RelationTableState extends State<RelationTable> {
             return InkWell(
               onTap: () {
                 debugPrint('tapped:${cellContext.row.cells["toWhomId"]?.value}');
-                var messengerKey = context.read<AppState>().messengerKey;
-                Person.getPerson(
-                        id: cellContext.row.cells['toWhomId']?.value, messengerKey: messengerKey)
-                    .then((person) {
+                Person.getPerson(id: cellContext.row.cells['toWhomId']?.value).then((person) {
                   context.read<AppState>().activePerson = person;
-                  PersonDetail.getPersonDetail(id: person.id, messengerKey: messengerKey)
-                      .then((personDetail) {
+                  PersonDetail.getPersonDetail(id: person.id).then((personDetail) {
                     context.read<AppState>().activePersonDetail = personDetail;
                     // context.read<AppState>().activePage = ActivePage.person;
                   }).then((_) {
@@ -165,7 +160,8 @@ class _RelationTableState extends State<RelationTable> {
     debugPrint(queryString);
     final List<PlutoRow> rows;
     final relations = await PersonRelation.getPaginatedRelationList(
-        query: queryString, messengerKey: context.read<AppState>().messengerKey);
+      query: queryString,
+    );
     rows = getPlutoRows(relations.relations);
     return PlutoLazyPaginationResponse(totalPage: relations.pageCount, rows: rows);
   }

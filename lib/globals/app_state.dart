@@ -23,10 +23,8 @@ class AppState extends ChangeNotifier {
   PlutoGridStateManager? _personSearchListStateManager;
 
   ActivePage _activePage = ActivePage.login;
-  late GlobalKey<ScaffoldMessengerState> _messengerKey;
 
   AppState() {
-    messengerKey = GlobalKey<ScaffoldMessengerState>();
     Credentials.isLoggedIn().then((loginStatus) {
       isLoggedIn = loginStatus;
       if (isLoggedIn) {
@@ -53,12 +51,6 @@ class AppState extends ChangeNotifier {
   String get userName => _userName;
   set userName(String val) {
     _userName = val;
-    notifyListeners();
-  }
-
-  get messengerKey => _messengerKey;
-  set messengerKey(val) {
-    _messengerKey = val;
     notifyListeners();
   }
 

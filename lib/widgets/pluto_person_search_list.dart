@@ -42,8 +42,6 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
                   /// TODO check if refresh needed for plutoList here - need to reload real rows after delete...
                   PlutoGridStateManager? currentStateManager =
                       context.read<AppState>().personSearchListStateManager;
-                  GlobalKey<ScaffoldMessengerState> messengerKey =
-                      context.read<AppState>().messengerKey;
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return Builder(builder: (context) {
                       return PersonPage();
@@ -51,9 +49,7 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
                   })).then((val) async {
                     List<PlutoRow> rows;
                     var persons = await Person.getPaginatedPersonSearchList(
-                        searchParams: searchMapToJson(widget.searchParams),
-                        query: '',
-                        messengerKey: messengerKey);
+                        searchParams: searchMapToJson(widget.searchParams), query: '');
                     rows = getPlutoRows(persons.persons);
                     currentStateManager?.removeAllRows();
                     currentStateManager?.appendRows(rows);
@@ -81,12 +77,9 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
           renderer: (cellContext) {
             return InkWell(
               onTap: () {
-                var messengerKey = context.read<AppState>().messengerKey;
-                Person.getPerson(id: cellContext.row.cells['id']?.value, messengerKey: messengerKey)
-                    .then((person) {
+                Person.getPerson(id: cellContext.row.cells['id']?.value).then((person) {
                   context.read<AppState>().activePerson = person;
-                  PersonDetail.getPersonDetail(id: person.id, messengerKey: messengerKey)
-                      .then((personDetail) {
+                  PersonDetail.getPersonDetail(id: person.id).then((personDetail) {
                     context.read<AppState>().activePersonDetail = personDetail;
                   }).then((_) {
                     context.read<AppState>().activePage = ActivePage.person;
@@ -185,9 +178,7 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
     debugPrint(queryString);
     final List<PlutoRow> rows;
     final persons = await Person.getPaginatedPersonSearchList(
-        searchParams: searchMapToJson(widget.searchParams),
-        query: queryString,
-        messengerKey: context.read<AppState>().messengerKey);
+        searchParams: searchMapToJson(widget.searchParams), query: queryString);
     rows = getPlutoRows(persons.persons);
     return PlutoLazyPaginationResponse(totalPage: persons.pageCount, rows: rows);
   }

@@ -19,7 +19,6 @@ class RelationEdit extends StatefulWidget {
 
 class _RelationEditState extends State<RelationEdit> {
   /// tu nepotrebujeme async premenne, tie budu v async init funkcii
-  late GlobalKey<ScaffoldMessengerState> messengerKey = context.read<AppState>().messengerKey;
   late RelationRecord activeRelationRecord;
   late List<RelationName> relationNames;
   late Future<bool> init;
@@ -32,12 +31,10 @@ class _RelationEditState extends State<RelationEdit> {
   }
 
   Future<bool> initData(BuildContext context) async {
-    activeRelationRecord = await RelationRecord.getRelationRecord(
-        context.read<AppState>().activeRelationRecord.id,
-        messengerKey: messengerKey);
-    relationNames = await RelationName.getRelationNames(messengerKey: messengerKey);
-    var toWhomPerson =
-        await Person.getPerson(id: activeRelationRecord.personBId, messengerKey: messengerKey);
+    activeRelationRecord =
+        await RelationRecord.getRelationRecord(context.read<AppState>().activeRelationRecord.id);
+    relationNames = await RelationName.getRelationNames();
+    var toWhomPerson = await Person.getPerson(id: activeRelationRecord.personBId);
     toWhom = '${toWhomPerson.surname} ${toWhomPerson.name}';
     if (context.mounted) {
       context.read<AppState>().activeRelationRecord = activeRelationRecord;
@@ -67,9 +64,7 @@ class _RelationEditState extends State<RelationEdit> {
       setState(() {});
     } else {
       SnackMessage.showMessage(
-          messengerKey: messengerKey,
-          message: "Can't assign relation to same person!",
-          messageType: MessageType.error);
+          message: "Can't assign relation to same person!", messageType: MessageType.error);
     }
   }
 

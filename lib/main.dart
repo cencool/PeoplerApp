@@ -1,10 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/globals/dev_http.dart';
+import 'package:peopler/globals/app_globals.dart';
 import 'package:peopler/pages/start_page.dart';
 import 'package:provider/provider.dart';
+
+final getIt = GetIt.instance;
 
 void main() {
   /// Hack to enable using self signed certificate for https
@@ -21,8 +25,9 @@ class PeoplerApp extends StatelessWidget {
     return ChangeNotifierProvider<AppState>(
       create: (_) => AppState(),
       child: Builder(builder: (context) {
+        getIt.registerSingleton<AppGlobals>(AppGlobals());
         return MaterialApp(
-          scaffoldMessengerKey: context.read<AppState>().messengerKey,
+          scaffoldMessengerKey: getIt<AppGlobals>().messengerKey,
           debugShowCheckedModeBanner: false,
           title: 'Peopler',
           theme: ThemeData(

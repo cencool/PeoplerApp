@@ -58,8 +58,7 @@ class PersonRelation {
       };
 
   /// returns [PaginatedRelationList] based on query
-  static Future<PaginatedRelationList> getPaginatedRelationList(
-      {String query = '', required GlobalKey<ScaffoldMessengerState> messengerKey}) async {
+  static Future<PaginatedRelationList> getPaginatedRelationList({String query = ''}) async {
     final String url = Api.relationUrl + query;
     final String authString = await Credentials.getAuthString();
     try {
@@ -74,13 +73,13 @@ class PersonRelation {
         return PaginatedRelationList(relations: relationList, pageCount: pageCount);
       } else {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Relation :${serverResponse.statusCode} ',
-            messageType: MessageType.error);
+            message: 'Relation :${serverResponse.statusCode} ', messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {
       SnackMessage.showMessage(
-          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+        message: e.message,
+        messageType: MessageType.error,
+      );
     }
     return PaginatedRelationList(relations: <PersonRelation>[]);
   }
@@ -134,8 +133,7 @@ class RelationName {
         "token": token,
       };
 
-  static Future<List<RelationName>> getRelationNames(
-      {required GlobalKey<ScaffoldMessengerState> messengerKey}) async {
+  static Future<List<RelationName>> getRelationNames() async {
     const url = Api.relationNamesUrl;
     final String authString = await Credentials.getAuthString();
 
@@ -149,13 +147,14 @@ class RelationName {
         return relationNames;
       } else {
         SnackMessage.showMessage(
-            messengerKey: messengerKey,
             message: 'Relation names :${serverResponse.statusCode} ',
             messageType: MessageType.error);
       }
     } on http.ClientException catch (e) {
       SnackMessage.showMessage(
-          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
+        message: e.message,
+        messageType: MessageType.error,
+      );
     }
     return [];
   }
