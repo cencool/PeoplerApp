@@ -19,8 +19,8 @@ class Credentials {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         final responseData = jsonDecode(response.body);
         if ((responseData is Map) && responseData['token'] != null) {
-          prefs.setString('peoplerToken', responseData['token']);
-          prefs.setString('userName', userName);
+          await prefs.setString('peoplerToken', responseData['token']);
+          await prefs.setString('userName', userName);
           final token = prefs.getString('peoplerToken');
           debugPrint('Token is: $token');
           return true;

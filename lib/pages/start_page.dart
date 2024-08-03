@@ -14,8 +14,8 @@ class StartPage extends StatelessWidget {
     debugPrint('StartPage build');
 
     /// TODO neviem preco to rapluje s hlaskou 404 ked tam je select...
-    // return switch (context.select((AppState appState) => appState.activePage)) {
-    return switch (context.watch<AppState>().activePage) {
+    return switch (context.select((AppState appState) => appState.activePage)) {
+      // return switch (context.watch<AppState>().activePage) {
       ActivePage.login => LoginPage(),
       ActivePage.personList => PersonListPage(),
       ActivePage.person => PersonPage(),

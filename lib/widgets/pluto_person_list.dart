@@ -122,6 +122,8 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
         }
       }
     }
+
+    /// Modification to match Yii api
     if (request.sortColumn != null && !request.sortColumn!.sort.isNone) {
       var sortDirection = '';
       if (request.sortColumn!.sort.name == 'descending') {

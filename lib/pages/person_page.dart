@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
-import 'package:peopler/models/person.dart';
-import 'package:peopler/models/person_detail.dart';
 import 'package:peopler/widgets/attachment_tab.dart';
 import 'package:peopler/widgets/item_tab.dart';
 import 'package:peopler/widgets/person_tab.dart';
@@ -51,19 +49,8 @@ class PersonPage extends StatelessWidget {
   }
 }
 
-class PersonPageBody extends StatefulWidget {
+class PersonPageBody extends StatelessWidget {
   const PersonPageBody({super.key});
-
-  @override
-  State<PersonPageBody> createState() => _PersonPageBodyState();
-}
-
-class _PersonPageBodyState extends State<PersonPageBody> {
-  // Person activePerson = Person.dummy();
-  late GlobalKey<ScaffoldMessengerState> messengerKey;
-  late Future<Person> personFuture;
-  late Future<PersonDetail> personDetailFuture;
-  late Future<List<dynamic>> personDataFuture;
 
   @override
   Widget build(BuildContext context) {

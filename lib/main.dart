@@ -34,7 +34,6 @@ class PeoplerApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
             useMaterial3: true,
           ),
-          // home: (context.watch<AppState>().isLoggedIn) ? PersonListPage() : LoginPage(),
           home: StartPage(),
         );
       }),
