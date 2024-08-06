@@ -469,7 +469,7 @@ class AttachmentSaveDialog extends StatelessWidget {
   final void Function(AttachmentTabMode newMode, int activeAttachmentId) onModeSwitch;
   final String actionName;
   final int activeAttachmentId;
-  late PersonAttachment? activeAttachment;
+  final PersonAttachment? activeAttachment;
   Future<http.MultipartRequest> createRequest(String actionName) async {
     switch (actionName) {
       case ('add'):
