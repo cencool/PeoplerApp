@@ -1,37 +1,33 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:peopler/widgets/snack_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:peopler/models/api.dart';
-import 'package:http/http.dart' as http;
 
 class Credentials {
   static Future<bool> login({required String userName, required String password}) async {
     await deleteToken();
     final prefs = await SharedPreferences.getInstance();
     final bodyData = {'user': userName, 'password': password};
-    try {
-      final response = await http.post(
-        Uri.parse(Api.loginUrl),
-        body: bodyData,
-      );
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        final responseData = jsonDecode(response.body);
-        if ((responseData is Map) && responseData['token'] != null) {
-          await prefs.setString('peoplerToken', responseData['token']);
-          await prefs.setString('userName', userName);
-          final token = prefs.getString('peoplerToken');
-          debugPrint('Token is: $token');
-          return true;
-        }
+    var response = await Api.request(
+      url: Api.loginUrl,
+      callerId: 'Cred.Login',
+      method: RequestMethod.post,
+      body: json.encode(bodyData),
+      headers: {'Content-Type': 'application/json'},
+      auth: false,
+    );
+    if (response != null) {
+      final responseData = jsonDecode(response.body);
+      if ((responseData is Map) && responseData['token'] != null) {
+        await prefs.setString('peoplerToken', responseData['token']);
+        await prefs.setString('userName', userName);
+        final token = prefs.getString('peoplerToken');
+        debugPrint('Token is: $token');
+        return true;
       }
-      return false;
-    } on http.ClientException catch (e) {
-      debugPrint('Connection error: ${e.message}');
-      SnackMessage.showMessage(message: e.message, messageType: MessageType.error);
-      return false;
     }
+    return false;
   }
 
   static Future<String?> getToken() async {

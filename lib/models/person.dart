@@ -1,7 +1,4 @@
 import 'package:peopler/models/api.dart';
-import 'package:http/http.dart' as http;
-import 'package:peopler/models/credentials.dart';
-import 'package:flutter/material.dart';
 import 'package:peopler/models/person_attachment.dart';
 import 'package:peopler/widgets/snack_message.dart';
 import 'dart:convert';
@@ -66,26 +63,19 @@ class Person {
   /// returns [PaginatedPersonList] based on query
   static Future<PaginatedPersonList> getPaginatedPersonList({String query = ''}) async {
     final String url = Api.personRestUrl + query;
-    final String authString = await Credentials.getAuthString();
-    try {
-      http.Response serverResponse =
-          await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-      if (serverResponse.statusCode == 200) {
-        final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '0');
-        String jsonString = serverResponse.body;
-        var jsonObject = json.decode(jsonString);
-        final List<Person> personList =
-            List<Person>.from(jsonObject.map((el) => Person.fromJson(el)));
-        return PaginatedPersonList(persons: personList, pageCount: pageCount);
-      } else {
-        SnackMessage.showMessage(
-            message: 'Person List - Unexpected response code:${serverResponse.statusCode} ',
-            messageType: MessageType.error);
-      }
-    } on http.ClientException catch (e) {
-      SnackMessage.showMessage(message: e.message, messageType: MessageType.error);
+    // final String authString = await Credentials.getAuthString();
+    var serverResponse =
+        await Api.request(url: url, method: RequestMethod.get, callerId: 'Person List');
+    if (serverResponse != null) {
+      final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '0');
+      String jsonString = serverResponse.body;
+      var jsonObject = json.decode(jsonString);
+      final List<Person> personList =
+          List<Person>.from(jsonObject.map((el) => Person.fromJson(el)));
+      return PaginatedPersonList(persons: personList, pageCount: pageCount);
+    } else {
+      return PaginatedPersonList(persons: <Person>[]);
     }
-    return PaginatedPersonList(persons: <Person>[]);
   }
 
   static List<PlutoRow> getPlutoRows(List<Person> persons) {
@@ -108,48 +98,33 @@ class Person {
 
   static Future<PaginatedPersonList> getPaginatedPersonSearchList(
       {required String searchParams, required query}) async {
-    final String authString = await Credentials.getAuthString();
     String url = '${Api.personSearchUrl}?$query';
-    try {
-      http.Response serverResponse = await http.post(Uri.parse(url),
-          headers: {'Authorization': 'Basic $authString', 'Content-Type': 'application/json'},
-          body: searchParams);
-      if (serverResponse.statusCode == 200) {
-        final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '0');
-        String jsonString = serverResponse.body;
-        var jsonObject = json.decode(jsonString);
-        final List<Person> personList =
-            List<Person>.from(jsonObject.map((el) => Person.fromJson(el)));
-        return PaginatedPersonList(persons: personList, pageCount: pageCount);
-      } else {
-        SnackMessage.showMessage(
-            message: 'Person List - Unexpected response code:${serverResponse.statusCode} ',
-            messageType: MessageType.error);
-      }
-    } on http.ClientException catch (e) {
-      SnackMessage.showMessage(message: e.message, messageType: MessageType.error);
+    var serverResponse = await Api.request(
+        callerId: 'Person Search',
+        url: url,
+        method: RequestMethod.post,
+        headers: {'Content-Type': 'application/json'},
+        body: searchParams);
+    if (serverResponse != null) {
+      final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '0');
+      String jsonString = serverResponse.body;
+      var jsonObject = json.decode(jsonString);
+      final List<Person> personList =
+          List<Person>.from(jsonObject.map((el) => Person.fromJson(el)));
+      return PaginatedPersonList(persons: personList, pageCount: pageCount);
     }
     return PaginatedPersonList(persons: <Person>[]);
   }
 
   static Future<Person> getPerson({required int id}) async {
     String url = '${Api.personRestUrl}/$id';
-    final String authString = await Credentials.getAuthString();
     if (id > -1) {
-      try {
-        http.Response serverResponse =
-            await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-        if (serverResponse.statusCode == 200) {
-          String jsonString = serverResponse.body;
-          var jsonObject = json.decode(jsonString);
-          return Person.fromJson(jsonObject);
-        } else {
-          SnackMessage.showMessage(
-              message: 'Get Person - Unexpected response code:${serverResponse.statusCode} ',
-              messageType: MessageType.error);
-        }
-      } on http.ClientException catch (e) {
-        SnackMessage.showMessage(message: e.message, messageType: MessageType.error);
+      var serverResponse =
+          await Api.request(callerId: 'getPerson', url: url, method: RequestMethod.get);
+      if (serverResponse != null) {
+        String jsonString = serverResponse.body;
+        var jsonObject = json.decode(jsonString);
+        return Person.fromJson(jsonObject);
       }
     }
     return Person.dummy();
@@ -170,134 +145,73 @@ class Person {
         "owner": owner,
       };
   Future<Map<String, dynamic>> save() async {
-    final String authString = await Credentials.getAuthString();
+    // final String authString = await Credentials.getAuthString();
 
     if (id > -1) {
       // update  existing record
       String url = '${Api.personRestUrl}/$id';
-      try {
-        http.Response serverResponse = await http.put(Uri.parse(url),
-            headers: {'Authorization': 'Basic $authString', "Content-Type": "application/json"},
-            // body: toBodyPut());
-            body: personToJson(this));
-        if (serverResponse.statusCode >= 200 && serverResponse.statusCode < 300) {
-          String jsonString = serverResponse.body;
-          if (jsonString == "null") {
-            return {"error": true};
-          }
-          SnackMessage.showMessage(
-            message: 'Person :$id saved',
-            messageType: MessageType.info,
-          );
-          return json.decode(jsonString);
-        } else if (serverResponse.statusCode == 404) {
-          SnackMessage.showMessage(
-              message: 'No person data available...', messageType: MessageType.info);
-        } else {
-          SnackMessage.showMessage(
-              message: 'Person Save - Unexpected response code:${serverResponse.statusCode} ',
-              messageType: MessageType.error);
+      var serverResponse = await Api.request(
+          url: url,
+          callerId: 'Person Save',
+          method: RequestMethod.put,
+          headers: {"Content-Type": "application/json"},
+          body: personToJson(this));
+      if (serverResponse != null) {
+        String jsonString = serverResponse.body;
+        if (jsonString == "null") {
+          return {"error": true};
         }
-      } on http.ClientException catch (e) {
         SnackMessage.showMessage(
-          message: e.message,
-          messageType: MessageType.error,
+          message: 'Person :$id updated',
+          messageType: MessageType.info,
         );
-      } catch (e) {
-        debugPrint(e.toString());
-        SnackMessage.showMessage(
-            message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
+        return json.decode(jsonString);
       }
     } else {
       // create new record
       String url = Api.personRestUrl;
-      try {
-        http.Response serverResponse = await http.post(Uri.parse(url),
-            headers: {'Authorization': 'Basic $authString', "Content-Type": "application/json"},
-            // body: toBodyPost());
-            body: personToJson(this));
-        if (serverResponse.statusCode >= 200 && serverResponse.statusCode < 300) {
-          String jsonString = serverResponse.body;
-          if (jsonString == "null") {
-            return {"error": true};
-          }
-          Map<String, dynamic> response = json.decode(jsonString);
-          SnackMessage.showMessage(
-              message: 'Person: ${response["id"]} saved', messageType: MessageType.info);
-          return response;
-        } else if (serverResponse.statusCode == 404) {
-          SnackMessage.showMessage(
-              message: 'No person data available...', messageType: MessageType.info);
-        } else {
-          SnackMessage.showMessage(
-              message: 'Person Save - Unexpected response code:${serverResponse.statusCode} ',
-              messageType: MessageType.error);
+      var serverResponse = await Api.request(
+          url: url,
+          callerId: 'Person Save',
+          method: RequestMethod.post,
+          headers: {"Content-Type": "application/json"},
+          body: personToJson(this));
+      if (serverResponse != null) {
+        String jsonString = serverResponse.body;
+        if (jsonString == "null") {
+          return {"error": true};
         }
-      } on http.ClientException catch (e) {
+        Map<String, dynamic> response = json.decode(jsonString);
         SnackMessage.showMessage(
-          message: e.message,
-          messageType: MessageType.error,
-        );
-      } catch (e) {
-        debugPrint(e.toString());
-        SnackMessage.showMessage(
-            message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
+            message: 'Person: ${response["id"]} saved', messageType: MessageType.info);
+        return response;
       }
     }
     return {"error": true};
   }
 
   static Future<bool> delete(int id) async {
-    final String authString = await Credentials.getAuthString();
     String url = '${Api.personRestUrl}/$id';
-    try {
-      http.Response serverResponse =
-          await http.delete(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-      if (serverResponse.statusCode >= 200 && serverResponse.statusCode < 300) {
-        SnackMessage.showMessage(message: 'Person: $id deleted', messageType: MessageType.info);
-        return true;
-      } else if (serverResponse.statusCode == 404) {
-        SnackMessage.showMessage(
-            message: 'No Person $id available...', messageType: MessageType.error);
-      } else {
-        SnackMessage.showMessage(
-            message: 'Person delete - Unexpected response code:${serverResponse.statusCode} ',
-            messageType: MessageType.error);
-      }
-    } on http.ClientException catch (e) {
-      SnackMessage.showMessage(
-        message: e.message,
-        messageType: MessageType.error,
-      );
-    } catch (e) {
-      debugPrint(e.toString());
-      SnackMessage.showMessage(
-          message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
+    var serverResponse = await Api.request(
+      url: url,
+      callerId: 'Person delete',
+      method: RequestMethod.delete,
+    );
+    if (serverResponse != null) {
+      SnackMessage.showMessage(message: 'Person: $id deleted', messageType: MessageType.info);
+      return true;
     }
     return false;
   }
 
   Future<List<PersonAttachment>> getAttachmentList({required int id}) async {
     String url = '${Api.attachmentUrl}/list?personId=$id';
-    final String authString = await Credentials.getAuthString();
     if (id > -1) {
-      try {
-        http.Response serverResponse =
-            await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-        if (serverResponse.statusCode == 200) {
-          String jsonString = serverResponse.body;
-          // var jsonObject = json.decode(jsonString);
-          return personAttachmentFromJson(jsonString);
-        } else {
-          SnackMessage.showMessage(
-              message: 'Get Person - Unexpected response code:${serverResponse.statusCode} ',
-              messageType: MessageType.error);
-        }
-      } on http.ClientException catch (e) {
-        SnackMessage.showMessage(
-          message: e.message,
-          messageType: MessageType.error,
-        );
+      var serverResponse =
+          await Api.request(url: url, callerId: 'getAttachmentList', method: RequestMethod.get);
+      if (serverResponse != null) {
+        String jsonString = serverResponse.body;
+        return personAttachmentFromJson(jsonString);
       }
     }
     return personAttachmentFromJson('[]');

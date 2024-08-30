@@ -13,6 +13,7 @@ final getIt = GetIt.instance;
 void main() {
   /// Hack to enable using self signed certificate for https
   HttpOverrides.global = DevHttpOverrides();
+  getIt.registerSingleton<AppGlobals>(AppGlobals());
   runApp(const PeoplerApp());
 }
 
@@ -25,7 +26,6 @@ class PeoplerApp extends StatelessWidget {
     return ChangeNotifierProvider<AppState>(
       create: (_) => AppState(),
       child: Builder(builder: (context) {
-        getIt.registerSingleton<AppGlobals>(AppGlobals());
         return MaterialApp(
           scaffoldMessengerKey: getIt<AppGlobals>().messengerKey,
           debugShowCheckedModeBanner: false,

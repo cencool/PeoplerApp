@@ -21,7 +21,7 @@ class SnackMessage {
     }
     messengerKey.currentState!.showSnackBar(SnackBar(
       content: Text(message),
-      duration: const Duration(seconds: 0, milliseconds: 500),
+      duration: const Duration(seconds: 0, milliseconds: 1000),
       backgroundColor: msgColor,
     ));
   }

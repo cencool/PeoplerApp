@@ -122,9 +122,6 @@ class _AttachmentTabState extends State<AttachmentTab> {
         imageData = await imagePick.readAsBytes();
         showImageFromFile(Image.memory(imageData));
       }
-      // Navigator.push(context, MaterialPageRoute(builder: (context) {
-      //   return ImageCrop(imageToCrop: imageData);
-      // }));
     }
   }
 
@@ -455,7 +452,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
 }
 
 class AttachmentSaveDialog extends StatelessWidget {
-  AttachmentSaveDialog(
+  const AttachmentSaveDialog(
       {required this.activePerson,
       required this.imageData,
       required this.onModeSwitch,
@@ -469,7 +466,7 @@ class AttachmentSaveDialog extends StatelessWidget {
   final void Function(AttachmentTabMode newMode, int activeAttachmentId) onModeSwitch;
   final String actionName;
   final int activeAttachmentId;
-  late PersonAttachment? activeAttachment;
+  final PersonAttachment? activeAttachment;
   Future<http.MultipartRequest> createRequest(String actionName) async {
     switch (actionName) {
       case ('add'):

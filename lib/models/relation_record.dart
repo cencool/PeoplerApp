@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final relationRecord = relationRecordFromJson(jsonString);
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -61,84 +57,65 @@ class RelationRecord {
   }
 
   Future<bool> save() async {
-    final String authString = await Credentials.getAuthString();
     if (id > -1) {
       // update
       String url = '${Api.relationUrl}/${id.toString()}';
-      try {
-        http.Response serverResponse = await http.put(Uri.parse(url),
-            headers: {'Authorization': 'Basic $authString', "Content-Type": "application/json"},
-            body: relationRecordToJson(this));
-        if (serverResponse.statusCode == 200) {
-          String jsonString = serverResponse.body;
-          if (jsonString == "null") {
-            return false;
-          }
-          SnackMessage.showMessage(
-            message: 'Relation :$id saved',
-            messageType: MessageType.info,
-          );
-          return true;
-        } else if (serverResponse.statusCode == 404) {
-          SnackMessage.showMessage(
-              message: 'No relation data available...', messageType: MessageType.info);
-        } else {
-          SnackMessage.showMessage(
-              message: 'Relation Save - Unexpected response code:${serverResponse.statusCode} ',
-              messageType: MessageType.error);
+      var serverResponse = await Api.request(
+          url: url,
+          callerId: 'RelUpdate',
+          method: RequestMethod.put,
+          headers: {"Content-Type": "application/json"},
+          body: relationRecordToJson(this));
+      if (serverResponse != null) {
+        String jsonString = serverResponse.body;
+        if (jsonString == "null") {
+          return false;
         }
-      } on http.ClientException catch (e) {
         SnackMessage.showMessage(
-          message: e.message,
-          messageType: MessageType.error,
+          message: 'Relation :$id saved',
+          messageType: MessageType.info,
         );
-      } catch (e) {
-        debugPrint(e.toString());
-        SnackMessage.showMessage(
-            message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
+        return true;
       }
     } else {
       // create new record
       String url = Api.relationUrl;
-      try {
-        http.Response serverResponse = await http.post(Uri.parse(url),
-            headers: {'Authorization': 'Basic $authString', "Content-Type": "application/json"},
-            body: relationRecordToJson(this));
-        if (serverResponse.statusCode == 200) {
-          String jsonString = serverResponse.body;
-          if (jsonString == "null") {
-            return false;
-          }
-          var responseRelationRecord = RelationRecord.fromJson(jsonDecode(jsonString));
-          SnackMessage.showMessage(
-              message: 'Relation: ${responseRelationRecord.id} saved',
-              messageType: MessageType.info);
-          return true;
-        } else if (serverResponse.statusCode == 404) {
-          SnackMessage.showMessage(
-              message: 'No relation data available...', messageType: MessageType.info);
-        } else {
-          SnackMessage.showMessage(
-              message: 'Relation Save - Unexpected response code:${serverResponse.statusCode} ',
-              messageType: MessageType.error);
+      var serverResponse = await Api.request(
+          url: url,
+          callerId: 'RelUpdate',
+          method: RequestMethod.post,
+          headers: {"Content-Type": "application/json"},
+          body: relationRecordToJson(this));
+      if (serverResponse != null) {
+        String jsonString = serverResponse.body;
+        if (jsonString == "null") {
+          return false;
         }
-      } on http.ClientException catch (e) {
+        var responseRelationRecord = RelationRecord.fromJson(jsonDecode(jsonString));
         SnackMessage.showMessage(
-          message: e.message,
-          messageType: MessageType.error,
-        );
-      } catch (e) {
-        debugPrint(e.toString());
-        SnackMessage.showMessage(
-            message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
+            message: 'Relation: ${responseRelationRecord.id} saved', messageType: MessageType.info);
+        return true;
       }
     }
     return false;
   }
 
   static Future<RelationRecord> getRelationRecord(int id) async {
-    final String authString = await Credentials.getAuthString();
     String url = '${Api.relationRecordUrl}?relationId=$id';
+    var serverResponse =
+        await Api.request(url: url, callerId: 'GetRelRecord', method: RequestMethod.get);
+    if (serverResponse != null) {
+      String jsonString = serverResponse.body;
+      if (jsonString == "null") {
+        return RelationRecord.dummy();
+      }
+      var responseRelationRecord = RelationRecord.fromJson(jsonDecode(jsonString));
+      SnackMessage.showMessage(
+          message: 'Relation: ${responseRelationRecord.id} received',
+          messageType: MessageType.info);
+      return responseRelationRecord;
+    }
+    /*
     try {
       http.Response serverResponse =
           await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
@@ -170,6 +147,7 @@ class RelationRecord {
       SnackMessage.showMessage(
           message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
     }
+    */
     return RelationRecord.dummy();
   }
 

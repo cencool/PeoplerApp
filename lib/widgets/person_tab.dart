@@ -256,7 +256,6 @@ class PersonPhoto extends StatelessWidget {
         onModeSwitch(PersonTabMode.editPhoto);
       },
       child: FadeInImage(
-          key: ValueKey(urlVal),
           placeholder: MemoryImage(kTransparentImage),
           image: NetworkImage(
             urlVal,

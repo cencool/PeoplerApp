@@ -3,7 +3,6 @@
 // po submite ale musim zobrazit person list s vysledkami
 
 import 'package:flutter/material.dart';
-import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/general_search.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/person_attachment.dart';
@@ -12,7 +11,6 @@ import 'package:peopler/models/person_item.dart';
 import 'package:peopler/models/person_search_form.dart';
 import 'package:peopler/pages/general_seach_page.dart';
 import 'package:peopler/widgets/pluto_person_search_list.dart';
-import 'package:provider/provider.dart';
 
 enum GeneralSearchMode { search, results }
 

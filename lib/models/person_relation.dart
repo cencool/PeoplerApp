@@ -2,11 +2,7 @@
 //     final personRelation = personRelationFromJson(jsonString);
 
 import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:peopler/models/api.dart';
-import 'package:peopler/models/credentials.dart';
-import 'package:peopler/widgets/snack_message.dart';
 
 List<PersonRelation> personRelationFromJson(String str) =>
     List<PersonRelation>.from(json.decode(str).map((x) => PersonRelation.fromJson(x)));
@@ -60,26 +56,15 @@ class PersonRelation {
   /// returns [PaginatedRelationList] based on query
   static Future<PaginatedRelationList> getPaginatedRelationList({String query = ''}) async {
     final String url = Api.relationUrl + query;
-    final String authString = await Credentials.getAuthString();
-    try {
-      http.Response serverResponse =
-          await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-      if (serverResponse.statusCode == 200) {
-        final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '0');
-        String jsonString = serverResponse.body;
-        var jsonObject = json.decode(jsonString);
-        final List<PersonRelation> relationList =
-            List<PersonRelation>.from(jsonObject.map((el) => PersonRelation.fromJson(el)));
-        return PaginatedRelationList(relations: relationList, pageCount: pageCount);
-      } else {
-        SnackMessage.showMessage(
-            message: 'Relation :${serverResponse.statusCode} ', messageType: MessageType.error);
-      }
-    } on http.ClientException catch (e) {
-      SnackMessage.showMessage(
-        message: e.message,
-        messageType: MessageType.error,
-      );
+    var serverResponse =
+        await Api.request(url: url, callerId: 'RelationList', method: RequestMethod.get);
+    if (serverResponse != null) {
+      final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '0');
+      String jsonString = serverResponse.body;
+      var jsonObject = json.decode(jsonString);
+      final List<PersonRelation> relationList =
+          List<PersonRelation>.from(jsonObject.map((el) => PersonRelation.fromJson(el)));
+      return PaginatedRelationList(relations: relationList, pageCount: pageCount);
     }
     return PaginatedRelationList(relations: <PersonRelation>[]);
   }
@@ -135,26 +120,12 @@ class RelationName {
 
   static Future<List<RelationName>> getRelationNames() async {
     const url = Api.relationNamesUrl;
-    final String authString = await Credentials.getAuthString();
-
-    try {
-      http.Response serverResponse =
-          await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-      if (serverResponse.statusCode == 200) {
-        // final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '0');
-        String jsonString = serverResponse.body;
-        List<RelationName> relationNames = relationNamesFromJson(jsonString);
-        return relationNames;
-      } else {
-        SnackMessage.showMessage(
-            message: 'Relation names :${serverResponse.statusCode} ',
-            messageType: MessageType.error);
-      }
-    } on http.ClientException catch (e) {
-      SnackMessage.showMessage(
-        message: e.message,
-        messageType: MessageType.error,
-      );
+    var serverResponse =
+        await Api.request(url: url, callerId: 'GetRelNames', method: RequestMethod.get);
+    if (serverResponse != null) {
+      String jsonString = serverResponse.body;
+      List<RelationName> relationNames = relationNamesFromJson(jsonString);
+      return relationNames;
     }
     return [];
   }
