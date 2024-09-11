@@ -1,9 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:peopler/models/api.dart';
-import 'package:peopler/models/credentials.dart';
 import 'package:peopler/widgets/snack_message.dart';
 
 RelationRecord relationRecordFromJson(String str) => RelationRecord.fromJson(json.decode(str));
@@ -115,75 +112,22 @@ class RelationRecord {
           messageType: MessageType.info);
       return responseRelationRecord;
     }
-    /*
-    try {
-      http.Response serverResponse =
-          await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-      if (serverResponse.statusCode == 200) {
-        String jsonString = serverResponse.body;
-        if (jsonString == "null") {
-          return RelationRecord.dummy();
-        }
-        var responseRelationRecord = RelationRecord.fromJson(jsonDecode(jsonString));
-        SnackMessage.showMessage(
-            message: 'Relation: ${responseRelationRecord.id} received',
-            messageType: MessageType.info);
-        return responseRelationRecord;
-      } else if (serverResponse.statusCode == 404) {
-        SnackMessage.showMessage(
-            message: 'No relation data available...', messageType: MessageType.info);
-      } else {
-        SnackMessage.showMessage(
-            message: 'RelationRecord get - Unexpected response code:${serverResponse.statusCode} ',
-            messageType: MessageType.error);
-      }
-    } on http.ClientException catch (e) {
-      SnackMessage.showMessage(
-        message: e.message,
-        messageType: MessageType.error,
-      );
-    } catch (e) {
-      debugPrint(e.toString());
-      SnackMessage.showMessage(
-          message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
-    }
-    */
     return RelationRecord.dummy();
   }
 
   static Future<bool> delete(int id) async {
-    final String authString = await Credentials.getAuthString();
     String url = '${Api.relationUrl}/$id';
-    try {
-      http.Response serverResponse =
-          await http.delete(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-      if (serverResponse.statusCode == 200) {
-        String jsonString = serverResponse.body;
-        if (jsonString == "null") {
-          return false;
-        }
-        var response = jsonDecode(jsonString);
-        SnackMessage.showMessage(
-            message: 'Relation: ${response['deleted_id']} deleted', messageType: MessageType.info);
-        return true;
-      } else if (serverResponse.statusCode == 404) {
-        SnackMessage.showMessage(
-            message: 'No relation data available...', messageType: MessageType.info);
-      } else {
-        SnackMessage.showMessage(
-            message:
-                'RelationRecord delete - Unexpected response code:${serverResponse.statusCode} ',
-            messageType: MessageType.error);
+    var serverResponse =
+        await Api.request(callerId: 'RelDelete', url: url, method: RequestMethod.delete);
+    if (serverResponse != null) {
+      String jsonString = serverResponse.body;
+      if (jsonString == "null") {
+        return false;
       }
-    } on http.ClientException catch (e) {
+      var response = jsonDecode(jsonString);
       SnackMessage.showMessage(
-        message: e.message,
-        messageType: MessageType.error,
-      );
-    } catch (e) {
-      debugPrint(e.toString());
-      SnackMessage.showMessage(
-          message: 'Exceptions:${e.toString()}', messageType: MessageType.error);
+          message: 'Relation: ${response['deleted_id']} deleted', messageType: MessageType.info);
+      return true;
     }
     return false;
   }

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/api.dart';
-import 'package:peopler/models/credentials.dart';
 import 'package:peopler/models/person_item.dart';
 import 'package:peopler/widgets/pluto_person_item_list.dart';
 import 'package:peopler/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 enum ItemTabMode { view, edit, add }
 
@@ -229,26 +227,18 @@ class ItemSaveDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () async {
                       debugPrint('Yes save pressed');
-                      String authString = await Credentials.getAuthString();
                       String url = createUrl(action);
-                      try {
-                        var response = await http.post(Uri.parse(url),
-                            headers: {'Authorization': 'Basic $authString'},
-                            body: activeItem.toMap());
-                        if (response.statusCode == 200) {
-                          debugPrint('Item save action successfull');
-                          SnackMessage.showMessage(
-                              message: action == ApiAction.delete ? 'Item deleted' : 'Item saved',
-                              messageType: MessageType.info);
-                        } else {
-                          debugPrint('Response code: ${response.statusCode}');
-                          SnackMessage.showMessage(
-                              message: 'Item save: ${response.reasonPhrase}',
-                              messageType: MessageType.error);
-                        }
-                      } on http.ClientException catch (e) {
+                      var response = await Api.request(
+                        callerId: "Item save",
+                        url: url,
+                        method: RequestMethod.post,
+                        body: activeItem.toMap(),
+                      );
+                      if (response != null) {
+                        debugPrint('Item save action successfull');
                         SnackMessage.showMessage(
-                            message: 'Item save: ${e.message}', messageType: MessageType.error);
+                            message: action == ApiAction.delete ? 'Item deleted' : 'Item saved',
+                            messageType: MessageType.info);
                       }
 
                       /// TODO: check if can be done better ie .then()...

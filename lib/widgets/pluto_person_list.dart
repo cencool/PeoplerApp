@@ -53,6 +53,8 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
         title: 'Surname',
         field: 'surname',
         type: PlutoColumnType.text(),
+        enableSorting: true,
+        enableContextMenu: false,
         renderer: (cellContext) {
           return InkWell(
             onTap: () {
@@ -80,9 +82,15 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
     return <PlutoColumn>[
       idColumn(),
       surnameColumn(),
-      PlutoColumn(title: 'Name', field: 'name', type: PlutoColumnType.text(), hide: false),
+      PlutoColumn(
+          title: 'Name',
+          field: 'name',
+          type: PlutoColumnType.text(),
+          hide: false,
+          enableContextMenu: false),
       PlutoColumn(title: 'Gender', field: 'gender', type: PlutoColumnType.text(), hide: true),
-      PlutoColumn(title: 'Place', field: 'place', type: PlutoColumnType.text()),
+      PlutoColumn(
+          title: 'Place', field: 'place', type: PlutoColumnType.text(), enableContextMenu: false),
       PlutoColumn(title: 'Owner', field: 'owner', type: PlutoColumnType.text(), hide: true),
     ];
   }

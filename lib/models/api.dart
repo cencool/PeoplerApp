@@ -9,6 +9,16 @@ enum RequestMethod { get, post, put, delete }
 typedef Headers = Map<String, String>;
 
 class Api {
+  static bool isTesting = false;
+  static http.Response? Function({
+    String callerId,
+    String url,
+    RequestMethod method,
+    Headers headers,
+    Object? body,
+    bool auth,
+  })? mockCallback;
+
   // static const String serverUrl = 'http://localhost:8102';
   static const String serverUrl = 'http://peopler.localhost:8000';
   // static const String serverUrl = 'http://192.168.0.34:88/peopler';
@@ -30,9 +40,14 @@ class Api {
     String url = '',
     RequestMethod method = RequestMethod.get,
     Headers headers = const {},
-    String body = '',
+    Object? body,
     bool auth = true,
   }) async {
+    if (isTesting && mockCallback != null) {
+      isTesting = false;
+      return mockCallback!(
+          method: method, callerId: callerId, url: url, headers: headers, body: body, auth: auth);
+    }
     final String authString = await Credentials.getAuthString();
     if (headers.isEmpty && auth) {
       headers = {'Authorization': 'Basic $authString'};
@@ -46,18 +61,21 @@ class Api {
         request = http.Request('get', uri);
       case (RequestMethod.post):
         request = http.Request('post', uri);
-        if (body.isNotEmpty) {
+        if (body is String && body.isNotEmpty) {
           request.bodyBytes = utf8.encode(body);
         }
       case (RequestMethod.put):
         request = http.Request('put', uri);
-        if (body.isNotEmpty) {
+        if (body is String && body.isNotEmpty) {
           request.bodyBytes = utf8.encode(body);
         }
       case (RequestMethod.delete):
         request = http.Request('delete', uri);
       default:
         request = http.Request('get', uri);
+    }
+    if (body is Map<String, String>) {
+      request.bodyFields = body;
     }
     request.headers.addAll(headers);
     try {
