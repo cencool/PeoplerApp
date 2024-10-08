@@ -12,6 +12,7 @@ import 'package:peopler/models/credentials.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/widgets/person_tab.dart';
 import 'package:http/http.dart' as http;
+import 'package:peopler/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 
 enum PersonPhotoViewMode { view, loadFromFile, zoom, crop }
@@ -170,9 +171,11 @@ class _PersonPhotoViewState extends State<PersonPhotoView> {
                 Align(
                   alignment: Alignment.topCenter,
                   child: FloatingActionButton(
-                    onPressed: () async {
-                      await pickImage();
-                    },
+                    onPressed: (widget.activePerson.id > -1)
+                        ? () async {
+                            await pickImage();
+                          }
+                        : null,
                     heroTag: null,
                     mini: true,
                     child: const Icon(Icons.upload),
@@ -399,7 +402,10 @@ class PhotoSaveDialog extends StatelessWidget {
                       if (response.statusCode == 200) {
                         debugPrint('Photo Uploaded!');
                       } else {
-                        debugPrint('Response code: ${response.statusCode}');
+                        debugPrint('Response code: ${response.reasonPhrase}');
+                        SnackMessage.showMessage(
+                            message: 'Photo upload: ${response.reasonPhrase}',
+                            messageType: MessageType.error);
                       }
 
                       /// TODO check if can be done better ie .then()...

@@ -12,6 +12,7 @@ import 'package:peopler/models/api.dart';
 import 'package:peopler/models/credentials.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/person_attachment.dart';
+import 'package:peopler/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -28,7 +29,6 @@ class AttachmentTab extends StatefulWidget {
 }
 
 class _AttachmentTabState extends State<AttachmentTab> {
-  late GlobalKey<ScaffoldMessengerState> messengerKey = context.read<AppState>().messengerKey;
   late Future<List<PersonAttachment>> attachmentList;
   late Person activePerson = context.read<AppState>().activePerson;
   int activeAttachmentId = -1;
@@ -38,14 +38,16 @@ class _AttachmentTabState extends State<AttachmentTab> {
   Uint8List imageData = Uint8List(0);
   final int maxImageSize = 2000000;
   ImageProvider? imageToEditProvider;
+  String authString = '';
 
   AttachmentTabMode attachmentTabMode = AttachmentTabMode.view;
 
   @override
   void initState() {
     super.initState();
-    attachmentList =
-        activePerson.getAttachmentList(id: activePerson.id, messengerKey: messengerKey);
+    attachmentList = activePerson.getAttachmentList(id: activePerson.id);
+    // authString = context.read<AppState>().authString;
+    // debugPrint('attachment tab auth string is:$authString');
   }
 
   void switchMode(AttachmentTabMode newMode, int itemId) {
@@ -55,8 +57,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
       if (newMode == AttachmentTabMode.view) {
         imageFromFile = null;
       }
-      attachmentList =
-          activePerson.getAttachmentList(id: activePerson.id, messengerKey: messengerKey);
+      attachmentList = activePerson.getAttachmentList(id: activePerson.id);
     });
   }
 
@@ -68,6 +69,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('AttachmentTab build');
     switch (attachmentTabMode) {
       case (AttachmentTabMode.view):
         return attachmentListView();
@@ -114,15 +116,12 @@ class _AttachmentTabState extends State<AttachmentTab> {
         debugPrint('Reduced size is:${imageData.length}');
         debugPrint('With quality:$quality');
         imageFilePath = imagePick.path;
-        showImageFromFile(Image.memory(imageData as Uint8List));
+        showImageFromFile(Image.memory(imageData));
       } else {
         imageFilePath = imagePick.path;
         imageData = await imagePick.readAsBytes();
-        showImageFromFile(Image.memory(imageData as Uint8List));
+        showImageFromFile(Image.memory(imageData));
       }
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return ImageCrop(imageToCrop: imageData);
-      }));
     }
   }
 
@@ -131,7 +130,8 @@ class _AttachmentTabState extends State<AttachmentTab> {
         future: attachmentList,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            String authString = context.read<AppState>().authString;
+            authString = context.read<AppState>().authString;
+            debugPrint('attachment tab auth string is:$authString');
             List<Widget> attachmentFiles = [];
             for (final item in snapshot.data!) {
               attachmentFiles.add(
@@ -452,7 +452,7 @@ class _AttachmentTabState extends State<AttachmentTab> {
 }
 
 class AttachmentSaveDialog extends StatelessWidget {
-  AttachmentSaveDialog(
+  const AttachmentSaveDialog(
       {required this.activePerson,
       required this.imageData,
       required this.onModeSwitch,
@@ -466,7 +466,7 @@ class AttachmentSaveDialog extends StatelessWidget {
   final void Function(AttachmentTabMode newMode, int activeAttachmentId) onModeSwitch;
   final String actionName;
   final int activeAttachmentId;
-  late final PersonAttachment? activeAttachment;
+  final PersonAttachment? activeAttachment;
   Future<http.MultipartRequest> createRequest(String actionName) async {
     switch (actionName) {
       case ('add'):
@@ -539,11 +539,22 @@ class AttachmentSaveDialog extends StatelessWidget {
                         onPressed: () async {
                           debugPrint('Yes save pressed');
                           var request = await createRequest(actionName);
-                          var response = await request.send();
-                          if (response.statusCode == 200) {
-                            debugPrint('File save action successfull');
-                          } else {
-                            debugPrint('Response code: ${response.statusCode}');
+                          try {
+                            var response = await request.send();
+                            if (response.statusCode == 200) {
+                              debugPrint('File save action successfull');
+                              SnackMessage.showMessage(
+                                  message: 'Attachment saved', messageType: MessageType.info);
+                            } else {
+                              debugPrint('Response code: ${response.statusCode}');
+                              SnackMessage.showMessage(
+                                  message: 'Att.save: ${response.reasonPhrase}',
+                                  messageType: MessageType.error);
+                            }
+                          } on http.ClientException catch (e) {
+                            SnackMessage.showMessage(
+                                message: 'Attachment save: ${e.message}',
+                                messageType: MessageType.error);
                           }
 
                           /// TODO check if can be done better ie .then()...
@@ -588,11 +599,22 @@ class AttachmentSaveDialog extends StatelessWidget {
                         onPressed: () async {
                           debugPrint('Yes delete pressed');
                           var request = await createRequest(actionName);
-                          var response = await request.send();
-                          if (response.statusCode == 200) {
-                            debugPrint('Attachment Deleted!');
-                          } else {
-                            debugPrint('Response code: ${response.statusCode}');
+                          try {
+                            var response = await request.send();
+                            if (response.statusCode == 200) {
+                              debugPrint('Attachment Deleted!');
+                              SnackMessage.showMessage(
+                                  message: 'Att.deleted', messageType: MessageType.info);
+                            } else {
+                              debugPrint('Response code: ${response.statusCode}');
+                              SnackMessage.showMessage(
+                                  message: 'Att.delete: ${response.reasonPhrase}',
+                                  messageType: MessageType.error);
+                            }
+                          } on http.ClientException catch (e) {
+                            SnackMessage.showMessage(
+                                message: 'Att.delete: ${e.message}',
+                                messageType: MessageType.error);
                           }
 
                           /// TODO check if can be done better ie .then()...

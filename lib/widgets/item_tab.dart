@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/api.dart';
-import 'package:peopler/models/credentials.dart';
 import 'package:peopler/models/person_item.dart';
 import 'package:peopler/widgets/pluto_person_item_list.dart';
+import 'package:peopler/widgets/snack_message.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 enum ItemTabMode { view, edit, add }
 
@@ -29,6 +28,7 @@ class _ItemTabState extends State<ItemTab> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("ItemTab build");
     switch (itemTabMode) {
       case (ItemTabMode.view):
         return Stack(children: [
@@ -48,8 +48,8 @@ class _ItemTabState extends State<ItemTab> {
           )
         ]);
       case (ItemTabMode.edit):
-        var personId = context.read<AppState>().activePerson.id;
-        var itemId = context.read<AppState>().activePersonItem.id;
+        var personId = context.watch<AppState>().activePerson.id;
+        var itemId = context.watch<AppState>().activePersonItem.id;
         debugPrint('Person id:$personId');
         debugPrint('Item id:$itemId');
         return ItemEdit(
@@ -207,7 +207,7 @@ class ItemSaveDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    PersonItem activeItem = context.read<AppState>().activePersonItem;
+    PersonItem activeItem = context.watch<AppState>().activePersonItem;
     return Dialog(
       child: SizedBox(
         width: 300.0,
@@ -227,15 +227,18 @@ class ItemSaveDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () async {
                       debugPrint('Yes save pressed');
-                      String authString = await Credentials.getAuthString();
                       String url = createUrl(action);
-                      var response = await http.post(Uri.parse(url),
-                          headers: {'Authorization': 'Basic $authString'},
-                          body: activeItem.toMap());
-                      if (response.statusCode == 200) {
+                      var response = await Api.request(
+                        callerId: "Item save",
+                        url: url,
+                        method: RequestMethod.post,
+                        body: activeItem.toMap(),
+                      );
+                      if (response != null) {
                         debugPrint('Item save action successfull');
-                      } else {
-                        debugPrint('Response code: ${response.statusCode}');
+                        SnackMessage.showMessage(
+                            message: action == ApiAction.delete ? 'Item deleted' : 'Item saved',
+                            messageType: MessageType.info);
                       }
 
                       /// TODO: check if can be done better ie .then()...

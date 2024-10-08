@@ -97,7 +97,7 @@ class PersonFormModel with ChangeNotifier {
     noteController.text = detailOld['note'];
   }
 
-  void saveData(GlobalKey<ScaffoldMessengerState> messengerKey) async {
+  Future<void> saveData() async {
     //treba zmenit obsah personDetail pred save z controllerov!
     person.name = nameController.text;
     person.surname = surnameController.text;
@@ -108,20 +108,20 @@ class PersonFormModel with ChangeNotifier {
     personDetail.maidenName = maidenController.text;
     personDetail.address = addressController.text;
     personDetail.note = noteController.text;
-    var personResult = await person.save(messengerKey);
+    var personResult = await person.save();
     if (personResult["error"] == null) {
-      person = await Person.getPerson(id: personResult["id"], messengerKey: messengerKey);
+      person = await Person.getPerson(id: personResult["id"]);
       personDetail.personId = person.id;
     }
-    var detailResult = await personDetail.save(messengerKey);
+    var detailResult = await personDetail.save();
     if ((personResult["error"] == null) && (detailResult["error"] == null)) {
-      personDetail = await PersonDetail.getPersonDetail(id: person.id, messengerKey: messengerKey);
+      personDetail = await PersonDetail.getPersonDetail(id: person.id);
       personToCache(person, personOld);
       detailToCache(personDetail, detailOld);
     } else {
       restoreData();
     }
-    notifyListeners();
+    // notifyListeners();
   }
 
   void setActiveData() {

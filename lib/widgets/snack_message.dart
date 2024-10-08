@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:peopler/globals/app_globals.dart';
+import 'package:peopler/main.dart';
 
 enum MessageType { info, error }
 
 class SnackMessage {
   static void showMessage({
-    required GlobalKey<ScaffoldMessengerState> messengerKey,
+    // required GlobalKey<ScaffoldMessengerState> messengerKey,
     String message = '',
     MessageType messageType = MessageType.info,
   }) {
+    GlobalKey<ScaffoldMessengerState> messengerKey = getIt<AppGlobals>().messengerKey;
+
     Color? msgColor;
     switch (messageType) {
       case MessageType.info:
@@ -17,7 +21,7 @@ class SnackMessage {
     }
     messengerKey.currentState!.showSnackBar(SnackBar(
       content: Text(message),
-      duration: const Duration(seconds: 0, milliseconds: 500),
+      duration: const Duration(seconds: 0, milliseconds: 1000),
       backgroundColor: msgColor,
     ));
   }

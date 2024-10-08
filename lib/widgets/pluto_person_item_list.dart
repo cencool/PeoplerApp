@@ -102,14 +102,14 @@ class _PlutoPersonItemListState extends State<PlutoPersonItemList> {
     debugPrint(queryString);
     final List<PlutoRow> rows;
     final items = await PersonItem.getPaginatedPersonItemList(
-        query: queryString, messengerKey: context.read<AppState>().messengerKey);
+      query: queryString,
+    );
     rows = getPlutoRows(items.items);
     return PlutoLazyPaginationResponse(totalPage: items.pageCount, rows: rows);
   }
 
   @override
   Widget build(BuildContext context) {
-    context.read<AppState>().activePersonItem = PersonItem.dummy();
     return PlutoGrid(
       columns: getColumns(context),
       rows: initRows,

@@ -1,9 +1,6 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
 import 'package:peopler/models/api.dart';
-import 'package:peopler/models/credentials.dart';
-import 'package:peopler/widgets/snack_message.dart';
 
 List<PersonItem> personItemFromJson(String str) =>
     List<PersonItem>.from(json.decode(str).map((x) => PersonItem.fromJson(x)));
@@ -49,30 +46,19 @@ class PersonItem {
     };
   }
 
-  static Future<PaginatedPersonItemList> getPaginatedPersonItemList(
-      {String query = '', required messengerKey}) async {
+  static Future<PaginatedPersonItemList> getPaginatedPersonItemList({String query = ''}) async {
     final String url = '${Api.itemUrl}/list$query';
-    final String authString = await Credentials.getAuthString();
-    try {
-      http.Response serverResponse =
-          await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-      if (serverResponse.statusCode == 200) {
-        final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '0');
-        String jsonString = serverResponse.body;
-        var jsonObject = json.decode(jsonString);
-        final List<PersonItem> personItemList =
-            List<PersonItem>.from(jsonObject.map((el) => PersonItem.fromJson(el)));
-        return PaginatedPersonItemList(items: personItemList, pageCount: pageCount);
-      } else {
-        SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Person List - Unexpected response code:${serverResponse.statusCode} ',
-            messageType: MessageType.error);
-      }
-    } on http.ClientException catch (e) {
-      SnackMessage.showMessage(
-          messengerKey: messengerKey, message: e.message, messageType: MessageType.error);
+    var serverResponse =
+        await Api.request(url: url, callerId: "PagPersItem", method: RequestMethod.get);
+    if (serverResponse != null) {
+      final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '0');
+      String jsonString = serverResponse.body;
+      var jsonObject = json.decode(jsonString);
+      final List<PersonItem> personItemList =
+          List<PersonItem>.from(jsonObject.map((el) => PersonItem.fromJson(el)));
+      return PaginatedPersonItemList(items: personItemList, pageCount: pageCount);
     }
+
     return PaginatedPersonItemList(items: <PersonItem>[]);
   }
 }

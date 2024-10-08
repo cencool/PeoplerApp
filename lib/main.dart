@@ -1,55 +1,40 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/globals/dev_http.dart';
-import 'package:peopler/pages/login_page.dart';
-import 'package:peopler/pages/person_list_page.dart';
-import 'package:peopler/models/credentials.dart';
+import 'package:peopler/globals/app_globals.dart';
+import 'package:peopler/pages/start_page.dart';
 import 'package:provider/provider.dart';
+
+final getIt = GetIt.instance;
 
 void main() {
   /// Hack to enable using self signed certificate for https
   HttpOverrides.global = DevHttpOverrides();
+  getIt.registerSingleton<AppGlobals>(AppGlobals());
   runApp(const PeoplerApp());
 }
 
-class PeoplerApp extends StatefulWidget {
+class PeoplerApp extends StatelessWidget {
   const PeoplerApp({super.key});
 
-  @override
-  State<PeoplerApp> createState() => _PeoplerAppState();
-}
-
-class _PeoplerAppState extends State<PeoplerApp> {
   // This widget is the root of your application.
-  final Future<bool> loginStatus = Credentials.isLoggedIn();
-  final Future<String> authString = Credentials.getAuthString();
-  late Future<List<dynamic>> futureResults = Future.wait([loginStatus, authString]);
   @override
   Widget build(BuildContext context) {
-    return Provider<AppState>(
+    return ChangeNotifierProvider<AppState>(
       create: (_) => AppState(),
       child: Builder(builder: (context) {
         return MaterialApp(
-          scaffoldMessengerKey: context.read<AppState>().messengerKey,
+          scaffoldMessengerKey: getIt<AppGlobals>().messengerKey,
           debugShowCheckedModeBanner: false,
           title: 'Peopler',
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
             useMaterial3: true,
           ),
-          home: FutureBuilder(
-              future: futureResults,
-              builder: (context, snapshot) {
-                ///TODO check if data content should be checked before using
-                if (snapshot.connectionState == ConnectionState.done && snapshot.data?[0]) {
-                  context.read<AppState>().authString = snapshot.data?[1];
-                  return const PersonListPage();
-                } else {
-                  return const LoginPage();
-                }
-              }),
+          home: StartPage(),
         );
       }),
     );

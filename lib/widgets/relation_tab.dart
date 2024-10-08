@@ -1,21 +1,3 @@
-// relation list
-// mode button (add, save)
-// mode (view, edit, add)  ako stav
-// skusit ci ten messenger nemoze byt active
-// ako refreshnut po uspesnom SAVE relation list ?
-// relation page
-// relation selector widget (select box + name selected) -> data update newRelation
-// person list in ADD mode
-// relation list updating on success save
-
-// RELATION TAB
-// relation list with EDIT button in row (view mode ?)
-// mode button ADD
-// ako  sa budu editovat relacie a ako mazat ?
-// klucove slovo ACTIVE RELATION (ACTIVE DATA OBJECT) - ten bude reflektovat aktualne data na/s ktorymi robim
-// activeRelation bude bud prazdna alebo obsahovat uz existujuce data
-//
-
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
@@ -36,16 +18,15 @@ class RelationTab extends StatefulWidget {
 }
 
 class _RelationTabState extends State<RelationTab> {
-  late Person activePerson = context.read<AppState>().activePerson;
+  // late Person activePerson = context.read<AppState>().activePerson;
   RelationTabMode mode = RelationTabMode.view;
-  late GlobalKey<ScaffoldMessengerState> messengerKey = context.read<AppState>().messengerKey;
 
   void switchMode(RelationTabMode newMode) {
     switch (newMode) {
       case (RelationTabMode.add):
         {
           debugPrint('Switiching to add mode');
-          SnackMessage.showMessage(messengerKey: messengerKey, message: 'Switching to add mode');
+          SnackMessage.showMessage(message: 'Switching to add mode');
           setState(() {
             mode = RelationTabMode.add;
           });
@@ -59,7 +40,7 @@ class _RelationTabState extends State<RelationTab> {
               builder: (dialogContext) {
                 return const RelationSaveDialog();
               }).then((r) {
-            SnackMessage.showMessage(messengerKey: messengerKey, message: 'Switching to view mode');
+            SnackMessage.showMessage(message: 'Switching to view mode');
           }).then((r) {
             setState(() {
               mode = RelationTabMode.view;
@@ -90,9 +71,11 @@ class _RelationTabState extends State<RelationTab> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('Relation tab build');
+    debugPrint('relation tab auth:${context.read<AppState>().authString}');
     return Stack(children: [
       ActiveContent(
-        activePerson: activePerson,
+        activePerson: context.watch<AppState>().activePerson,
         mode: mode,
         switchMode: switchMode,
       ),
@@ -192,10 +175,7 @@ class RelationSaveDialog extends StatelessWidget {
                     onPressed: () async {
                       debugPrint('Yes save pressed');
                       // model.saveData(messengerKey);
-                      await context
-                          .read<AppState>()
-                          .activeRelationRecord
-                          .save(messengerKey: context.read<AppState>().messengerKey);
+                      await context.read<AppState>().activeRelationRecord.save();
                       if (context.mounted) {
                         Navigator.pop(context);
                         context.read<AppState>().activeRelationRecord.reset();
@@ -244,8 +224,7 @@ class RelationDeleteDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () async {
                       debugPrint('Yes delete pressed');
-                      await RelationRecord.delete(context.read<AppState>().activeRelationRecord.id,
-                          messengerKey: context.read<AppState>().messengerKey);
+                      await RelationRecord.delete(context.read<AppState>().activeRelationRecord.id);
                       if (context.mounted) {
                         Navigator.pop(context);
                         var stMngr = context.read<AppState>().relationTableStateManager;

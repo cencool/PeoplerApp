@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
+import 'package:peopler/models/person_detail.dart';
+import 'package:peopler/pages/start_page.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-import 'package:peopler/pages/person_page.dart';
 import 'package:provider/provider.dart';
 
 class PlutoPersonList extends StatefulWidget {
@@ -17,70 +18,79 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
   late final PlutoGridStateManager stateManager;
   final List<PlutoRow> initRows = [];
 
+  PlutoColumn idColumn() {
+    return PlutoColumn(
+        title: 'Id',
+        field: 'id',
+        hide: (widget.idCallback == null) ? true : false,
+        type: PlutoColumnType.text(),
+        enableFilterMenuItem: true,
+        enableContextMenu: false,
+        enableSorting: true,
+        width: 80,
+        minWidth: 80,
+        renderer: (cellContext) {
+          return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            // Text(
+            //   '${cellContext.cell.value}',
+            //   style: TextStyle(fontSize: 10),
+            // ),
+
+            /// this callback provides info to relation about ToWhom
+            widget.idCallback != null
+                ? IconButton(
+                    onPressed: () {
+                      widget.idCallback!(cellContext.row.cells);
+                    },
+                    icon: const Icon(Icons.add, size: 13))
+                : Container(),
+          ]);
+        });
+  }
+
+  PlutoColumn surnameColumn() {
+    return PlutoColumn(
+        title: 'Surname',
+        field: 'surname',
+        type: PlutoColumnType.text(),
+        enableSorting: true,
+        enableContextMenu: false,
+        renderer: (cellContext) {
+          return InkWell(
+            onTap: () {
+              // var personListStateManager = context.read<AppState>().personListStateManager;
+              Person.getPerson(id: cellContext.row.cells['id']?.value).then((person) {
+                context.read<AppState>().activePerson = person;
+                PersonDetail.getPersonDetail(id: person.id).then((personDetail) {
+                  context.read<AppState>().activePersonDetail = personDetail;
+                  context.read<AppState>().activePage = ActivePage.person;
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) {
+                    return StartPage();
+                  }));
+                });
+              });
+            },
+            child: Text(
+              cellContext.cell.value,
+              style: TextStyle(color: Colors.blue),
+            ),
+          );
+        });
+  }
+
   List<PlutoColumn> getColumns(BuildContext context) {
     return <PlutoColumn>[
+      idColumn(),
+      surnameColumn(),
       PlutoColumn(
-          title: 'Id',
-          field: 'id',
-          hide: (widget.idCallback == null) ? true : false,
+          title: 'Name',
+          field: 'name',
           type: PlutoColumnType.text(),
-          enableFilterMenuItem: true,
-          enableContextMenu: false,
-          enableSorting: true,
-          width: 100,
-          minWidth: 100,
-          renderer: (cellContext) {
-            return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text(
-                '${cellContext.cell.value}',
-                style: TextStyle(fontSize: 10),
-              ),
-              // IconButton(
-              //   icon: const Icon(
-              //     Icons.remove_red_eye_sharp,
-              //     size: 13,
-              //   ),
-              //   onPressed: () {
-              //     Navigator.push(context, MaterialPageRoute(builder: (context) {
-              //       return Builder(builder: (context) {
-              //         return PersonPage(cellContext.cell.value);
-              //       });
-              //     }));
-              //   },
-              // ),
-
-              /// this callback provides info to relation about ToWhom
-              widget.idCallback != null
-                  ? IconButton(
-                      onPressed: () {
-                        widget.idCallback!(cellContext.row.cells);
-                      },
-                      icon: const Icon(Icons.add, size: 13))
-                  : Container(),
-            ]);
-          }),
-      PlutoColumn(
-          title: 'Surname',
-          field: 'surname',
-          type: PlutoColumnType.text(),
-          renderer: (cellContext) {
-            return InkWell(
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return Builder(builder: (context) {
-                    return PersonPage(cellContext.row.cells['id']?.value);
-                  });
-                }));
-              },
-              child: Text(
-                cellContext.cell.value,
-                style: TextStyle(color: Colors.blue),
-              ),
-            );
-          }),
-      PlutoColumn(title: 'Name', field: 'name', type: PlutoColumnType.text(), hide: false),
+          hide: false,
+          enableContextMenu: false),
       PlutoColumn(title: 'Gender', field: 'gender', type: PlutoColumnType.text(), hide: true),
-      PlutoColumn(title: 'Place', field: 'place', type: PlutoColumnType.text()),
+      PlutoColumn(
+          title: 'Place', field: 'place', type: PlutoColumnType.text(), enableContextMenu: false),
       PlutoColumn(title: 'Owner', field: 'owner', type: PlutoColumnType.text(), hide: true),
     ];
   }
@@ -120,6 +130,8 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
         }
       }
     }
+
+    /// Modification to match Yii api
     if (request.sortColumn != null && !request.sortColumn!.sort.isNone) {
       var sortDirection = '';
       if (request.sortColumn!.sort.name == 'descending') {
@@ -130,15 +142,17 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
     }
 
     debugPrint(queryString);
-    final List<PlutoRow> rows;
-    final persons = await Person.getPaginatedPersonList(
-        query: queryString, messengerKey: context.read<AppState>().messengerKey);
+    List<PlutoRow> rows;
+    PaginatedPersonList persons = await Person.getPaginatedPersonList(
+      query: queryString,
+    );
     rows = getPlutoRows(persons.persons);
     return PlutoLazyPaginationResponse(totalPage: persons.pageCount, rows: rows);
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('PlutPersonList build');
     return PlutoGrid(
       columns: getColumns(context),
       rows: initRows,
@@ -161,7 +175,7 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
         context.read<AppState>().personListStateManager = stateManager;
       },
       onChanged: (PlutoGridOnChangedEvent event) {
-        debugPrint(event.toString());
+        debugPrint('change event in plutoGrid: ${event.toString()}');
       },
       configuration: const PlutoGridConfiguration(
           columnSize: PlutoGridColumnSizeConfig(autoSizeMode: PlutoAutoSizeMode.scale),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/widgets/general_search_tab.dart';
+import 'package:provider/provider.dart';
 
 enum GeneralSearchPageMode { search, results }
 
@@ -23,6 +25,14 @@ class _GeneralSearchPageState extends State<GeneralSearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        /// To reset state after pop from search
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            context.read<AppState>().activePage = ActivePage.personList;
+            Navigator.of(context).pop();
+          },
+        ),
         title: (generalSearchPageMode == GeneralSearchPageMode.search)
             ? const Text(
                 'Search',

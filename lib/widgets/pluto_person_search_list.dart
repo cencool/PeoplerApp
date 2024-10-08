@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/general_search.dart';
 import 'package:peopler/models/person.dart';
+import 'package:peopler/models/person_detail.dart';
+import 'package:peopler/pages/start_page.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:peopler/pages/person_page.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +26,7 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
       PlutoColumn(
           title: 'Id',
           field: 'id',
+          hide: true,
           type: PlutoColumnType.text(),
           enableFilterMenuItem: false,
           enableContextMenu: false,
@@ -36,11 +39,21 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
               IconButton(
                 icon: const Icon(Icons.remove_red_eye_sharp),
                 onPressed: () {
+                  /// TODO check if refresh needed for plutoList here - need to reload real rows after delete...
+                  PlutoGridStateManager? currentStateManager =
+                      context.read<AppState>().personSearchListStateManager;
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return Builder(builder: (context) {
-                      return PersonPage(cellContext.cell.value);
+                      return PersonPage();
                     });
-                  }));
+                  })).then((val) async {
+                    List<PlutoRow> rows;
+                    var persons = await Person.getPaginatedPersonSearchList(
+                        searchParams: searchMapToJson(widget.searchParams), query: '');
+                    rows = getPlutoRows(persons.persons);
+                    currentStateManager?.removeAllRows();
+                    currentStateManager?.appendRows(rows);
+                  });
                 },
               ),
 
@@ -55,18 +68,38 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
             ]);
           }),
       PlutoColumn(
-        title: 'Surname',
-        field: 'surname',
-        type: PlutoColumnType.text(),
-        enableFilterMenuItem: false,
-        enableContextMenu: false,
-        enableSorting: true,
-      ),
+          title: 'Surname',
+          field: 'surname',
+          type: PlutoColumnType.text(),
+          enableFilterMenuItem: false,
+          enableContextMenu: false,
+          enableSorting: true,
+          renderer: (cellContext) {
+            return InkWell(
+              onTap: () {
+                Person.getPerson(id: cellContext.row.cells['id']?.value).then((person) {
+                  context.read<AppState>().activePerson = person;
+                  PersonDetail.getPersonDetail(id: person.id).then((personDetail) {
+                    context.read<AppState>().activePersonDetail = personDetail;
+                  }).then((_) {
+                    context.read<AppState>().activePage = ActivePage.person;
+                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return StartPage();
+                    }));
+                  });
+                });
+              },
+              child: Text(
+                cellContext.cell.value,
+                style: TextStyle(color: Colors.blue),
+              ),
+            );
+          }),
       PlutoColumn(
         title: 'Name',
         field: 'name',
         type: PlutoColumnType.text(),
-        hide: true,
+        hide: false,
         enableFilterMenuItem: false,
         enableContextMenu: false,
         enableSorting: true,
@@ -145,9 +178,7 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
     debugPrint(queryString);
     final List<PlutoRow> rows;
     final persons = await Person.getPaginatedPersonSearchList(
-        searchParams: searchMapToJson(widget.searchParams),
-        query: queryString,
-        messengerKey: context.read<AppState>().messengerKey);
+        searchParams: searchMapToJson(widget.searchParams), query: queryString);
     rows = getPlutoRows(persons.persons);
     return PlutoLazyPaginationResponse(totalPage: persons.pageCount, rows: rows);
   }
@@ -180,6 +211,10 @@ class _PlutoPersonSearchListState extends State<PlutoPersonSearchList> {
       },
       configuration: const PlutoGridConfiguration(
         columnSize: PlutoGridColumnSizeConfig(autoSizeMode: PlutoAutoSizeMode.scale),
+        style: PlutoGridStyleConfig(
+          cellTextStyle: TextStyle(fontSize: 12),
+          rowHeight: 24,
+        ),
       ),
     );
   }

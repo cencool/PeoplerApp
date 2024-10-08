@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
-import 'package:peopler/pages/person_page.dart';
+import 'package:peopler/models/person_detail.dart';
+import 'package:peopler/pages/start_page.dart';
 import 'package:peopler/widgets/relation_tab.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:peopler/models/person_relation.dart';
@@ -29,23 +30,32 @@ class _RelationTableState extends State<RelationTable> {
           type: PlutoColumnType.text(),
           enableContextMenu: false,
           enableSorting: true,
-          width: 130,
-          minWidth: 130,
+          width: 120,
+          minWidth: 120,
           renderer: (cellContext) {
             return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text('${cellContext.cell.value}'),
+              // Text('${cellContext.cell.value}'),
               cellContext.cell.value > -1
                   ? IconButton(
-                      icon: const Icon(Icons.edit),
+                      iconSize: 20.0,
+                      padding: EdgeInsets.all(0),
+                      icon: const Icon(
+                        Icons.edit,
+                      ),
                       onPressed: () {
                         debugPrint('Edit button pressed:${cellContext.cell.value}');
-                        print(cellContext.row.cells);
                         context.read<AppState>().activeRelationRecord.id = cellContext.cell.value;
                         widget.switchMode(RelationTabMode.edit);
                       })
-                  : const Icon(Icons.edit_off),
+                  : SizedBox(),
+              // : const Icon(
+              //     Icons.edit_off,
+              //     size: 20.0,
+              //   ),
               cellContext.cell.value > -1
                   ? IconButton(
+                      iconSize: 20.0,
+                      padding: EdgeInsets.all(0),
                       icon: const Icon(Icons.delete),
                       onPressed: () {
                         debugPrint('Delete button pressed:${cellContext.cell.value}');
@@ -53,7 +63,11 @@ class _RelationTableState extends State<RelationTable> {
                         context.read<AppState>().activeRelationRecord.id = cellContext.cell.value;
                         widget.switchMode(RelationTabMode.delete);
                       })
-                  : const Icon(Icons.delete_forever),
+                  : SizedBox(),
+              // : const Icon(
+              //     Icons.delete_forever,
+              //     size: 20.0,
+              //   ),
             ]);
           }),
       PlutoColumn(
@@ -72,11 +86,18 @@ class _RelationTableState extends State<RelationTable> {
             return InkWell(
               onTap: () {
                 debugPrint('tapped:${cellContext.row.cells["toWhomId"]?.value}');
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-                  return Builder(builder: (context) {
-                    return PersonPage(cellContext.row.cells["toWhomId"]?.value);
+                Person.getPerson(id: cellContext.row.cells['toWhomId']?.value).then((person) {
+                  context.read<AppState>().activePerson = person;
+                  PersonDetail.getPersonDetail(id: person.id).then((personDetail) {
+                    context.read<AppState>().activePersonDetail = personDetail;
+                    // context.read<AppState>().activePage = ActivePage.person;
+                  }).then((_) {
+                    context.read<AppState>().activePage = ActivePage.person;
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) {
+                      return StartPage();
+                    }));
                   });
-                }));
+                });
               },
               child: Text(
                 '${cellContext.cell.value}',
@@ -139,13 +160,15 @@ class _RelationTableState extends State<RelationTable> {
     debugPrint(queryString);
     final List<PlutoRow> rows;
     final relations = await PersonRelation.getPaginatedRelationList(
-        query: queryString, messengerKey: context.read<AppState>().messengerKey);
+      query: queryString,
+    );
     rows = getPlutoRows(relations.relations);
     return PlutoLazyPaginationResponse(totalPage: relations.pageCount, rows: rows);
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("Relation Table build");
     return PlutoGrid(
       columns: getColumns(context),
       rows: initRows,
@@ -165,13 +188,19 @@ class _RelationTableState extends State<RelationTable> {
         debugPrint('State manager assigned');
         stateManager = event.stateManager;
         stateManager.setShowColumnFilter(true);
-        context.read<AppState>().relationTableStateManager = stateManager;
+        if (mounted) {
+          context.read<AppState>().relationTableStateManager = stateManager;
+        }
       },
       onChanged: (PlutoGridOnChangedEvent event) {
         debugPrint(event.toString());
       },
       configuration: const PlutoGridConfiguration(
         columnSize: PlutoGridColumnSizeConfig(autoSizeMode: PlutoAutoSizeMode.scale),
+        style: PlutoGridStyleConfig(
+          rowHeight: 24,
+          cellTextStyle: TextStyle(fontSize: 12),
+        ),
       ),
     );
   }

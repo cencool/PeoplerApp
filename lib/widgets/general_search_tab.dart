@@ -3,7 +3,6 @@
 // po submite ale musim zobrazit person list s vysledkami
 
 import 'package:flutter/material.dart';
-import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/general_search.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/person_attachment.dart';
@@ -12,7 +11,6 @@ import 'package:peopler/models/person_item.dart';
 import 'package:peopler/models/person_search_form.dart';
 import 'package:peopler/pages/general_seach_page.dart';
 import 'package:peopler/widgets/pluto_person_search_list.dart';
-import 'package:provider/provider.dart';
 
 enum GeneralSearchMode { search, results }
 
@@ -34,7 +32,6 @@ class _GeneralSearchTabState extends State<GeneralSearchTab> {
       personDetail: personDetail,
       personAttachment: personAttachment,
       personItem: personItem);
-  late GlobalKey<ScaffoldMessengerState> messengerKey = context.read<AppState>().messengerKey;
   GeneralSearchMode generalSearchMode = GeneralSearchMode.search;
   Map<String, dynamic> searchParams = {};
 
@@ -196,8 +193,6 @@ class _GeneralSearchTabState extends State<GeneralSearchTab> {
             formModel.setActiveData();
             searchParams = searchDataToMap(person, personDetail, personAttachment, personItem);
             debugPrint('Search Json: ${searchMapToJson(searchParams)}');
-            // PaginatedPersonList personList = await Person.getPaginatedPersonSearchList(
-            //     searchParams: searchMapToJson(searchParams), messengerKey: messengerKey);
             if (generalSearchMode == GeneralSearchMode.search) {
               switchGeneralSearchMode(GeneralSearchMode.results);
               widget.onModeSwitch(GeneralSearchPageMode.results);

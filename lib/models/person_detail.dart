@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:peopler/models/api.dart';
-import 'package:peopler/models/credentials.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:peopler/widgets/snack_message.dart';
 
@@ -49,84 +46,46 @@ class PersonDetail {
     address = '';
   }
 
-  Future<Map<String, dynamic>> save(GlobalKey<ScaffoldMessengerState> messengerKey) async {
-    final String authString = await Credentials.getAuthString();
+  Future<Map<String, dynamic>> save() async {
+    // final String authString = await Credentials.getAuthString();
 
     if (id > -1) {
       // update  existing record
       String url = '${Api.personDetailUrl}/$personId';
-      try {
-        http.Response serverResponse = await http.put(Uri.parse(url),
-            headers: {'Authorization': 'Basic $authString'}, body: toBodyPut());
-        if (serverResponse.statusCode == 200) {
-          String jsonString = serverResponse.body;
-          if (jsonString == "null") {
-            return {"error": true};
-          }
-          Map<String, dynamic> response = json.decode(jsonString);
-          SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'Details for:${response["person_id"]} saved',
-              messageType: MessageType.info);
-          return response;
-        } else if (serverResponse.statusCode == 404) {
-          SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'No details data available...',
-              messageType: MessageType.info);
-        } else {
-          SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'Detail Save - Unexpected response code:${serverResponse.statusCode} ',
-              messageType: MessageType.error);
+      var serverResponse = await Api.request(
+          url: url,
+          callerId: 'detail save',
+          method: RequestMethod.put,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(toBodyPut()));
+      if (serverResponse != null) {
+        String jsonString = serverResponse.body;
+        if (jsonString == "null") {
+          return {"error": true};
         }
-      } on http.ClientException catch (e) {
+        Map<String, dynamic> response = json.decode(jsonString);
         SnackMessage.showMessage(
-            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
-      } catch (e) {
-        debugPrint(e.toString());
-        SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Exceptions:${e.toString()}',
-            messageType: MessageType.error);
+            message: 'Details for:${response["person_id"]} saved', messageType: MessageType.info);
+        return response;
       }
     } else {
       // create new record
       String url = Api.personDetailUrl;
-      try {
-        http.Response serverResponse = await http.post(Uri.parse(url),
-            headers: {'Authorization': 'Basic $authString'}, body: toBodyPost());
-        if (serverResponse.statusCode == 200) {
-          String jsonString = serverResponse.body;
-          if (jsonString == "null") {
-            return {"error": true};
-          }
-          Map<String, dynamic> response = json.decode(jsonString);
-          SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'Details for:${response["person_id"]} saved',
-              messageType: MessageType.info);
-          return response;
-        } else if (serverResponse.statusCode == 404) {
-          SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'No details data available...',
-              messageType: MessageType.info);
-        } else {
-          SnackMessage.showMessage(
-              messengerKey: messengerKey,
-              message: 'Detail Save - Unexpected response code:${serverResponse.statusCode} ',
-              messageType: MessageType.error);
+      var serverResponse = await Api.request(
+          url: url,
+          callerId: 'detail save',
+          method: RequestMethod.post,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(toBodyPost()));
+      if (serverResponse != null) {
+        String jsonString = serverResponse.body;
+        if (jsonString == "null") {
+          return {"error": true};
         }
-      } on http.ClientException catch (e) {
+        Map<String, dynamic> response = json.decode(jsonString);
         SnackMessage.showMessage(
-            message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
-      } catch (e) {
-        debugPrint(e.toString());
-        SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Exceptions:${e.toString()}',
-            messageType: MessageType.error);
+            message: 'Details for:${response["person_id"]} saved', messageType: MessageType.info);
+        return response;
       }
     }
     return {"error": true};
@@ -155,37 +114,17 @@ class PersonDetail {
         "address": address,
       };
 
-  static Future<PersonDetail> getPersonDetail(
-      {required int id, required GlobalKey<ScaffoldMessengerState> messengerKey}) async {
+  static Future<PersonDetail> getPersonDetail({required int id}) async {
     String url = '${Api.personDetailUrl}/$id';
-    final String authString = await Credentials.getAuthString();
-    try {
-      http.Response serverResponse =
-          await http.get(Uri.parse(url), headers: {'Authorization': 'Basic $authString'});
-      if (serverResponse.statusCode == 200) {
-        String jsonString = serverResponse.body;
-        if (jsonString == "null") {
-          return PersonDetail.dummy(id);
-        }
-        var jsonObject = json.decode(jsonString);
-        return PersonDetail.fromJson(jsonObject);
-      } else if (serverResponse.statusCode == 404) {
-        SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'No details data available...',
-            messageType: MessageType.info);
-      } else {
-        SnackMessage.showMessage(
-            messengerKey: messengerKey,
-            message: 'Get Detail - Unexpected response code:${serverResponse.statusCode} ',
-            messageType: MessageType.error);
+    var serverResponse =
+        await Api.request(url: url, callerId: 'personDetail', method: RequestMethod.get);
+    if (serverResponse != null) {
+      String jsonString = serverResponse.body;
+      if (jsonString == "null") {
+        return PersonDetail.dummy(id);
       }
-    } on http.ClientException catch (e) {
-      SnackMessage.showMessage(
-          message: e.message, messageType: MessageType.error, messengerKey: messengerKey);
-    } catch (e) {
-      debugPrint(e.toString());
-      SnackMessage.showMessage(messageType: MessageType.error, messengerKey: messengerKey);
+      var jsonObject = json.decode(jsonString);
+      return PersonDetail.fromJson(jsonObject);
     }
     return PersonDetail.dummy(id);
   }
