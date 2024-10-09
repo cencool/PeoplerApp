@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:peopler/config/app_config.dart';
 import 'package:peopler/models/credentials.dart';
 import 'package:peopler/widgets/snack_message.dart';
 
@@ -19,10 +20,8 @@ class Api {
     bool auth,
   })? mockCallback;
 
-  // static const String serverUrl = 'http://localhost:8102';
-  static const String serverUrl = 'http://peopler.localhost:8000';
-  // static const String serverUrl = 'http://192.168.0.34:88/peopler';
-  // static const String serverUrl = 'https://70.34.245.80/peopler';
+  static const String serverUrl = AppConfig.serverUrl;
+
   static const String personRestUrl = '$serverUrl/v1/person';
   static const String personPhotoReceiveUrl = '$serverUrl/v1/photo/send-photo';
   static const String personPhotoSendUrl = '$serverUrl/v1/photo/receive-photo';
