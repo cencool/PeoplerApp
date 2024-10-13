@@ -67,12 +67,20 @@ class Person {
     var serverResponse =
         await Api.request(url: url, method: RequestMethod.get, callerId: 'Person List');
     if (serverResponse != null) {
-      final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '0');
+      final int pageCount = int.parse(serverResponse.headers['x-pagination-page-count'] ?? '1');
+      final int total = int.parse(serverResponse.headers['x-pagination-total-count'] ?? '0');
+      final int perPage = int.parse(serverResponse.headers['x-pagination-per-page'] ?? '1');
+      final int page = int.parse(serverResponse.headers['x-pagination-current-page'] ?? '1');
       String jsonString = serverResponse.body;
       var jsonObject = json.decode(jsonString);
       final List<Person> personList =
           List<Person>.from(jsonObject.map((el) => Person.fromJson(el)));
-      return PaginatedPersonList(persons: personList, pageCount: pageCount);
+      return PaginatedPersonList(
+          persons: personList,
+          pageCount: pageCount,
+          totalCount: total,
+          pageSize: perPage,
+          currentPage: page);
     } else {
       return PaginatedPersonList(persons: <Person>[]);
     }
@@ -220,8 +228,16 @@ class Person {
 
 class PaginatedPersonList {
   final int pageCount;
+  final int currentPage;
+  final int pageSize;
+  final int totalCount;
   final List<Person> persons;
 
   ///TODO shouldn't pageCount default be 0 ?
-  PaginatedPersonList({required this.persons, this.pageCount = 1});
+  PaginatedPersonList(
+      {required this.persons,
+      this.pageCount = 1,
+      this.currentPage = 1,
+      this.pageSize = 10,
+      this.totalCount = 1});
 }

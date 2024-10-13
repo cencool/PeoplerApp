@@ -47,6 +47,7 @@ dependencies:
   image: ^4.2.0
   crop_your_image: ^1.1.0
   get_it: ^7.7.0
+  syncfusion_flutter_datagrid: ^27.1.52
 
 dev_dependencies:
   flutter_test:

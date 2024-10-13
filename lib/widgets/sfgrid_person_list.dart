@@ -14,78 +14,88 @@ class SfgridPersonListState extends State<SfgridPersonList> {
   final PersonDataSource dataSource = PersonDataSource();
 
   @override
+  void initState() {
+    super.initState();
+    dataSource.addListener(pokus);
+  }
+
+  void pokus() {
+    debugPrint('from pokus:${dataSource.pageCount}');
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: Person.getPaginatedPersonList(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          dataSource.persons = snapshot.data!.persons;
-          return SfDataGrid(
-            source: dataSource,
-            allowSorting: true,
-            rowHeight: 25.0,
-            columns: [
-              GridColumn(
-                columnName: 'id',
-                label: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    'ID',
-                    overflow: TextOverflow.ellipsis,
-                  ),
+    debugPrint('from build:${dataSource.pageCount}');
+    return Column(children: [
+      Expanded(
+        child: SfDataGrid(
+          source: dataSource,
+          allowSorting: true,
+          rowHeight: 25.0,
+          columns: [
+            GridColumn(
+              columnName: 'id',
+              label: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'ID',
+                  overflow: TextOverflow.ellipsis,
                 ),
-                allowSorting: true,
               ),
-              GridColumn(
-                columnName: 'surname',
-                label: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Surname',
-                    overflow: TextOverflow.ellipsis,
-                  ),
+              allowSorting: true,
+            ),
+            GridColumn(
+              columnName: 'surname',
+              label: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Surname',
+                  overflow: TextOverflow.ellipsis,
                 ),
-                allowSorting: true,
               ),
-              GridColumn(
-                columnName: 'name',
-                label: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Name',
-                    overflow: TextOverflow.ellipsis,
-                  ),
+              allowSorting: true,
+            ),
+            GridColumn(
+              columnName: 'name',
+              label: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Name',
+                  overflow: TextOverflow.ellipsis,
                 ),
-                allowSorting: true,
               ),
-              GridColumn(
-                columnName: 'place',
-                label: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Place',
-                    overflow: TextOverflow.ellipsis,
-                  ),
+              allowSorting: true,
+            ),
+            GridColumn(
+              columnName: 'place',
+              label: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Place',
+                  overflow: TextOverflow.ellipsis,
                 ),
-                allowSorting: true,
               ),
-            ],
-            controller: _controller,
-          );
-        } else {
-          return Center(child: CircularProgressIndicator());
-        }
-      },
-    );
+              allowSorting: true,
+            ),
+          ],
+          controller: _controller,
+        ),
+      ),
+      PersonListPager(dataSource: dataSource),
+    ]);
   }
 }
 
 class PersonDataSource extends DataGridSource {
   List<Person> persons = [];
+  int pageCount = 1;
+  int totalCount = 0;
+  int pageSize = 0;
+  int currentPage = 0;
 
   @override
   List<DataGridRow> get rows => persons.map((person) {
@@ -118,5 +128,44 @@ class PersonDataSource extends DataGridSource {
         }
       }).toList(),
     );
+  }
+
+  @override
+  Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
+    var paginatedPersonList =
+        await Person.getPaginatedPersonList(query: '?page=${newPageIndex + 1}');
+    persons = paginatedPersonList.persons;
+    pageCount = paginatedPersonList.pageCount;
+    totalCount = paginatedPersonList.totalCount;
+    pageSize = paginatedPersonList.pageSize;
+    currentPage = paginatedPersonList.currentPage;
+    notifyListeners();
+    return true;
+  }
+}
+
+class PersonListPager extends StatefulWidget {
+  const PersonListPager({required this.dataSource, super.key});
+  final PersonDataSource dataSource;
+
+  @override
+  State<PersonListPager> createState() => _PersonListPagerState();
+}
+
+class _PersonListPagerState extends State<PersonListPager> {
+  void updatePager() {
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    widget.dataSource.addListener(updatePager);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SfDataPager(
+        pageCount: widget.dataSource.pageCount.toDouble(), delegate: widget.dataSource);
   }
 }

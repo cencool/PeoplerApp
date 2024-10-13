@@ -4,6 +4,7 @@ import 'package:peopler/widgets/attachment_tab.dart';
 import 'package:peopler/widgets/item_tab.dart';
 import 'package:peopler/widgets/person_tab.dart';
 import 'package:peopler/widgets/relation_tab.dart';
+import 'package:peopler/widgets/sfgrid_person_list.dart';
 import 'package:provider/provider.dart';
 
 class PersonPage extends StatelessWidget {
@@ -13,7 +14,7 @@ class PersonPage extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint('PersonPage build');
     return DefaultTabController(
-      length: (context.watch<AppState>().activePerson.id > -1) ? 4 : 1,
+      length: (context.watch<AppState>().activePerson.id > -1) ? 5 : 2,
       child: Scaffold(
         appBar: AppBar(
           title: Text(
@@ -35,9 +36,11 @@ class PersonPage extends StatelessWidget {
                     Tooltip(message: 'Relations', child: Tab(icon: Icon(Icons.people))),
                     Tooltip(message: 'Items', child: Tab(icon: Icon(Icons.list))),
                     Tooltip(message: 'Attachments', child: Tab(icon: Icon(Icons.attach_file))),
+                    Tooltip(message: 'PersonList', child: Tab(icon: Icon(Icons.list))),
                   ]
                 : [
                     Tooltip(message: 'Person', child: Tab(icon: Icon(Icons.person))),
+                    Tooltip(message: 'PersonList', child: Tab(icon: Icon(Icons.list))),
                   ],
           ),
         ),
@@ -63,9 +66,11 @@ class PersonPageBody extends StatelessWidget {
               RelationTab(),
               ItemTab(),
               AttachmentTab(),
+              SfgridPersonList(),
             ]
           : [
               PersonTab(),
+              SfgridPersonList(),
             ],
     );
   }
