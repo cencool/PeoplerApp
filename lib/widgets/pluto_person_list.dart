@@ -58,12 +58,13 @@ class _PlutoPersonListState extends State<PlutoPersonList> {
         renderer: (cellContext) {
           return InkWell(
             onTap: () {
+              var appState = context.read<AppState>();
               // var personListStateManager = context.read<AppState>().personListStateManager;
               Person.getPerson(id: cellContext.row.cells['id']?.value).then((person) {
-                context.read<AppState>().activePerson = person;
+                appState.activePerson = person;
                 PersonDetail.getPersonDetail(id: person.id).then((personDetail) {
-                  context.read<AppState>().activePersonDetail = personDetail;
-                  context.read<AppState>().activePage = ActivePage.person;
+                  appState.activePersonDetail = personDetail;
+                  appState.activePage = ActivePage.person;
                   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) {
                     return StartPage();
                   }));
