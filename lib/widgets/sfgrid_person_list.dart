@@ -36,6 +36,7 @@ class SfgridPersonListState extends State<SfgridPersonList> {
         child: SfDataGrid(
           source: dataSource,
           allowSorting: true,
+          allowFiltering: true,
           rowHeight: 25.0,
           columnWidthMode: ColumnWidthMode.auto,
           columns: [

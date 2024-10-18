@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:peopler/config/app_config.dart';
+import 'package:peopler/globals/app_globals.dart';
 import 'package:peopler/globals/app_state.dart';
+import 'package:peopler/main.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/person_detail.dart';
 import 'package:peopler/pages/general_seach_page.dart';
 import 'package:peopler/widgets/pluto_person_list.dart';
+import 'package:peopler/widgets/sfgrid_person_list.dart';
 import 'package:provider/provider.dart';
 
 class PersonListPage extends StatelessWidget {
@@ -51,8 +55,11 @@ class PersonListPage extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: PlutoPersonList(),
+      body: Center(
+        // child: PlutoPersonList(),
+        child: getIt<AppGlobals>().personListType == PersonListType.pluto
+            ? PlutoPersonList()
+            : SfgridPersonList(),
       ),
     );
   }
