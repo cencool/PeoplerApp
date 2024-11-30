@@ -17,15 +17,12 @@ class SfgridPersonListState extends State<SfgridPersonList> {
   final DataGridController _controller = DataGridController();
   final PersonDataSource dataSource = PersonDataSource();
 
-  @override
-  void initState() {
-    super.initState();
-    dataSource.addListener(pokus);
-  }
-
-  void pokus() {
-    debugPrint('from pokus:${dataSource.pageCount}');
-  }
+  late Map<String, double> columnWidths = {
+    'id': 200.0,
+    'surname': 200.0,
+    'name': 200.0,
+    'place': 200.0,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +34,20 @@ class SfgridPersonListState extends State<SfgridPersonList> {
           source: dataSource,
           allowSorting: true,
           allowFiltering: true,
+          allowColumnsResizing: true,
+          onColumnResizeUpdate: (ColumnResizeUpdateDetails details) {
+            setState(() {
+              columnWidths[details.column.columnName] = details.width;
+            });
+            return true;
+          },
           rowHeight: 25.0,
           columnWidthMode: ColumnWidthMode.auto,
           columns: [
             GridColumn(
               columnName: 'id',
+              minimumWidth: 100,
+              width: columnWidths['id']!,
               visible: false,
               label: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -55,6 +61,8 @@ class SfgridPersonListState extends State<SfgridPersonList> {
             ),
             GridColumn(
               columnName: 'surname',
+              width: columnWidths['surname']!,
+              minimumWidth: 100,
               label: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 alignment: Alignment.centerLeft,
@@ -67,6 +75,8 @@ class SfgridPersonListState extends State<SfgridPersonList> {
             ),
             GridColumn(
               columnName: 'name',
+              minimumWidth: 100,
+              width: columnWidths['name']!,
               label: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 alignment: Alignment.centerLeft,
@@ -79,6 +89,8 @@ class SfgridPersonListState extends State<SfgridPersonList> {
             ),
             GridColumn(
               columnName: 'place',
+              minimumWidth: 100,
+              width: columnWidths['place']!,
               label: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 alignment: Alignment.centerLeft,
