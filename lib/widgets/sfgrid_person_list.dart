@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:peopler/globals/app_globals.dart';
 import 'package:peopler/globals/app_state.dart';
+import 'package:peopler/main.dart';
 import 'package:peopler/models/person.dart';
 import 'package:peopler/models/person_detail.dart';
 import 'package:peopler/pages/start_page.dart';
@@ -31,10 +33,13 @@ class SfgridPersonListState extends State<SfgridPersonList> {
     return Column(children: [
       Expanded(
         child: SfDataGrid(
+          key: getIt<AppGlobals>().sfDataGridKey,
           source: dataSource,
           allowSorting: true,
+          allowTriStateSorting: true,
           allowFiltering: true,
           allowColumnsResizing: true,
+          onCellTap: dataSource.fetchRowsBeforeSorting,
           onColumnResizeUpdate: (ColumnResizeUpdateDetails details) {
             setState(() {
               columnWidths[details.column.columnName] = details.width;
@@ -118,6 +123,14 @@ class PersonDataSource extends DataGridSource {
   int currentPage = 0;
   BuildContext? context;
 
+  // to load sorted rows before sorting
+  Future<void> fetchRowsBeforeSorting(DataGridCellTapDetails details) async {
+    if (details.rowColumnIndex.rowIndex == 0) {
+      debugPrint('fetchRowsBeforeSorting');
+      handlePageChange(currentPage, currentPage);
+    }
+  }
+
   @override
   List<DataGridRow> get rows => persons.map((person) {
         return DataGridRow(
@@ -171,8 +184,9 @@ class PersonDataSource extends DataGridSource {
 
   @override
   Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
-    var paginatedPersonList =
-        await Person.getPaginatedPersonList(query: '?page=${newPageIndex + 1}');
+    debugPrint('handlePageChange');
+    String queryString = queryBuilder(page: newPageIndex + 1);
+    var paginatedPersonList = await Person.getPaginatedPersonList(query: queryString);
     persons = paginatedPersonList.persons;
     pageCount = paginatedPersonList.pageCount;
     totalCount = paginatedPersonList.totalCount;
@@ -180,6 +194,19 @@ class PersonDataSource extends DataGridSource {
     currentPage = paginatedPersonList.currentPage;
     notifyListeners();
     return true;
+  }
+
+  String queryBuilder({int page = 0}) {
+    String queryString = '?page=${page}';
+    if (sortedColumns.isNotEmpty) {
+      String column = sortedColumns[0].name;
+      queryString += '&sort=';
+      if (sortedColumns[0].sortDirection == DataGridSortDirection.descending) {
+        queryString += '-';
+      }
+      queryString += column; // modified to fit yii grid sorting query
+    }
+    return queryString;
   }
 }
 

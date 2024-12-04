@@ -42,4 +42,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 app_config.dart
+/test/assets
 
