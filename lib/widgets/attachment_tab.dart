@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:crop_your_image/crop_your_image.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
@@ -150,13 +151,11 @@ class _AttachmentTabState extends State<AttachmentTab> {
                           '${Api.attachmentUrl}/send-file?fileId=${item.id}&${DateTime.now().millisecondsSinceEpoch}',
                       headers: {'Authorization': 'Basic $authString'},
                       child: Image(
-                        key: ValueKey(
-                            '${Api.attachmentUrl}/send-thumbnail?fileId=${item.id}&${DateTime.now().millisecondsSinceEpoch}'),
-                        image: NetworkImage(
-                          '${Api.attachmentUrl}/send-thumbnail?fileId=${item.id}&${DateTime.now().millisecondsSinceEpoch}',
-                          headers: {'Authorization': 'Basic $authString'},
-                        ),
-                      ),
+                          key: ValueKey(
+                              '${Api.attachmentUrl}/send-thumbnail?fileId=${item.id}&${DateTime.now().millisecondsSinceEpoch}'),
+                          image: ExtendedNetworkImageProvider(
+                              '${Api.attachmentUrl}/send-thumbnail?fileId=${item.id}&${DateTime.now().millisecondsSinceEpoch}',
+                              headers: {'Authorization': 'Basic $authString'})),
                     ),
                     ElevatedButton(
                         onPressed: () {

@@ -1,3 +1,4 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/models/person.dart';
@@ -257,7 +258,7 @@ class PersonPhoto extends StatelessWidget {
       },
       child: FadeInImage(
           placeholder: MemoryImage(kTransparentImage),
-          image: NetworkImage(
+          image: ExtendedNetworkImageProvider(
             urlVal,
             headers: {'Authorization': 'Basic $authString'},
           )),

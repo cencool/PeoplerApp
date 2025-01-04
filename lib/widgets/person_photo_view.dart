@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:crop_your_image/crop_your_image.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
@@ -335,10 +336,11 @@ class ActivePhoto extends StatelessWidget {
     switch (mode) {
       case (PersonPhotoViewMode.view):
         return Image(
-          image: NetworkImage(
+          image: ExtendedNetworkImageProvider(
             '${Api.personPhotoReceiveUrl}?id=$personId&${DateTime.now().millisecondsSinceEpoch}',
             headers: {'Authorization': 'Basic ${snapshot.data}'},
           ),
+          alignment: Alignment.topCenter,
         );
       case (PersonPhotoViewMode.zoom):
         return SingleChildScrollView(
@@ -346,10 +348,11 @@ class ActivePhoto extends StatelessWidget {
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Image(
-              image: NetworkImage(
+              image: ExtendedNetworkImageProvider(
                 '${Api.personPhotoReceiveUrl}?id=$personId&${DateTime.now().millisecondsSinceEpoch}',
                 headers: {'Authorization': 'Basic ${snapshot.data}'},
               ),
+              alignment: Alignment.topCenter,
             ),
           ),
         );
