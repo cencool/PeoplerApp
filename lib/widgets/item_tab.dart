@@ -200,8 +200,6 @@ class ItemSaveDialog extends StatelessWidget {
         return '${Api.itemUrl}/update';
       case (ApiAction.delete):
         return '${Api.itemUrl}/delete';
-      default:
-        return '';
     }
   }
 

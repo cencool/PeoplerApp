@@ -1,11 +1,18 @@
 import 'package:http/http.dart' as http;
 import 'package:peopler/app/core/result.dart';
 
-class ApiService {
+abstract class ApiService {
+  Future<Result<http.Response, String>> getRequest(String url, {Map<String, String>? headers});
+  Future<Result<http.Response, String>> postRequest(String url,
+      {Map<String, String>? headers, Object? body});
+}
+
+class YiiApiService implements ApiService {
   final http.Client _client;
 
-  ApiService([http.Client? client]) : _client = client ?? http.Client();
+  YiiApiService([http.Client? client]) : _client = client ?? http.Client();
 
+  @override
   Future<Result<http.Response, String>> getRequest(String url,
       {Map<String, String>? headers}) async {
     try {
@@ -21,6 +28,7 @@ class ApiService {
     }
   }
 
+  @override
   Future<Result<http.Response, String>> postRequest(String url,
       {Map<String, String>? headers, Object? body}) async {
     try {

@@ -53,8 +53,8 @@ class Credentials {
 
   static Future<String> getAuthString() async {
     final token = await getToken() ?? '';
-    final authBytes =
-        utf8.encode('$token:'); // colon is necessary to append for basic auth to work!
+    final authBytes = utf8.encode(
+        '$token:'); // colon is necessary to append for basic auth to work becaus Yii use only user part as token!
     return base64Encode(authBytes); // create token for basic auth
   }
 

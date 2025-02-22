@@ -70,8 +70,6 @@ class Api {
         }
       case (RequestMethod.delete):
         request = http.Request('delete', uri);
-      default:
-        request = http.Request('get', uri);
     }
     if (body is Map<String, String>) {
       request.bodyFields = body;

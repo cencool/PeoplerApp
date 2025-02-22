@@ -64,8 +64,6 @@ class _RelationTabState extends State<RelationTab> {
                 return const RelationDeleteDialog();
               });
         }
-      default:
-        {}
     }
   }
 

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:peopler/app/app_start.dart';
 import 'package:peopler/globals/app_state.dart';
 import 'package:peopler/globals/dev_http.dart';
 import 'package:peopler/globals/app_globals.dart';
@@ -10,11 +11,26 @@ import 'package:provider/provider.dart';
 
 final getIt = GetIt.instance;
 
+const mode = 'layered';
+
 void main() {
   /// Hack to enable using self signed certificate for https
   HttpOverrides.global = DevHttpOverrides();
   getIt.registerSingleton<AppGlobals>(AppGlobals());
-  runApp(const PeoplerApp());
+  if (mode == 'layered') {
+    runApp(MaterialApp(
+      home: Scaffold(
+        body: Builder(
+          builder: (context) {
+            initApp();
+            return const Center(child: CircularProgressIndicator());
+          },
+        ),
+      ),
+    ));
+  } else {
+    runApp(const PeoplerApp());
+  }
 }
 
 class PeoplerApp extends StatelessWidget {
