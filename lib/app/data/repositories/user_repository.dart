@@ -5,6 +5,7 @@ import 'package:peopler/app/core/result.dart';
 import 'package:peopler/app/data/services/api_config.dart';
 import 'package:peopler/app/data/services/api_service.dart';
 import 'package:peopler/app/data/services/storage_service.dart';
+import 'package:peopler/app/data/services/yii_api_service.dart';
 
 class UserRepository {
   final ApiService _apiService;
@@ -15,7 +16,8 @@ class UserRepository {
         _storageService = storageService ?? StorageService();
 
   Future<Result<String, String>> getToken({required String id, required String password}) async {
-    Result<http.Response, String> result = await _apiService.postRequest(ApiConfig.loginUrl,
+    Result<http.Response, String> result = await _apiService.postRequest(
+        Uri.parse(ApiConfig.loginUrl),
         body: jsonEncode({"user": id, "password": password}),
         headers: {
           "Content-Type": "application/json",
@@ -42,5 +44,13 @@ class UserRepository {
       return const Success(true);
     }
     return const Failure('Failed to save credentials');
+  }
+
+  Future<Result<String, String>> getSharedPrefString(String key) async {
+    return _storageService.getSharedPrefString(key);
+  }
+
+  Future<Result<bool, String>> setSharedPrefString(String key, String value) async {
+    return await _storageService.setSharedPrefString(key, value);
   }
 }
