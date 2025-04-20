@@ -1,54 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:peopler/globals/app_state.dart';
-import 'package:peopler/models/credentials.dart';
-import 'package:peopler/widgets/snack_message.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:peopler/app/core/app_globals.dart';
+import 'package:peopler/app/ui/viewmodels/login_page_vm.dart';
 
-class LoginForm extends StatefulWidget {
+// 1. Change to ConsumerStatefulWidget
+class LoginForm extends ConsumerStatefulWidget {
   const LoginForm({super.key});
 
   @override
-  State<LoginForm> createState() => _LoginFormState();
+  ConsumerState<LoginForm> createState() => _LoginFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+// 2. Create the State class
+class _LoginFormState extends ConsumerState<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  final userController = TextEditingController();
-  final passwordController = TextEditingController();
-  bool isProcessing = false;
-  bool hidePassword = true;
+  // 3. Declare controllers here
+  late final TextEditingController _userController;
+  late final TextEditingController _passwordController;
 
-  void submitAction() {
-    {
-      if (_formKey.currentState!.validate()) {
-        setState(() {
-          isProcessing = true;
-        });
-        SnackMessage.showMessage(message: 'Processing', messageType: MessageType.info);
-        Credentials.login(userName: userController.text, password: passwordController.text)
-            .then((loggedIn) {
-          setState(() {
-            isProcessing = false;
-          });
-          if (loggedIn) {
-            context.read<AppState>().login();
-          } else {
-            SnackMessage.showMessage(message: 'Login Failed', messageType: MessageType.error);
-          }
-        });
-      }
-    }
+  // 4. Initialize in initState
+  @override
+  void initState() {
+    super.initState();
+    _userController = TextEditingController();
+    _passwordController = TextEditingController();
   }
 
-  void toggleHidePassword() {
-    setState(() {
-      hidePassword = !hidePassword;
-    });
+  // 5. Dispose in dispose
+  @override
+  void dispose() {
+    _userController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('LoginForm build');
+    // Note: No WidgetRef here
+    // Access ref via the 'ref' property inherited from ConsumerState
+    final state = ref.watch(loginPageVMProvider);
+    final viewModel = ref.read(loginPageVMProvider.notifier);
+
     return Form(
       key: _formKey,
       child: Center(
@@ -58,53 +50,58 @@ class _LoginFormState extends State<LoginForm> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
-                controller: userController,
+                controller: _userController, // Use initialized controller
                 decoration: const InputDecoration(
                   hintText: 'User id',
                 ),
-                validator: (String? value) {
-                  if (value != null) {
-                    value = value.trim();
-                  }
+                validator: (value) {
+                  value = value?.trim();
                   if (value == null || value.isEmpty) {
-                    return "Please enter user id";
+                    return 'Please enter user id';
                   }
                   return null;
                 },
               ),
               TextFormField(
-                controller: passwordController,
-                obscureText: hidePassword,
+                controller: _passwordController, // Use initialized controller
+                obscureText: state.hidePassword,
                 decoration: const InputDecoration(
                   hintText: 'User password',
                 ),
-                validator: (String? value) {
-                  if (value != null) {
-                    value = value.trim();
-                  }
+                validator: (value) {
+                  value = value?.trim();
                   if (value == null || value.isEmpty) {
-                    return "Please enter user password";
+                    return 'Please enter user password';
                   }
                   return null;
                 },
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               Row(
                 children: [
                   ElevatedButton(
-                    onPressed: isProcessing ? null : submitAction,
+                    onPressed: state.isProcessing
+                        ? null
+                        : () {
+                            if (_formKey.currentState!.validate()) {
+                              viewModel.login(
+                                username: _userController.text,
+                                password: _passwordController.text,
+                                context: context,
+                              );
+                            }
+                          },
                     child: const Text('Submit'),
                   ),
-                  SizedBox(
-                    width: 90,
-                  ),
+                  const SizedBox(width: 90),
                   ElevatedButton(
-                      onPressed: toggleHidePassword,
-                      child: (hidePassword)
-                          ? Icon(Icons.visibility_outlined)
-                          : Icon(Icons.visibility_off_outlined)),
+                    onPressed: () {
+                      viewModel.togglePasswordVisibility();
+                    },
+                    child: state.hidePassword
+                        ? const Icon(Icons.visibility_outlined)
+                        : const Icon(Icons.visibility_off_outlined),
+                  ),
                 ],
               ),
             ],

@@ -15,7 +15,7 @@ class LoginPage extends StatelessWidget {
         ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: const LoginForm(),
+      body: LoginForm(),
     );
   }
 }

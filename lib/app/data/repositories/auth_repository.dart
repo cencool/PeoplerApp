@@ -7,13 +7,13 @@ import 'package:peopler/app/data/services/api_service.dart';
 import 'package:peopler/app/data/services/storage_service.dart';
 import 'package:peopler/app/data/services/yii_api_service.dart';
 
-class UserRepository {
+class AuthRepository {
   final ApiService _apiService;
-  final StorageService _storageService;
+  final StorageService storageService;
 
-  UserRepository({ApiService? apiService, StorageService? storageService})
+  AuthRepository({ApiService? apiService, StorageService? storageService})
       : _apiService = apiService ?? YiiApiService(),
-        _storageService = storageService ?? StorageService();
+        storageService = storageService ?? StorageService();
 
   Future<Result<String, String>> getToken({required String id, required String password}) async {
     Result<http.Response, String> result = await _apiService.postRequest(
@@ -36,10 +36,10 @@ class UserRepository {
   }
 
   Future<Result<bool, String>> saveCredentials({required String id, required String token}) async {
-    await _storageService.removeSharedPrefString('peoplerToken');
-    await _storageService.removeSharedPrefString('userName');
-    var tokenResult = await _storageService.setSharedPrefString('peoplerToken', token);
-    var userNameResult = await _storageService.setSharedPrefString('userName', id);
+    await storageService.removeSharedPrefString('peoplerToken');
+    await storageService.removeSharedPrefString('userName');
+    var tokenResult = await storageService.setSharedPrefString('peoplerToken', token);
+    var userNameResult = await storageService.setSharedPrefString('userName', id);
     if (tokenResult is Success && userNameResult is Success) {
       return const Success(true);
     }
@@ -47,10 +47,23 @@ class UserRepository {
   }
 
   Future<Result<String, String>> getSharedPrefString(String key) async {
-    return _storageService.getSharedPrefString(key);
+    return storageService.getSharedPrefString(key);
   }
 
   Future<Result<bool, String>> setSharedPrefString(String key, String value) async {
-    return await _storageService.setSharedPrefString(key, value);
+    return await storageService.setSharedPrefString(key, value);
+  }
+
+  Future<Result<bool, String>> deleteCredentials() async {
+    var result1 = await storageService.removeSharedPrefString('peoplerToken');
+
+    if (result1 case Failure(error: final error)) {
+      return Failure(error);
+    }
+    var result2 = await storageService.removeSharedPrefString('userName');
+    if (result2 case Failure(error: final error)) {
+      return Failure(error);
+    }
+    return const Success(true);
   }
 }

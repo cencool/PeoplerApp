@@ -12,14 +12,14 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   final userController = TextEditingController();
   final passwordController = TextEditingController();
   bool isProcessing = false;
   bool hidePassword = true;
 
-  VoidCallback submitAction() {
-    return () {
+  void submitAction() {
+    {
       if (_formKey.currentState!.validate()) {
         setState(() {
           isProcessing = true;
@@ -37,7 +37,13 @@ class _LoginFormState extends State<LoginForm> {
           }
         });
       }
-    };
+    }
+  }
+
+  void toggleHidePassword() {
+    setState(() {
+      hidePassword = !hidePassword;
+    });
   }
 
   @override
@@ -88,18 +94,14 @@ class _LoginFormState extends State<LoginForm> {
               Row(
                 children: [
                   ElevatedButton(
-                    onPressed: isProcessing ? null : submitAction(),
+                    onPressed: isProcessing ? null : submitAction,
                     child: const Text('Submit'),
                   ),
                   SizedBox(
                     width: 90,
                   ),
                   ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          hidePassword = !hidePassword;
-                        });
-                      },
+                      onPressed: toggleHidePassword,
                       child: (hidePassword)
                           ? Icon(Icons.visibility_outlined)
                           : Icon(Icons.visibility_off_outlined)),
