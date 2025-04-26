@@ -13,7 +13,8 @@ final personListPageVMProvider = Provider<PeopleListViewModel>((ref) {
 
 class PeopleListViewModel {
   final Ref ref;
-  PeopleListViewModel(this.ref);
+  final SnackMessage snackMessage;
+  PeopleListViewModel(this.ref) : snackMessage = ref.read(snackMessageProvider);
   void navigateToGeneralSearchPage(BuildContext context) async {
     await Navigator.pushNamed(
       context,
@@ -40,9 +41,7 @@ class PeopleListViewModel {
         debugPrint('User logged out');
         break;
       case Failure(error: final error):
-        ref
-            .read(snackMessageProvider)
-            .showMessage(message: 'Logout failed: $error', messageType: MessageType.error);
+        snackMessage.showMessage(message: 'Logout failed: $error', messageType: MessageType.error);
         break;
     }
   }

@@ -4,6 +4,7 @@ part 'person_detail.freezed.dart';
 part 'person_detail.g.dart';
 
 @freezed
+@JsonSerializable(fieldRename: FieldRename.snake)
 class PersonDetail with _$PersonDetail {
   const factory PersonDetail({
     required int id,

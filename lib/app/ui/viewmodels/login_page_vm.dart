@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:peopler/app/core/app_globals.dart';
 import 'package:peopler/app/core/app_state_notifier.dart';
 import 'package:peopler/app/core/result.dart';
-import 'package:peopler/app/data/repositories/auth_repository.dart';
 import 'package:peopler/app/data/services/auth_service.dart';
 import 'package:peopler/app/ui/models/login_page_state.dart';
 import 'package:peopler/app/core/app_state.dart';
@@ -15,8 +13,11 @@ final loginPageVMProvider = StateNotifierProvider<LoginPageViewModel, LoginPageS
 
 class LoginPageViewModel extends StateNotifier<LoginPageState> {
   final Ref ref;
+  final SnackMessage snackMessage;
 
-  LoginPageViewModel(this.ref) : super(LoginPageState.initial());
+  LoginPageViewModel(this.ref)
+      : snackMessage = ref.read(snackMessageProvider),
+        super(LoginPageState.initial());
 
   void togglePasswordVisibility() {
     state = state.copyWith(hidePassword: !state.hidePassword);
@@ -35,9 +36,7 @@ class LoginPageViewModel extends StateNotifier<LoginPageState> {
     if (state.isProcessing) return;
 
     setProcessing(true);
-    ref
-        .read(snackMessageProvider)
-        .showMessage(message: 'Processing', messageType: MessageType.info);
+    snackMessage.showMessage(message: 'Processing', messageType: MessageType.info);
 
     final result =
         await AuthService().login(repository: repository, userName: username, password: password);
@@ -46,16 +45,12 @@ class LoginPageViewModel extends StateNotifier<LoginPageState> {
 
     switch (result) {
       case Success(value: final credentials):
-        ref
-            .read(snackMessageProvider)
-            .showMessage(message: 'Login Successful', messageType: MessageType.info);
+        snackMessage.showMessage(message: 'Login Successful', messageType: MessageType.info);
         ref.read(appStateProvider.notifier).credentials = credentials;
         ref.read(appStateProvider.notifier).activePage = ActivePage.personList;
         break;
       case Failure(error: final error):
-        ref
-            .read(snackMessageProvider)
-            .showMessage(message: 'Login failed: $error', messageType: MessageType.error);
+        snackMessage.showMessage(message: 'Login failed: $error', messageType: MessageType.error);
         ref.read(appStateProvider.notifier).credentials = null;
         ref.read(appStateProvider.notifier).activePage = ActivePage.login;
         break;

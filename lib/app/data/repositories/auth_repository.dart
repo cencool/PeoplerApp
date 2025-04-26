@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:peopler/app/core/result.dart';
 import 'package:peopler/app/data/services/api_config.dart';
@@ -8,10 +9,11 @@ import 'package:peopler/app/data/services/storage_service.dart';
 import 'package:peopler/app/data/services/yii_api_service.dart';
 
 class AuthRepository {
+  final Ref ref;
   final ApiService _apiService;
   final StorageService storageService;
 
-  AuthRepository({ApiService? apiService, StorageService? storageService})
+  AuthRepository(this.ref, {ApiService? apiService, StorageService? storageService})
       : _apiService = apiService ?? YiiApiService(),
         storageService = storageService ?? StorageService();
 

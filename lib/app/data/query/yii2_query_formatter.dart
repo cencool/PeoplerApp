@@ -4,7 +4,7 @@ import 'package:peopler/app/data/query/sort_condition.dart';
 
 class Yii2QueryFormatter implements QueryFormatter<Map<String, String>> {
   @override
-  Map<String, String> build(List<FilterCondition> filters, List<SortCondition> sorts) {
+  Map<String, String> build(List<FilterCondition> filters, List<SortCondition> sorts, {int? page}) {
     final Map<String, String> params = {};
 
     // Handle filters
@@ -21,6 +21,10 @@ class Yii2QueryFormatter implements QueryFormatter<Map<String, String>> {
 
       params['sort'] = sortParams;
     }
+// Handle pagination
+    if (page != null) {
+      params['page'] = page.toString();
+    }
 
     return params;
   }
@@ -28,23 +32,23 @@ class Yii2QueryFormatter implements QueryFormatter<Map<String, String>> {
   String _formatFilterOperator(String field, FilterOperator operator) {
     switch (operator) {
       case FilterOperator.eq:
-        return field;
+        return 'filter[$field]';
       case FilterOperator.ne:
-        return '$field[neq]';
+        return 'filter[$field][neq]';
       case FilterOperator.gt:
-        return '$field[gt]';
+        return 'filter[$field][gt]';
       case FilterOperator.lt:
-        return '$field[lt]';
+        return 'filter[$field][lt]';
       case FilterOperator.ge:
-        return '$field[gte]';
+        return 'filter[$field][gte]';
       case FilterOperator.le:
-        return '$field[lte]';
+        return 'filter[$field][lte]';
       case FilterOperator.contains:
-        return '$field[like]';
+        return 'filter[$field][like]';
       case FilterOperator.startsWith:
-        return '$field[like]';
+        return 'filter[$field][like]';
       case FilterOperator.endsWith:
-        return '$field[like]';
+        return 'filter[$field][like]';
     }
   }
 }

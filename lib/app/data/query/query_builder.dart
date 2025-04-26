@@ -15,6 +15,7 @@ import 'package:peopler/app/data/query/sort_condition.dart';
 class QueryBuilder {
   final List<FilterCondition> _filters = [];
   final List<SortCondition> _sorts = [];
+  int? _page;
 
   /// Adds a filter condition to the query.
   ///
@@ -27,12 +28,24 @@ class QueryBuilder {
     return this;
   }
 
+  /// Sets the page number for pagination.
+  ///
+  /// [page] The page number to retrieve
+  /// Returns this builder instance for method chaining
+  QueryBuilder page(int page) {
+    _page = page;
+    return this;
+  }
+
   /// Adds a sort condition to the query.
   ///
   /// [field] The field name to sort by
   /// [direction] The sort direction (ascending or descending)
   /// Returns this builder instance for method chaining
   QueryBuilder sort(String field, SortDirection direction) {
+    // Remove existing sort condition for the same field, if any
+    _sorts.removeWhere((condition) => condition.field == field);
+    // Add the new sort condition
     _sorts.add(SortCondition(field: field, direction: direction));
     return this;
   }
@@ -42,6 +55,6 @@ class QueryBuilder {
   /// [formatter] A formatter that converts the query conditions into the target format
   /// Returns the formatted query of type [T]
   T build<T>(QueryFormatter<T> formatter) {
-    return formatter.build(_filters, _sorts);
+    return formatter.build(_filters, _sorts, page: _page);
   }
 }

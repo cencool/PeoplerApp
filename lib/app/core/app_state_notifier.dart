@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peopler/app/core/app_state.dart';
 import 'package:peopler/app/data/repositories/auth_repository.dart';
+import 'package:peopler/app/data/repositories/person_repository.dart';
 import 'package:peopler/app/data/services/auth_service.dart';
 import 'package:peopler/app/domain/models/credentials.dart';
 import 'package:peopler/app/domain/models/person.dart';
@@ -13,7 +14,11 @@ final appStateProvider = StateNotifierProvider<AppStateNotifier, AppState>((ref)
   return notifier;
 });
 
-final authRepositoryProvider = Provider<AuthRepository>((ref) => AuthRepository());
+final authRepositoryProvider = Provider<AuthRepository>((ref) => AuthRepository(ref));
+
+final personRepositoryProvider = Provider<PersonRepository>((ref) {
+  return PersonRepository(ref);
+});
 
 class AppStateNotifier extends StateNotifier<AppState> {
   AppStateNotifier({required this.ref}) : super(AppState.initial());
