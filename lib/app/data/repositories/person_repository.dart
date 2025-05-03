@@ -10,12 +10,10 @@ import 'package:peopler/app/domain/models/common/paginated_list.dart';
 import 'package:peopler/app/domain/models/person.dart';
 import 'package:peopler/app/domain/models/paginated_person_list.dart';
 import 'package:peopler/app/domain/models/person_detail.dart';
-import 'package:peopler/app/ui/widgets/snack_message.dart';
 
 class PersonRepository {
   final Ref ref;
-  final SnackMessage snackMessage;
-  PersonRepository(this.ref) : snackMessage = ref.read(snackMessageProvider);
+  PersonRepository(this.ref);
   Future<Result<PaginatedList<Person>, String>> getPaginatedPersonList(
       {Map<String, String>? query}) async {
     var credentials = ref.read(appStateProvider).credentials;
@@ -48,8 +46,6 @@ class PersonRepository {
             totalCount: total,
             items: personList));
       case Failure(error: final errorResult):
-        snackMessage.showMessage(
-            message: 'Error fetching person list: $errorResult', messageType: MessageType.error);
         return Failure(errorResult);
     }
   }
@@ -70,8 +66,6 @@ class PersonRepository {
         final Person person = Person.fromJson(jsonObject);
         return Success(person);
       case Failure(error: final errorResult):
-        snackMessage.showMessage(
-            message: 'Error fetching person: $errorResult', messageType: MessageType.error);
         return Failure(errorResult);
     }
   }
@@ -92,8 +86,6 @@ class PersonRepository {
         final PersonDetail personDetail = PersonDetail.fromJson(jsonObject);
         return Success(personDetail);
       case Failure(error: final errorResult):
-        snackMessage.showMessage(
-            message: 'Error fetching person detail: $errorResult', messageType: MessageType.error);
         return Failure(errorResult);
     }
   }
