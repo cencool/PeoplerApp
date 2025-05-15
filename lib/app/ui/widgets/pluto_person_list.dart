@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:peopler/app/core/app_state_notifier.dart';
-import 'package:peopler/app/data/repositories/person_repository.dart';
 import 'package:peopler/app/ui/viewmodels/pluto_person_list_vm.dart';
-import 'package:peopler/app/ui/widgets/snack_message.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 class PlutoPersonList extends ConsumerStatefulWidget {
@@ -17,9 +14,6 @@ class PlutoPersonList extends ConsumerStatefulWidget {
 class _PlutoPersonListState extends ConsumerState<PlutoPersonList> {
   late final PlutoGridStateManager stateManager;
   final List<PlutoRow> initRows = [];
-  late final PersonRepository personRepository;
-  late final AppStateNotifier appStateNotifier;
-  late final SnackMessage snackMessage;
   late final PlutoPersonListViewModel plutoPersonListViewModel;
 
   @override
