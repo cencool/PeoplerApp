@@ -13,7 +13,7 @@ class AppState {
   final ActivePage activePage;
   final bool isInitialized;
 
-  const AppState({
+  const AppState._({
     this.credentials,
     required this.activePerson,
     required this.activePersonDetail,
@@ -21,7 +21,7 @@ class AppState {
     required this.isInitialized,
   });
 
-  factory AppState.initial() => AppState(
+  factory AppState.initial() => AppState._(
       activePerson: Person.dummy(),
       activePersonDetail: PersonDetail.dummy(-1),
       activePage: ActivePage.login,
@@ -32,7 +32,7 @@ class AppState {
       PersonDetail? activePersonDetail,
       ActivePage? activePage,
       bool? isInitialized}) {
-    return AppState(
+    return AppState._(
         credentials: credentials ?? this.credentials,
         activePerson: activePerson ?? this.activePerson,
         activePersonDetail: activePersonDetail ?? this.activePersonDetail,

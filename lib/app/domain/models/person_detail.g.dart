@@ -6,7 +6,8 @@ part of 'person_detail.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-PersonDetail _$PersonDetailFromJson(Map<String, dynamic> json) => PersonDetail(
+_$PersonDetailImpl _$$PersonDetailImplFromJson(Map<String, dynamic> json) =>
+    _$PersonDetailImpl(
       id: (json['id'] as num).toInt(),
       personId: (json['person_id'] as num).toInt(),
       maritalStatus: json['marital_status'] as String?,
@@ -15,7 +16,7 @@ PersonDetail _$PersonDetailFromJson(Map<String, dynamic> json) => PersonDetail(
       address: json['address'] as String?,
     );
 
-Map<String, dynamic> _$PersonDetailToJson(PersonDetail instance) =>
+Map<String, dynamic> _$$PersonDetailImplToJson(_$PersonDetailImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'person_id': instance.personId,

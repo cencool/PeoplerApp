@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:peopler/app/core/app_globals.dart';
+import 'package:peopler/app/core/app_settings.dart';
 import 'package:peopler/app/ui/viewmodels/login_page_vm.dart';
 
 // 1. Change to ConsumerStatefulWidget

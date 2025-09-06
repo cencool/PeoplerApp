@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:peopler/app/core/app_globals.dart';
+import 'package:peopler/app/core/app_settings.dart';
 
 enum MessageType { info, error }
 
@@ -13,7 +13,7 @@ class SnackMessage {
   late final GlobalKey<ScaffoldMessengerState> messengerKey;
 
   SnackMessage(this.ref) {
-    messengerKey = ref.read(appGlobalsProvider).messengerKey;
+    messengerKey = ref.read(appSettingsProvider).messengerKey;
   }
   void showMessage({
     String message = '',
@@ -28,7 +28,7 @@ class SnackMessage {
     }
     messengerKey.currentState?.showSnackBar(SnackBar(
       content: Text(message),
-      duration: const Duration(seconds: 0, milliseconds: 1000),
+      duration: const Duration(seconds: 0, milliseconds: 1500),
       backgroundColor: msgColor,
     ));
   }

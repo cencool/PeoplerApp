@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:peopler/app/core/app_globals.dart';
+import 'package:peopler/app/core/app_settings.dart';
 import 'package:peopler/app/core/app_state_notifier.dart';
 import 'package:peopler/app/core/result.dart';
-import 'package:peopler/app/data/services/api_config.dart';
+import 'package:peopler/app/config/api_config.dart';
 import 'package:peopler/app/data/services/api_service.dart';
-import 'package:peopler/app/domain/models/common/paginated_list.dart';
+import 'package:peopler/app/domain/models/base/paginated_list.dart';
 import 'package:peopler/app/domain/models/person.dart';
 import 'package:peopler/app/domain/models/paginated_person_list.dart';
 import 'package:peopler/app/domain/models/person_detail.dart';
@@ -24,7 +24,7 @@ class PersonRepository {
     if (query != null) {
       uri = uri.replace(queryParameters: query);
     }
-    ApiService apiService = ref.read(appGlobalsProvider).apiService;
+    ApiService apiService = ref.read(appSettingsProvider).apiService;
     var responseResult = await apiService
         .getRequest(uri, headers: {'Authorization': 'Basic ${credentials.getAuthString()}'});
     switch (responseResult) {
@@ -56,7 +56,7 @@ class PersonRepository {
       return const Failure('Credentials not found');
     }
     Uri uri = Uri.parse('${ApiConfig.personUrl}/$id');
-    ApiService apiService = ref.read(appGlobalsProvider).apiService;
+    ApiService apiService = ref.read(appSettingsProvider).apiService;
     var responseResult = await apiService
         .getRequest(uri, headers: {'Authorization': 'Basic ${credentials.getAuthString()}'});
     switch (responseResult) {
@@ -76,7 +76,7 @@ class PersonRepository {
       return const Failure('Credentials not found');
     }
     Uri uri = Uri.parse('${ApiConfig.personDetailUrl}/$personId');
-    ApiService apiService = ref.read(appGlobalsProvider).apiService;
+    ApiService apiService = ref.read(appSettingsProvider).apiService;
     var responseResult = await apiService
         .getRequest(uri, headers: {'Authorization': 'Basic ${credentials.getAuthString()}'});
     switch (responseResult) {

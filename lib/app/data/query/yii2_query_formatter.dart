@@ -1,5 +1,5 @@
 import 'package:peopler/app/data/query/filter_condition.dart';
-import 'package:peopler/app/data/query/query_formatter.dart';
+import 'package:peopler/app/data/query/base/query_formatter.dart';
 import 'package:peopler/app/data/query/sort_condition.dart';
 
 class Yii2QueryFormatter implements QueryFormatter<Map<String, String>> {

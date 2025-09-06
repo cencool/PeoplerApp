@@ -1,4 +1,4 @@
-import 'package:peopler/app/domain/models/common/paginated_list.dart';
+import 'package:peopler/app/domain/models/base/paginated_list.dart';
 import 'package:peopler/app/domain/models/person.dart';
 
 class PaginatedPersonList extends PaginatedList<Person> {

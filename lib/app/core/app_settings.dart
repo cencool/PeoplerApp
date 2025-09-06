@@ -4,12 +4,12 @@ import 'package:peopler/app/config/app_config.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 // Provider definition
-final appGlobalsProvider = Provider<AppGlobals>((ref) {
+final appSettingsProvider = Provider<AppSetup>((ref) {
   // Creates a single instance when first read
-  return AppGlobals();
+  return AppSetup();
 });
 
-class AppGlobals {
+class AppSetup {
   final _messengerKey = GlobalKey<ScaffoldMessengerState>();
   final _sfDataGridKey = GlobalKey<SfDataGridState>();
   final _personListType = AppConfig.personListType;

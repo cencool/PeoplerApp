@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:peopler/app/config/app_config.dart';
-import 'package:peopler/app/core/app_globals.dart';
+import 'package:peopler/app/core/app_settings.dart';
 // import 'package:peopler/widgets/pluto_person_list.dart';
 // import 'package:peopler/widgets/sfgrid_person_list.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,7 +44,7 @@ class PersonListPage extends ConsumerWidget {
         ],
       ),
       body: Center(
-          child: ref.read(appGlobalsProvider).personListType == PersonListType.pluto
+          child: ref.read(appSettingsProvider).personListType == PersonListType.pluto
               ? PlutoPersonList()
               // ? Pluto()
               // : SfgridPersonList(),

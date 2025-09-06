@@ -14,6 +14,10 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
+PersonDetail _$PersonDetailFromJson(Map<String, dynamic> json) {
+  return _PersonDetail.fromJson(json);
+}
+
 /// @nodoc
 mixin _$PersonDetail {
   int get id => throw _privateConstructorUsedError;
@@ -22,6 +26,9 @@ mixin _$PersonDetail {
   String? get maidenName => throw _privateConstructorUsedError;
   String? get note => throw _privateConstructorUsedError;
   String? get address => throw _privateConstructorUsedError;
+
+  /// Serializes this PersonDetail to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
   /// Create a copy of PersonDetail
   /// with the given fields replaced by the non-null parameter values.
@@ -163,7 +170,7 @@ class __$$PersonDetailImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-
+@JsonSerializable()
 class _$PersonDetailImpl implements _PersonDetail {
   const _$PersonDetailImpl(
       {required this.id,
@@ -172,6 +179,9 @@ class _$PersonDetailImpl implements _PersonDetail {
       this.maidenName,
       this.note,
       this.address});
+
+  factory _$PersonDetailImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PersonDetailImplFromJson(json);
 
   @override
   final int id;
@@ -207,6 +217,7 @@ class _$PersonDetailImpl implements _PersonDetail {
             (identical(other.address, address) || other.address == address));
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, id, personId, maritalStatus, maidenName, note, address);
@@ -218,6 +229,13 @@ class _$PersonDetailImpl implements _PersonDetail {
   @pragma('vm:prefer-inline')
   _$$PersonDetailImplCopyWith<_$PersonDetailImpl> get copyWith =>
       __$$PersonDetailImplCopyWithImpl<_$PersonDetailImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$PersonDetailImplToJson(
+      this,
+    );
+  }
 }
 
 abstract class _PersonDetail implements PersonDetail {
@@ -228,6 +246,9 @@ abstract class _PersonDetail implements PersonDetail {
       final String? maidenName,
       final String? note,
       final String? address}) = _$PersonDetailImpl;
+
+  factory _PersonDetail.fromJson(Map<String, dynamic> json) =
+      _$PersonDetailImpl.fromJson;
 
   @override
   int get id;

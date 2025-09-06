@@ -8,7 +8,7 @@ import 'package:peopler/app/data/query/query_utils.dart';
 import 'package:peopler/app/data/query/sort_condition.dart';
 import 'package:peopler/app/data/query/yii2_query_formatter.dart';
 import 'package:peopler/app/data/repositories/person_repository.dart';
-import 'package:peopler/app/domain/models/common/paginated_list.dart';
+import 'package:peopler/app/domain/models/base/paginated_list.dart';
 import 'package:peopler/app/domain/models/person.dart';
 import 'package:peopler/app/domain/models/person_detail.dart';
 import 'package:peopler/app/ui/widgets/snack_message.dart';

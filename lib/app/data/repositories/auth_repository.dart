@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:peopler/app/core/result.dart';
-import 'package:peopler/app/data/services/api_config.dart';
+import 'package:peopler/app/config/api_config.dart';
 import 'package:peopler/app/data/services/api_service.dart';
 import 'package:peopler/app/data/services/storage_service.dart';
 import 'package:peopler/app/data/services/yii_api_service.dart';

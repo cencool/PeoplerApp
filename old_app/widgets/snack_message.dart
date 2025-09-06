@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:peopler/app/core/app_globals.dart';
+import 'package:peopler/app/core/app_settings.dart';
 
 enum MessageType { info, error }
 
@@ -11,7 +11,7 @@ class SnackMessage {
     String message = '',
     MessageType messageType = MessageType.info,
   }) {
-    GlobalKey<ScaffoldMessengerState> messengerKey = ref.read(appGlobalsProvider).messengerKey;
+    GlobalKey<ScaffoldMessengerState> messengerKey = ref.read(appSettingsProvider).messengerKey;
 
     Color? msgColor;
     switch (messageType) {
