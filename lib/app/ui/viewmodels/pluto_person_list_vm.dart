@@ -14,17 +14,17 @@ import 'package:peopler/app/domain/models/person_detail.dart';
 import 'package:peopler/app/ui/widgets/snack_message.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-final plutoPersonListVMprovider = Provider<PlutoPersonListViewModel>((ref) {
-  return PlutoPersonListViewModel(ref);
+final plutoPersonListVMprovider = Provider<PlutoPersonListVM>((ref) {
+  return PlutoPersonListVM(ref);
 });
 
-class PlutoPersonListViewModel {
+class PlutoPersonListVM {
   final Ref ref;
   final PersonRepository personRepository;
   final AppStateNotifier appStateNotifier;
   final SnackMessage snackMessage;
 
-  PlutoPersonListViewModel(this.ref)
+  PlutoPersonListVM(this.ref)
       : personRepository = ref.read(personRepositoryProvider),
         appStateNotifier = ref.read(appStateProvider.notifier),
         snackMessage = ref.read(snackMessageProvider);

@@ -7,15 +7,15 @@ import 'package:peopler/app/ui/models/login_page_state.dart';
 import 'package:peopler/app/core/app_state.dart';
 import 'package:peopler/app/ui/widgets/snack_message.dart';
 
-final loginPageVMProvider = StateNotifierProvider<LoginPageViewModel, LoginPageState>(
-  (ref) => LoginPageViewModel(ref),
+final loginPageVMProvider = StateNotifierProvider<LoginPageVM, LoginPageState>(
+  (ref) => LoginPageVM(ref),
 );
 
-class LoginPageViewModel extends StateNotifier<LoginPageState> {
+class LoginPageVM extends StateNotifier<LoginPageState> {
   final Ref ref;
   final SnackMessage snackMessage;
 
-  LoginPageViewModel(this.ref)
+  LoginPageVM(this.ref)
       : snackMessage = ref.read(snackMessageProvider),
         super(LoginPageState.initial());
 

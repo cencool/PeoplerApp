@@ -7,14 +7,14 @@ import 'package:peopler/app/domain/models/person.dart';
 import 'package:peopler/app/domain/models/person_detail.dart';
 import 'package:peopler/app/ui/widgets/snack_message.dart';
 
-final personListPageVMProvider = Provider<PeopleListViewModel>((ref) {
-  return PeopleListViewModel(ref);
+final personListPageVMProvider = Provider<PeopleListVM>((ref) {
+  return PeopleListVM(ref);
 });
 
-class PeopleListViewModel {
+class PeopleListVM {
   final Ref ref;
   final SnackMessage snackMessage;
-  PeopleListViewModel(this.ref) : snackMessage = ref.read(snackMessageProvider);
+  PeopleListVM(this.ref) : snackMessage = ref.read(snackMessageProvider);
   void navigateToGeneralSearchPage(BuildContext context) async {
     await Navigator.pushNamed(
       context,

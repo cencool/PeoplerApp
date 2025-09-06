@@ -14,7 +14,7 @@ class PlutoPersonList extends ConsumerStatefulWidget {
 class _PlutoPersonListState extends ConsumerState<PlutoPersonList> {
   late final PlutoGridStateManager stateManager;
   final List<PlutoRow> initRows = [];
-  late final PlutoPersonListViewModel plutoPersonListViewModel;
+  late final PlutoPersonListVM plutoPersonListViewModel;
 
   @override
   void initState() {

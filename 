@@ -1,0 +1,41 @@
+[1m[38;5;2m@[0m  [1m[38;5;13mu[38;5;8mptmqqpr[39m [38;5;3mcencul@protonmail.com[39m [38;5;14m2025-09-06 19:44:23[39m [38;5;12m14[38;5;8m039d54[39m[0m
+│  [1mperson tab vm and renaming view models[0m
+○  [1m[38;5;5mot[0m[38;5;8mylokpn[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2025-09-06 16:17:45[39m [38;5;5mlayered_app[39m [38;5;2mgit_head()[39m [1m[38;5;4mc[0m[38;5;8md2868c2[39m
+│  wip for person form
+○  [1m[38;5;5mmv[0m[38;5;8mutzpmy[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2025-05-15 22:33:51[39m [1m[38;5;4m57[0m[38;5;8mc9edd6[39m
+│  timeout check for request in yii service
+○  [1m[38;5;5ml[0m[38;5;8mxupmlwr[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2025-05-03 22:24:44[39m [1m[38;5;4m0[0m[38;5;8mcb10007[39m
+│  viewModel for plutogrid
+○  [1m[38;5;5mmn[0m[38;5;8mnnpwot[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2025-04-26 15:27:44[39m [1m[38;5;4mb6[0m[38;5;8madbceb[39m
+│  working stage pluto_person_list
+○  [1m[38;5;5mrv[0m[38;5;8mnnntmx[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2025-04-20 16:53:02[39m [1m[38;5;4m5b[0m[38;5;8m994435[39m
+│  intermediate stage of person_list with riverpod
+○  [1m[38;5;5moz[0m[38;5;8myyzmzv[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2025-04-06 19:30:46[39m [1m[38;5;4m1e[0m[38;5;8mb754e4[39m
+│  riverpod first provider
+○  [1m[38;5;5mwq[0m[38;5;8mmqzmtk[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2025-02-22 23:07:47[39m [1m[38;5;4m52[0m[38;5;8m9f0418[39m
+│  user login with repository
+○  [1m[38;5;5mp[0m[38;5;8mlslzvxr[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2025-02-16 13:23:07[39m [1m[38;5;4m8[0m[38;5;8m3d3acd8[39m
+│  api service preps
+○  [1m[38;5;5mq[0m[38;5;8mlnyryxw[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2025-02-15 17:33:43[39m [1m[38;5;4m9[0m[38;5;8m27ae592[39m
+│  query builder and result class
+[1m[38;5;14m◆[0m    [1m[38;5;5mto[0m[38;5;8mnrpzqy[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2025-01-18 21:20:39[39m [38;5;5mmaster[39m [1m[38;5;4m3[0m[38;5;8m5502337[39m
+├─╮  after flutter update
+│ │
+│ ~
+│
+[38;5;8m~[39m  [38;5;8m(elided revisions)[39m
+│ ○  [1m[38;5;5mrz[0m[38;5;8mroxqoo[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2024-08-06 22:17:15[39m [38;5;5mgrid_replacement[39m [1m[38;5;4m5a[0m[38;5;8ma29a8f[39m
+│ │  try to solve late problem in attachment save dialog
+│ ○  [1m[38;5;5mk[0m[38;5;8mxlkkpml[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2024-08-05 20:40:17[39m [1m[38;5;4m440[0m[38;5;8mc8ecc[39m
+├─╯  prep
+[1m[38;5;14m◆[0m    [1m[38;5;5mtz[0m[38;5;8mwuvnoq[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2024-08-03 11:56:30[39m [38;5;5mprovider_reactivity[39m [1m[38;5;4m44b[0m[38;5;8m92db2[39m
+├─╮  houskeeping
+│ │
+│ ~
+│
+[38;5;8m~[39m  [38;5;8m(elided revisions)[39m
+│ ○  [1m[38;5;5mro[0m[38;5;8mumrxvl[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2024-05-22 18:45:54[39m [38;5;5mredesign[39m [1m[38;5;4mb4[0m[38;5;8m436858[39m
+├─╯  init from scratch
+[1m[38;5;14m◆[0m  [1m[38;5;5mwo[0m[38;5;8mvvqswn[39m [38;5;3mcencul@protonmail.com[39m [38;5;6m2024-05-22 18:33:43[39m [1m[38;5;4me[0m[38;5;8m4e21db6[39m
+│  attachment replace added
+~
