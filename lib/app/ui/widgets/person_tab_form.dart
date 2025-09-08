@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:peopler/app/ui/viewmodels/person_tab_form_vm.dart';
 
 class PersonTabForm extends ConsumerStatefulWidget {
   const PersonTabForm({super.key});
@@ -8,16 +9,23 @@ class PersonTabForm extends ConsumerStatefulWidget {
 }
 
 class _MyPersonTabFormState extends ConsumerState<PersonTabForm> {
-  final surnameController = TextEditingController();
+  late final TextEditingController surnameController;
+  late final TextEditingController nameController;
 
   @override
   void initState() {
     super.initState();
+    surnameController = TextEditingController(
+      text: ref.read(personTabFormVMProvider).currentPerson.surname,
+    );
+    nameController = TextEditingController(
+      text: ref.read(personTabFormVMProvider).currentPerson.name,);
   }
 
   @override
   void dispose() {
     surnameController.dispose();
+    nameController.dispose();
     super.dispose();
   }
 
@@ -29,7 +37,7 @@ class _MyPersonTabFormState extends ConsumerState<PersonTabForm> {
               Padding(
                 padding: const EdgeInsets.only(left: 15.0),
                 child: TextField(
-                    readOnly: !formModel.editMode,
+                    readOnly: !ref.watch(personTabFormVMProvider).isEditing,
                     controller: surnameController,
                     decoration: const InputDecoration(
                         label: Text(
@@ -40,8 +48,8 @@ class _MyPersonTabFormState extends ConsumerState<PersonTabForm> {
               Padding(
                 padding: const EdgeInsets.only(left: 15.0),
                 child: TextField(
-                    readOnly: !formModel.editMode,
-                    controller: formModel.nameController,
+                    readOnly: !ref.watch(personTabFormVMProvider).isEditing,
+                    controller: nameController,
                     decoration: const InputDecoration(
                         label: Text(
                       'Name',

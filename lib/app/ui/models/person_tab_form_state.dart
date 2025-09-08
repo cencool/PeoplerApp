@@ -1,17 +1,46 @@
 import 'package:peopler/app/domain/models/person.dart';
+import 'package:peopler/app/domain/models/person_detail.dart';
 
 class PersonTabFormState {
   final bool isEditing;
-  final Person previousPerson;
+  final Person initialPerson;
   final Person currentPerson;
+  final PersonDetail initialPersonDetail;
+  final PersonDetail currentPersonDetail;
 
-  PersonTabFormState._({required this.isEditing, required this.previousPerson})
-      : currentPerson = previousPerson;
+  PersonTabFormState._(
+      {required this.isEditing,
+      required this.initialPerson,
+      required this.initialPersonDetail,
+      required this.currentPerson,
+      required this.currentPersonDetail});
 
-  factory PersonTabFormState.initial({required Person currentPerson}) {
-    return PersonTabFormState._(isEditing: false, previousPerson: currentPerson);
+  factory PersonTabFormState.initial(
+      {required Person currentPerson, required PersonDetail currentPersonDetail}) {
+    return PersonTabFormState._(
+        isEditing: false,
+        currentPerson: currentPerson,
+        currentPersonDetail: currentPersonDetail,
+        initialPerson: currentPerson,
+        initialPersonDetail: currentPersonDetail);
   }
 
-  PersonTabFormState copyWith({bool? isEditing, Person? currentPerson})
-  {return PersonTabFormState._(isEditing: isEditing ?? this.isEditing,)}
+  PersonTabFormState update(
+      {bool? isEditing, Person? currentPerson, PersonDetail? currentPersonDetail}) {
+    return PersonTabFormState._(
+        isEditing: isEditing ?? this.isEditing,
+        currentPerson: currentPerson ?? this.currentPerson,
+        currentPersonDetail: currentPersonDetail ?? this.currentPersonDetail,
+        initialPerson: initialPerson,
+        initialPersonDetail: initialPersonDetail);
+  }
+
+  PersonTabFormState restore() {
+    return PersonTabFormState._(
+        isEditing: false,
+        initialPerson: initialPerson,
+        initialPersonDetail: initialPersonDetail,
+        currentPerson: initialPerson,
+        currentPersonDetail: initialPersonDetail);
+  }
 }

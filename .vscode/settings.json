@@ -2,5 +2,7 @@
   "cmake.sourceDirectory": "/home/milhar/Documents/prog/5_desktop_apps/peopler/linux",
   "python.pythonPath": "/home/milhar/Documents/prog/7_trading/ibkr_env/bin/python",
   "python.linting.pylintEnabled": true,
-  "python.linting.enabled": true
+  "python.linting.enabled": true,
+  "git.enabled": false,
+  "idf.pythonInstallPath": "/usr/bin/python3"
 }

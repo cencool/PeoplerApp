@@ -1,12 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peopler/app/core/app_state.dart';
+import 'package:peopler/app/core/result.dart';
 import 'package:peopler/app/data/repositories/auth_repository.dart';
 import 'package:peopler/app/data/repositories/person_repository.dart';
 import 'package:peopler/app/data/services/auth_service.dart';
 import 'package:peopler/app/domain/models/credentials.dart';
 import 'package:peopler/app/domain/models/person.dart';
 import 'package:peopler/app/domain/models/person_detail.dart';
+import 'package:peopler/app/ui/widgets/snack_message.dart';
 
 final appStateProvider = StateNotifierProvider<AppStateNotifier, AppState>((ref) {
   final notifier = AppStateNotifier(ref: ref);
@@ -21,43 +23,93 @@ final personRepositoryProvider = Provider<PersonRepository>((ref) {
 });
 
 class AppStateNotifier extends StateNotifier<AppState> {
-  AppStateNotifier({required this.ref}) : super(AppState.initial());
-
   final Ref ref;
+  late final SnackMessage snackMessage;
+
+  AppStateNotifier({required this.ref}) : super(AppState.initial()) {
+    snackMessage = ref.read(snackMessageProvider);
+  }
 
   Future<bool> initialize() async {
     var userRepository = ref.read(authRepositoryProvider);
     Credentials? credentials = await AuthService.autoLogin(userRepository: userRepository);
     if (credentials != null) {
-      state = state.copyWith(
+      var resultState = state.copyWith(
           isInitialized: true, credentials: credentials, activePage: ActivePage.personList);
-      debugPrint(
-          'AppStateNotifier.initialize: user: ${state.credentials!.userName}, token: ${state.credentials!.token}');
+      switch (resultState) {
+        case Success(value: final stateValue):
+          state = stateValue;
+          debugPrint(
+              'AppStateNotifier.initialize: user: ${stateValue.credentials!.userName}, token: ${stateValue.credentials!.token}');
+        case Failure(error: final error):
+          snackMessage.showMessage(message: error, messageType: MessageType.error);
+      }
     } else {
-      state = state.copyWith(isInitialized: true, activePage: ActivePage.login);
-      debugPrint('AppStateNotifier.initialize: isInitialized: ${state.isInitialized}');
+      var resultState = state.copyWith(isInitialized: true, activePage: ActivePage.login);
+      switch (resultState) {
+        case Success(value: final stateValue):
+          state = stateValue;
+          debugPrint('AppStateNotifier.initialize: isInitialized: ${stateValue.isInitialized}');
+        case Failure(error: final error):
+          snackMessage.showMessage(message: error, messageType: MessageType.error);
+      }
     }
 
     return true;
   }
 
   set isInitialized(bool isInitialized) {
-    state = state.copyWith(isInitialized: isInitialized);
+    var resultState = state.copyWith(isInitialized: isInitialized);
+    switch (resultState) {
+      case Success(value: final stateValue):
+        state = stateValue;
+        debugPrint('AppStateNotifier.isInitialized: ${stateValue.isInitialized}');
+      case Failure(error: final error):
+        snackMessage.showMessage(message: error, messageType: MessageType.error);
+    }
   }
 
   set credentials(Credentials? credentials) {
-    state = state.copyWith(credentials: credentials);
+    var resultState = state.copyWith(credentials: credentials);
+    switch (resultState) {
+      case Success(value: final stateValue):
+        state = stateValue;
+        debugPrint('AppStateNotifier.credentials: ${stateValue.credentials}');
+      case Failure(error: final error):
+        snackMessage.showMessage(message: error, messageType: MessageType.error);
+    }
   }
 
   set activePage(ActivePage activePage) {
-    state = state.copyWith(activePage: activePage);
+    var resultState = state.copyWith(activePage: activePage);
+    switch (resultState) {
+      case Success(value: final stateValue):
+        state = stateValue;
+        debugPrint('AppStateNotifier.activePage: ${stateValue.activePage}');
+      case Failure(error: final error):
+        snackMessage.showMessage(message: error, messageType: MessageType.error);
+    }
   }
 
   set activePerson(Person person) {
-    state = state.copyWith(activePerson: person);
+    var resultState = state.copyWith(activePerson: person);
+    switch (resultState) {
+      case Success(value: final stateValue):
+        state = stateValue;
+        debugPrint('AppStateNotifier.activePerson: ${stateValue.activePerson}');
+      case Failure(error: final error):
+        snackMessage.showMessage(message: error, messageType: MessageType.error);
+    }
   }
 
   set activePersonDetail(PersonDetail personDetail) {
-    state = state.copyWith(activePersonDetail: personDetail);
+    var resultState = state.copyWith(activePersonDetail: personDetail);
+    switch (resultState) {
+      case Success(value: final stateValue):
+        state = stateValue;
+        debugPrint('AppStateNotifier.activePersonDetail: ${stateValue.activePersonDetail}');
+      case Failure(error: final error):
+        snackMessage.showMessage(message: error, messageType: MessageType.error);
+    }
   }
 }
