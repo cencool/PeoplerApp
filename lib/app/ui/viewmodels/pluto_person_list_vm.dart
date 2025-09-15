@@ -101,13 +101,14 @@ class PlutoPersonListVM {
     personDetailResult.fold((value) {
       appStateNotifier.setActivePersonDetail(value);
       debugPrint('getPersonDetail:Fetched person detail for personId: $personId');
-      appStateNotifier.setActivePage(ActivePage.person);
     }, (error) {
       snackMessage.showMessage(
           message: 'getPersonDetail:Error fetching person detail: $error',
           messageType: MessageType.error);
       debugPrint('ActivatePersonPage:Error fetching person detail: $error');
     });
+    // person page activated despite of possible error in fetching person detail
+    appStateNotifier.setActivePage(ActivePage.person);
   }
 
   Future<PlutoLazyPaginationResponse> fetchRows(PlutoLazyPaginationRequest request) async {

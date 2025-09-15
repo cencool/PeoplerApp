@@ -62,7 +62,7 @@ class AppState {
         credentials: credentials,
         activePerson: person,
         activePersonDetail: activePersonDetail,
-        activePage: ActivePage.person,
+        activePage: activePage,
         isInitialized: isInitialized));
   }
 
@@ -74,7 +74,7 @@ class AppState {
         credentials: credentials,
         activePerson: activePerson,
         activePersonDetail: personDetail,
-        activePage: ActivePage.person,
+        activePage: activePage,
         isInitialized: isInitialized));
   }
 }
