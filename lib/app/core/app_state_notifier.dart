@@ -10,8 +10,8 @@ import 'package:peopler/app/domain/models/person.dart';
 import 'package:peopler/app/domain/models/person_detail.dart';
 import 'package:peopler/app/ui/widgets/snack_message.dart';
 
-final appStateProvider = StateNotifierProvider<AppStateNotifier, AppState>((ref) {
-  final notifier = AppStateNotifier(ref: ref);
+final appStateNotifierProvider = StateNotifierProvider<AppStateNotifier, AppState>((ref) {
+  final notifier = AppStateNotifier(ref);
   notifier.initialize(); // Call initialization
   return notifier;
 });
@@ -26,7 +26,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   final Ref ref;
   late final SnackMessage snackMessage;
 
-  AppStateNotifier({required this.ref}) : super(AppState.initial()) {
+  AppStateNotifier(this.ref) : super(AppState.initial()) {
     snackMessage = ref.read(snackMessageProvider);
   }
 

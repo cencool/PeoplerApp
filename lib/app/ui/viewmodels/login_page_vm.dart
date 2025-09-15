@@ -46,13 +46,13 @@ class LoginPageVM extends StateNotifier<LoginPageState> {
     switch (result) {
       case Success(value: final credentials):
         snackMessage.showMessage(message: 'Login Successful', messageType: MessageType.info);
-        ref.read(appStateProvider.notifier).setCredentials(credentials);
-        ref.read(appStateProvider.notifier).setActivePage(ActivePage.personList);
+        ref.read(appStateNotifierProvider.notifier).setCredentials(credentials);
+        ref.read(appStateNotifierProvider.notifier).setActivePage(ActivePage.personList);
         break;
       case Failure(error: final error):
         snackMessage.showMessage(message: 'Login failed: $error', messageType: MessageType.error);
-        ref.read(appStateProvider.notifier).setCredentials(null);
-        ref.read(appStateProvider.notifier).setActivePage(ActivePage.login);
+        ref.read(appStateNotifierProvider.notifier).setCredentials(null);
+        ref.read(appStateNotifierProvider.notifier).setActivePage(ActivePage.login);
         break;
     }
   }

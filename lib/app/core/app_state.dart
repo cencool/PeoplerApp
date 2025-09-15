@@ -27,6 +27,7 @@ class AppState {
       activePersonDetail: PersonDetail.dummy(-1),
       activePage: ActivePage.login,
       isInitialized: false);
+
   Result<AppState, String> copyWith(
       {Credentials? credentials,
       Person? activePerson,

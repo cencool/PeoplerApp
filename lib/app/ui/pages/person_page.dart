@@ -14,26 +14,26 @@ class PersonPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     debugPrint('PersonPage building...');
     return DefaultTabController(
-      length: (ref.watch(appStateProvider).activePerson.id! > -1) ? 4 : 1,
+      length: (ref.watch(appStateNotifierProvider).activePerson.id! > -1) ? 4 : 1,
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Person: ${ref.watch(appStateProvider).activePerson.surname}, ${ref.watch(appStateProvider).activePerson.name}',
+            'Person: ${ref.watch(appStateNotifierProvider).activePerson.surname}, ${ref.watch(appStateNotifierProvider).activePerson.name}',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           actions: [
             IconButton(
               onPressed: () {
-                ref.read(appStateProvider.notifier).setActivePage(ActivePage.personList);
-                ref.read(appStateProvider.notifier).resetActivePerson();
+                ref.read(appStateNotifierProvider.notifier).setActivePage(ActivePage.personList);
+                ref.read(appStateNotifierProvider.notifier).resetActivePerson();
               },
               icon: Icon(Icons.home),
               tooltip: 'Person List',
             ),
           ],
           bottom: TabBar(
-            tabs: (ref.watch(appStateProvider).activePerson.id! > -1)
+            tabs: (ref.watch(appStateNotifierProvider).activePerson.id! > -1)
                 ? [
                     Tooltip(message: 'Person', child: Tab(icon: Icon(Icons.person))),
                     Tooltip(message: 'Relations', child: Tab(icon: Icon(Icons.people))),
@@ -61,7 +61,7 @@ class PersonPageBody extends ConsumerWidget {
     debugPrint('PersonPageBody build');
     return TabBarView(
       physics: NeverScrollableScrollPhysics(),
-      children: (ref.watch(appStateProvider).activePerson.id! > -1)
+      children: (ref.watch(appStateNotifierProvider).activePerson.id! > -1)
           ? [
               PersonTab(),
               RelationTab(),

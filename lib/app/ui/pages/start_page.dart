@@ -14,7 +14,7 @@ class StartPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     debugPrint('StartPage build');
 
-    return switch (ref.watch(appStateProvider.select((state) => state.activePage))) {
+    return switch (ref.watch(appStateNotifierProvider.select((state) => state.activePage))) {
       ActivePage.login => LoginPage(),
       ActivePage.personList => PersonListPage(),
       ActivePage.person => PersonPage(),

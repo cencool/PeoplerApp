@@ -12,7 +12,7 @@ class WelcomePage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           // "USER:${getIt<AppState>().user!.id}",
-          "USER:${ref.watch(appStateProvider.select((state) => state.credentials))?.userName ?? ''}",
+          "USER:${ref.watch(appStateNotifierProvider.select((state) => state.credentials))?.userName ?? ''}",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,

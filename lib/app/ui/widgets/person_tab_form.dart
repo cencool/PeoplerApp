@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:peopler/app/ui/models/person_tab_form_state.dart';
 import 'package:peopler/app/ui/viewmodels/person_tab_form_vm.dart';
 
 class PersonTabForm extends ConsumerStatefulWidget {
@@ -17,34 +18,52 @@ class _MyPersonTabFormState extends ConsumerState<PersonTabForm> {
   late final TextEditingController maidenController;
   late final TextEditingController addressController;
   late final TextEditingController noteController;
+  late ProviderSubscription<PersonTabFormState> _formStateSubscription;
 
   @override
   void initState() {
     super.initState();
+    final state = ref.read(personTabFormVMProvider);
     surnameController = TextEditingController(
-      text: ref.read(personTabFormVMProvider).currentPerson.surname,
+      text: state.currentPerson.surname,
     );
     nameController = TextEditingController(
-      text: ref.read(personTabFormVMProvider).currentPerson.name,
+      text: state.currentPerson.name,
     );
     placeController = TextEditingController(
-      text: ref.read(personTabFormVMProvider).currentPerson.place,
+      text: state.currentPerson.place,
     );
     genderController = TextEditingController(
-      text: ref.read(personTabFormVMProvider).currentPerson.gender,
+      text: state.currentPerson.gender,
     );
     maritalStatusController = TextEditingController(
-      text: ref.read(personTabFormVMProvider).currentPersonDetail.maritalStatus,
+      text: state.currentPersonDetail.maritalStatus,
     );
     maidenController = TextEditingController(
-      text: ref.read(personTabFormVMProvider).currentPersonDetail.maidenName,
+      text: state.currentPersonDetail.maidenName,
     );
     addressController = TextEditingController(
-      text: ref.read(personTabFormVMProvider).currentPersonDetail.address,
+      text: state.currentPersonDetail.address,
     );
     noteController = TextEditingController(
-      text: ref.read(personTabFormVMProvider).currentPersonDetail.note,
+      text: state.currentPersonDetail.note,
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _formStateSubscription =
+        ref.listenManual<PersonTabFormState>(personTabFormVMProvider, (previous, next) {
+      surnameController.text = next.currentPerson.surname ?? '';
+      nameController.text = next.currentPerson.name ?? '';
+      placeController.text = next.currentPerson.place ?? '';
+      genderController.text = next.currentPerson.gender;
+      maritalStatusController.text = next.currentPersonDetail.maritalStatus ?? '';
+      maidenController.text = next.currentPersonDetail.maidenName ?? '';
+      addressController.text = next.currentPersonDetail.address ?? '';
+      noteController.text = next.currentPersonDetail.note ?? '';
+    });
   }
 
   @override
@@ -57,6 +76,7 @@ class _MyPersonTabFormState extends ConsumerState<PersonTabForm> {
     maidenController.dispose();
     addressController.dispose();
     noteController.dispose();
+    _formStateSubscription.close();
     super.dispose();
   }
 

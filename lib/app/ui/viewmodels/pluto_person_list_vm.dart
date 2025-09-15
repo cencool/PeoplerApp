@@ -26,7 +26,7 @@ class PlutoPersonListVM {
 
   PlutoPersonListVM(this.ref)
       : personRepository = ref.read(personRepositoryProvider),
-        appStateNotifier = ref.read(appStateProvider.notifier),
+        appStateNotifier = ref.read(appStateNotifierProvider.notifier),
         snackMessage = ref.read(snackMessageProvider);
 
   List<PlutoColumn> getColumns() {
@@ -100,6 +100,7 @@ class PlutoPersonListVM {
         await personRepository.getPersonDetail(personId: personId);
     personDetailResult.fold((value) {
       appStateNotifier.setActivePersonDetail(value);
+      debugPrint('getPersonDetail:Fetched person detail for personId: $personId');
       appStateNotifier.setActivePage(ActivePage.person);
     }, (error) {
       snackMessage.showMessage(

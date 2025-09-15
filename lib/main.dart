@@ -25,7 +25,8 @@ class PeoplerAppLayered extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    bool appStateIsInitialized = ref.watch(appStateProvider.select((state) => state.isInitialized));
+    bool appStateIsInitialized =
+        ref.watch(appStateNotifierProvider.select((state) => state.isInitialized));
     return MaterialApp(
       scaffoldMessengerKey: ref.read(appSettingsProvider).messengerKey,
       routes: {

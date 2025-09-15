@@ -16,7 +16,7 @@ class PersonRepository {
   PersonRepository(this.ref);
   Future<Result<PaginatedList<Person>, String>> getPaginatedPersonList(
       {Map<String, String>? query}) async {
-    var credentials = ref.read(appStateProvider).credentials;
+    var credentials = ref.read(appStateNotifierProvider).credentials;
     if (credentials == null) {
       return const Failure('Credentials not found');
     }
@@ -51,7 +51,7 @@ class PersonRepository {
   }
 
   Future<Result<Person, String>> getPerson({required int id}) async {
-    var credentials = ref.read(appStateProvider).credentials;
+    var credentials = ref.read(appStateNotifierProvider).credentials;
     if (credentials == null) {
       return const Failure('Credentials not found');
     }
@@ -71,7 +71,7 @@ class PersonRepository {
   }
 
   Future<Result<PersonDetail, String>> getPersonDetail({required int personId}) async {
-    var credentials = ref.read(appStateProvider).credentials;
+    var credentials = ref.read(appStateNotifierProvider).credentials;
     if (credentials == null) {
       return const Failure('Credentials not found');
     }
