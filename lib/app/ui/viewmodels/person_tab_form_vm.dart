@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:peopler/app/core/app_state.dart';
 import 'package:peopler/app/core/app_state_notifier.dart';
 import 'package:peopler/app/domain/models/person.dart';
 import 'package:peopler/app/domain/models/person_detail.dart';
@@ -12,7 +13,15 @@ class PersonTabFormVM extends StateNotifier<PersonTabFormState> {
   PersonTabFormVM(this.ref)
       : super(PersonTabFormState.initial(
             currentPerson: ref.read(appStateProvider).activePerson,
-            currentPersonDetail: ref.read(appStateProvider).activePersonDetail));
+            currentPersonDetail: ref.read(appStateProvider).activePersonDetail)) {
+    ref.listen<AppState>(appStateProvider, (previous, next) {
+      if (previous?.activePerson.id != next.activePerson.id) {
+        state = PersonTabFormState.initial(
+            currentPerson: next.activePerson, currentPersonDetail: next.activePersonDetail);
+      }
+    });
+  }
+
   update({Person? person, PersonDetail? personDetail}) {
     state = state.update(currentPerson: person, currentPersonDetail: personDetail);
   }

@@ -25,7 +25,8 @@ class PersonPage extends ConsumerWidget {
           actions: [
             IconButton(
               onPressed: () {
-                ref.read(appStateProvider.notifier).activePage = ActivePage.personList;
+                ref.read(appStateProvider.notifier).setActivePage(ActivePage.personList);
+                ref.read(appStateProvider.notifier).resetActivePerson();
               },
               icon: Icon(Icons.home),
               tooltip: 'Person List',

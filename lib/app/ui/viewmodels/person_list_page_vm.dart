@@ -25,9 +25,9 @@ class PeopleListVM {
 
   void activateNewRecord(BuildContext context) {
     // Logic to activate a new record
-    ref.read(appStateProvider.notifier).activePerson = Person.dummy();
-    ref.read(appStateProvider.notifier).activePersonDetail = PersonDetail.dummy(-1);
-    ref.read(appStateProvider.notifier).activePage = ActivePage.person;
+    ref.read(appStateProvider.notifier).setActivePerson(Person.dummy());
+    ref.read(appStateProvider.notifier).setActivePersonDetail(PersonDetail.dummy(-1));
+    ref.read(appStateProvider.notifier).setActivePage(ActivePage.person);
     debugPrint('New record activated');
   }
 
@@ -36,8 +36,8 @@ class PeopleListVM {
     var result = await ref.read(authRepositoryProvider).deleteCredentials();
     switch (result) {
       case Success(value: _):
-        ref.read(appStateProvider.notifier).credentials = null;
-        ref.read(appStateProvider.notifier).activePage = ActivePage.login;
+        ref.read(appStateProvider.notifier).setCredentials(null);
+        ref.read(appStateProvider.notifier).setActivePage(ActivePage.login);
         debugPrint('User logged out');
         break;
       case Failure(error: final error):

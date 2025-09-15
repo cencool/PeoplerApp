@@ -85,7 +85,7 @@ class PlutoPersonListVM {
   Future<void> activatePersonPage(int personId) async {
     Result<Person, String> personResult = await personRepository.getPerson(id: personId);
     personResult.fold((value) async {
-      appStateNotifier.activePerson = value;
+      appStateNotifier.setActivePerson(value);
       await getPersonDetail(personId);
     }, (error) {
       snackMessage.showMessage(
@@ -99,8 +99,8 @@ class PlutoPersonListVM {
     Result<PersonDetail, String> personDetailResult =
         await personRepository.getPersonDetail(personId: personId);
     personDetailResult.fold((value) {
-      appStateNotifier.activePersonDetail = value;
-      appStateNotifier.activePage = ActivePage.person;
+      appStateNotifier.setActivePersonDetail(value);
+      appStateNotifier.setActivePage(ActivePage.person);
     }, (error) {
       snackMessage.showMessage(
           message: 'getPersonDetail:Error fetching person detail: $error',

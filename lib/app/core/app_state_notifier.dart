@@ -58,7 +58,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
     return true;
   }
 
-  set isInitialized(bool isInitialized) {
+  setIsInitialized(bool isInitialized) {
     var resultState = state.copyWith(isInitialized: isInitialized);
     switch (resultState) {
       case Success(value: final stateValue):
@@ -69,7 +69,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
     }
   }
 
-  set credentials(Credentials? credentials) {
+  setCredentials(Credentials? credentials) {
     var resultState = state.copyWith(credentials: credentials);
     switch (resultState) {
       case Success(value: final stateValue):
@@ -80,7 +80,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
     }
   }
 
-  set activePage(ActivePage activePage) {
+  setActivePage(ActivePage activePage) {
     var resultState = state.copyWith(activePage: activePage);
     switch (resultState) {
       case Success(value: final stateValue):
@@ -91,8 +91,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
     }
   }
 
-  set activePerson(Person person) {
-    var resultState = state.copyWith(activePerson: person);
+  setActivePerson(Person person) {
+    var resultState = state.setActivePerson(person);
     switch (resultState) {
       case Success(value: final stateValue):
         state = stateValue;
@@ -102,12 +102,23 @@ class AppStateNotifier extends StateNotifier<AppState> {
     }
   }
 
-  set activePersonDetail(PersonDetail personDetail) {
-    var resultState = state.copyWith(activePersonDetail: personDetail);
+  setActivePersonDetail(PersonDetail personDetail) {
+    var resultState = state.setActivePersonDetail(personDetail);
     switch (resultState) {
       case Success(value: final stateValue):
         state = stateValue;
         debugPrint('AppStateNotifier.activePersonDetail: ${stateValue.activePersonDetail}');
+      case Failure(error: final error):
+        snackMessage.showMessage(message: error, messageType: MessageType.error);
+    }
+  }
+
+  resetActivePerson() {
+    var resultState = state.clearActivePerson();
+    switch (resultState) {
+      case Success(value: final stateValue):
+        state = stateValue;
+        debugPrint('AppStateNotifier.clearActivePerson: ${stateValue.activePerson}');
       case Failure(error: final error):
         snackMessage.showMessage(message: error, messageType: MessageType.error);
     }

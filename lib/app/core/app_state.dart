@@ -33,29 +33,47 @@ class AppState {
       PersonDetail? activePersonDetail,
       ActivePage? activePage,
       bool? isInitialized}) {
-    // Check if both parameters are provided and their IDs mismatch
-    if (activePerson != null && activePersonDetail != null) {
-      if (activePerson.id != activePersonDetail.personId) {
-        return Failure("Person ID mismatch with Person Detail");
-      }
-    }
-    // Check if provided activePerson mismatches with current activePersonDetail
-    else if (activePerson != null) {
-      if (activePerson.id != this.activePersonDetail.personId) {
-        return Failure("Person ID mismatch with Person Detail");
-      }
-    }
-    // Check if provided activePersonDetail mismatches with current activePerson
-    else if (activePersonDetail != null) {
-      if (activePersonDetail.personId != this.activePerson.id) {
-        return Failure("Person ID mismatch with Person Detail");
-      }
-    }
     return Success(AppState._(
         credentials: credentials ?? this.credentials,
         activePerson: activePerson ?? this.activePerson,
         activePersonDetail: activePersonDetail ?? this.activePersonDetail,
         activePage: activePage ?? this.activePage,
         isInitialized: isInitialized ?? this.isInitialized));
+  }
+
+  Result<AppState, String> clearActivePerson() {
+    if (activePage == ActivePage.person) {
+      return Failure("Cannot clear active person while on person page");
+    }
+    return Success(AppState._(
+        credentials: credentials,
+        activePerson: Person.dummy(),
+        activePersonDetail: PersonDetail.dummy(-1),
+        activePage: activePage,
+        isInitialized: isInitialized));
+  }
+
+  Result<AppState, String> setActivePerson(Person person) {
+    if (activePersonDetail.id != -1 && person.id != activePersonDetail.personId) {
+      return Failure("Person ID mismatch with Person Detail");
+    }
+    return Success(AppState._(
+        credentials: credentials,
+        activePerson: person,
+        activePersonDetail: activePersonDetail,
+        activePage: ActivePage.person,
+        isInitialized: isInitialized));
+  }
+
+  Result<AppState, String> setActivePersonDetail(PersonDetail personDetail) {
+    if (activePerson.id != -1 && activePerson.id != personDetail.personId) {
+      return Failure("Person ID mismatch with Person Detail");
+    }
+    return Success(AppState._(
+        credentials: credentials,
+        activePerson: activePerson,
+        activePersonDetail: personDetail,
+        activePage: ActivePage.person,
+        isInitialized: isInitialized));
   }
 }
