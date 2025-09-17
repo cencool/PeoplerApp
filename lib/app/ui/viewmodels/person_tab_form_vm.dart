@@ -11,6 +11,28 @@ final personTabFormVMProvider =
 
 class PersonTabFormVM extends StateNotifier<PersonTabFormState> {
   final Ref ref;
+  final TextEditingController surnameController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController placeController = TextEditingController();
+  final TextEditingController genderController = TextEditingController();
+  final TextEditingController maritalStatusController = TextEditingController();
+  final TextEditingController maidenNameController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController noteController = TextEditingController();
+
+  @override
+  void dispose() {
+    surnameController.dispose();
+    nameController.dispose();
+    placeController.dispose();
+    genderController.dispose();
+    maritalStatusController.dispose();
+    maidenNameController.dispose();
+    addressController.dispose();
+    noteController.dispose();
+    super.dispose();
+  }
+
   PersonTabFormVM(this.ref)
       : super(PersonTabFormState.initial(
             currentPerson: ref.read(appStateNotifierProvider).activePerson,
