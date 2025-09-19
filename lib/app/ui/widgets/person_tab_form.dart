@@ -26,7 +26,7 @@ class PersonTabForm extends ConsumerWidget {
           padding: const EdgeInsets.only(left: 15.0),
           child: TextField(
               readOnly: !ref.watch(personTabFormVMProvider).isEditing,
-              controller: ref.watch(personTabFormVMProvider.notifier).surnameController,
+              controller: ref.watch(personTabFormVMProvider.notifier).nameController,
               decoration: const InputDecoration(
                   label: Text(
                 'Name',

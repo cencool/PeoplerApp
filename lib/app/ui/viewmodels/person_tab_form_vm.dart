@@ -24,7 +24,7 @@ class PersonTabFormVM extends StateNotifier<PersonTabFormState> {
     surnameController.text = state.currentPerson.surname ?? '';
     nameController.text = state.currentPerson.name ?? '';
     placeController.text = state.currentPerson.place ?? '';
-    // genderController.text = state.currentPersonDetail.gender ?? ''; // No gender field in PersonDetail
+    genderController.text = state.currentPerson.gender;
     maritalStatusController.text = state.currentPersonDetail.maritalStatus ?? '';
     maidenNameController.text = state.currentPersonDetail.maidenName ?? '';
     addressController.text = state.currentPersonDetail.address ?? '';
@@ -75,5 +75,9 @@ class PersonTabFormVM extends StateNotifier<PersonTabFormState> {
   restore() {
     state = state.restore();
     _updateControllersFromState();
+  }
+
+  toggleEditing() {
+    state = state.update(isEditing: !state.isEditing);
   }
 }

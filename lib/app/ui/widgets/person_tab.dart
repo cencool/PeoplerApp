@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:peopler/app/ui/viewmodels/person_tab_form_vm.dart';
+import 'package:peopler/app/ui/widgets/person_delete_dialog.dart';
+import 'package:peopler/app/ui/widgets/person_save_dialog.dart';
 import 'package:peopler/app/ui/widgets/person_tab_form.dart';
 
 class PersonTab extends ConsumerWidget {
@@ -11,8 +13,8 @@ class PersonTab extends ConsumerWidget {
     debugPrint('PersonTab build');
     return Stack(children: [
       ListView(
-        children: [
-          const SizedBox(height: 10.0),
+        children: const [
+          SizedBox(height: 10.0),
           SizedBox(
             height: 200,
             child: Row(
@@ -20,50 +22,64 @@ class PersonTab extends ConsumerWidget {
               children: [Text('Person Photo')],
             ),
           ),
-          const SizedBox(height: 10.0),
+          SizedBox(height: 10.0),
           PersonTabForm(),
         ],
       ),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: FloatingActionButton(
-          onPressed: () {
-            if (ref.watch(personTabFormVMProvider).isEditing) {
-              showDialog(
-                      context: context,
-                      builder: (context) => PersonSaveDialog(personFormModel: formModel),
-                      barrierDismissible: false)
-                  .then((_) {
-                /// Pokus na obnovu tab state
-                context.read<AppState>().activePerson = formModel.person;
-                context.read<AppState>().activePersonDetail = formModel.personDetail;
-                context.read<AppState>().activePage = ActivePage.person;
-                // switchPersonTabMode(PersonTabMode.view);
-              });
-            }
+      Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FloatingActionButton(
+              onPressed: () {
+                if (ref.watch(personTabFormVMProvider).isEditing) {
+                  showDialog(
+                          context: context,
+                          builder: (context) => PersonSaveDialog(),
+                          barrierDismissible: false)
+                      .then((_) {
+                    /// Pokus na obnovu tab state
+                    // context.read<AppState>().activePerson = formModel.person;
+                    // context.read<AppState>().activePersonDetail = formModel.personDetail;
+                    // context.read<AppState>().activePage = ActivePage.person;
+                    // switchPersonTabMode(PersonTabMode.view);
+                  });
+                }
 
-            formModel.switchPersonFormMode();
-            switchPersonTabMode(PersonTabMode.editData);
-          },
-          mini: true,
-          heroTag: null,
-          child: (ref.watch(personTabFormVMProvider).isEditing == true)
-              ? const Icon(Icons.done)
-              : const Icon(Icons.edit),
-        ),
+                // formModel.switchPersonFormMode();
+                // switchPersonTabMode(PersonTabMode.editData);
+                ref.read(personTabFormVMProvider.notifier).toggleEditing();
+              },
+              mini: true,
+              heroTag: null,
+              child: (ref.watch(personTabFormVMProvider).isEditing == true)
+                  ? const Icon(Icons.done)
+                  : const Icon(Icons.edit),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            // to reload original form data from state
+            child: FloatingActionButton(
+              onPressed: () => {},
+              mini: true,
+              heroTag: null,
+              child: const Icon(Icons.undo),
+            ),
+          ),
+        ],
       ),
       Padding(
         padding: const EdgeInsets.all(8.0),
         child: Align(
           alignment: Alignment.topRight,
           child: FloatingActionButton(
-            onPressed: (formModel.editMode == true)
+            onPressed: (ref.watch(personTabFormVMProvider).isEditing == true)
                 ? null
                 : () {
                     showDialog(
                         context: context,
-                        builder: (context) =>
-                            PersonDeleteDialog(model: formModel, onModeSwitch: switchPersonTabMode),
+                        builder: (context) => PersonDeleteDialog(),
                         barrierDismissible: false);
                     // switchPersonTabMode(PersonTabMode.deletePerson);
                   },
@@ -71,7 +87,7 @@ class PersonTab extends ConsumerWidget {
             heroTag: null,
             child: Icon(
               Icons.delete,
-              color: (formModel.editMode == true) ? Colors.grey : null,
+              color: (ref.watch(personTabFormVMProvider).isEditing == true) ? Colors.grey : null,
             ),
           ),
         ),
