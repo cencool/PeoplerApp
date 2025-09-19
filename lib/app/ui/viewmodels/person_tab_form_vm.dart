@@ -20,6 +20,17 @@ class PersonTabFormVM extends StateNotifier<PersonTabFormState> {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
 
+  void _updateControllersFromState() {
+    surnameController.text = state.currentPerson.surname ?? '';
+    nameController.text = state.currentPerson.name ?? '';
+    placeController.text = state.currentPerson.place ?? '';
+    // genderController.text = state.currentPersonDetail.gender ?? ''; // No gender field in PersonDetail
+    maritalStatusController.text = state.currentPersonDetail.maritalStatus ?? '';
+    maidenNameController.text = state.currentPersonDetail.maidenName ?? '';
+    addressController.text = state.currentPersonDetail.address ?? '';
+    noteController.text = state.currentPersonDetail.note ?? '';
+  }
+
   @override
   void dispose() {
     surnameController.dispose();
@@ -37,25 +48,32 @@ class PersonTabFormVM extends StateNotifier<PersonTabFormState> {
       : super(PersonTabFormState.initial(
             currentPerson: ref.read(appStateNotifierProvider).activePerson,
             currentPersonDetail: ref.read(appStateNotifierProvider).activePersonDetail)) {
+    _updateControllersFromState();
     ref.listen<AppState>(appStateNotifierProvider, (previous, next) {
-      if (previous?.activePerson.id != next.activePerson.id) {
-        debugPrint('PersonTabFormVM: Active person changed: ${next.activePerson.id}');
+      bool personChanged = previous?.activePerson.id != next.activePerson.id;
+      bool detailChanged = previous?.activePersonDetail.id != next.activePersonDetail.id;
+      if (personChanged || detailChanged) {
+        if (personChanged) {
+          debugPrint('PersonTabFormVM: Active person changed: ${next.activePerson.id}');
+        }
+        if (detailChanged) {
+          debugPrint(
+              'PersonTabFormVM: Active person detail changed: ${next.activePersonDetail.id}');
+        }
         state = PersonTabFormState.initial(
             currentPerson: next.activePerson, currentPersonDetail: next.activePersonDetail);
-      }
-      if (previous?.activePersonDetail.id != next.activePersonDetail.id) {
-        debugPrint('PersonTabFormVM: Active person detail changed: ${next.activePersonDetail.id}');
-        state = PersonTabFormState.initial(
-            currentPerson: next.activePerson, currentPersonDetail: next.activePersonDetail);
+        _updateControllersFromState();
       }
     });
   }
 
   update({Person? person, PersonDetail? personDetail}) {
     state = state.update(currentPerson: person, currentPersonDetail: personDetail);
+    _updateControllersFromState();
   }
 
   restore() {
     state = state.restore();
+    _updateControllersFromState();
   }
 }
