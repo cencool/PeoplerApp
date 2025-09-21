@@ -75,6 +75,7 @@ class PersonTabFormVM extends StateNotifier<PersonTabFormState> {
   restore() {
     state = state.restore();
     _updateControllersFromState();
+    debugPrint('PersonTabFormVM: state restored');
   }
 
   toggleEditing() {

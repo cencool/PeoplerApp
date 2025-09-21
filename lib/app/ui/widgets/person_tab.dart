@@ -11,6 +11,8 @@ class PersonTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     debugPrint('PersonTab build');
+    final personTabFormVM = ref.watch(personTabFormVMProvider.notifier);
+    final personTabFormState = ref.watch(personTabFormVMProvider);
     return Stack(children: [
       ListView(
         children: const [
@@ -32,7 +34,7 @@ class PersonTab extends ConsumerWidget {
             padding: const EdgeInsets.all(8.0),
             child: FloatingActionButton(
               onPressed: () {
-                if (ref.watch(personTabFormVMProvider).isEditing) {
+                if (personTabFormState.isEditing) {
                   showDialog(
                           context: context,
                           builder: (context) => PersonSaveDialog(),
@@ -52,7 +54,7 @@ class PersonTab extends ConsumerWidget {
               },
               mini: true,
               heroTag: null,
-              child: (ref.watch(personTabFormVMProvider).isEditing == true)
+              child: (personTabFormState.isEditing == true)
                   ? const Icon(Icons.done)
                   : const Icon(Icons.edit),
             ),
@@ -61,7 +63,7 @@ class PersonTab extends ConsumerWidget {
             padding: const EdgeInsets.all(8.0),
             // to reload original form data from state
             child: FloatingActionButton(
-              onPressed: () => {},
+              onPressed: () => {personTabFormVM.restore()},
               mini: true,
               heroTag: null,
               child: const Icon(Icons.undo),
@@ -74,7 +76,7 @@ class PersonTab extends ConsumerWidget {
         child: Align(
           alignment: Alignment.topRight,
           child: FloatingActionButton(
-            onPressed: (ref.watch(personTabFormVMProvider).isEditing == true)
+            onPressed: (personTabFormState.isEditing == true)
                 ? null
                 : () {
                     showDialog(
@@ -87,7 +89,7 @@ class PersonTab extends ConsumerWidget {
             heroTag: null,
             child: Icon(
               Icons.delete,
-              color: (ref.watch(personTabFormVMProvider).isEditing == true) ? Colors.grey : null,
+              color: (personTabFormState.isEditing == true) ? Colors.grey : null,
             ),
           ),
         ),
