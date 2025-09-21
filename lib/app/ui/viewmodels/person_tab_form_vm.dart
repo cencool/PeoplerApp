@@ -67,9 +67,28 @@ class PersonTabFormVM extends StateNotifier<PersonTabFormState> {
     });
   }
 
-  update({Person? person, PersonDetail? personDetail}) {
-    state = state.update(currentPerson: person, currentPersonDetail: personDetail);
+  updateStateFromControllers() {
+    Person updatedPerson = state.currentPerson.copyWith(
+      surname: surnameController.text.isEmpty ? null : surnameController.text,
+      name: nameController.text.isEmpty ? null : nameController.text,
+      place: placeController.text.isEmpty ? null : placeController.text,
+      gender: genderController.text,
+    );
+    PersonDetail updatedPersonDetail = state.currentPersonDetail.copyWith(
+      maritalStatus: maritalStatusController.text.isEmpty ? null : maritalStatusController.text,
+      maidenName: maidenNameController.text.isEmpty ? null : maidenNameController.text,
+      address: addressController.text.isEmpty ? null : addressController.text,
+      note: noteController.text.isEmpty ? null : noteController.text,
+      personId: updatedPerson.id ?? -1,
+    );
+    state = state.update(currentPerson: updatedPerson, currentPersonDetail: updatedPersonDetail);
+    debugPrint('PersonTabFormVM: state updated from controllers');
     _updateControllersFromState();
+  }
+
+  initializeFormStateWithCurrentData() {
+    state = PersonTabFormState.initial(
+        currentPerson: state.currentPerson, currentPersonDetail: state.currentPersonDetail);
   }
 
   restore() {
