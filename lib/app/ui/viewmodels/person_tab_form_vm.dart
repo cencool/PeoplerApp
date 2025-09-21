@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:peopler/app/config/api_config.dart';
+import 'package:peopler/app/core/app_settings.dart';
 import 'package:peopler/app/core/app_state.dart';
 import 'package:peopler/app/core/app_state_notifier.dart';
+import 'package:peopler/app/core/result.dart';
 import 'package:peopler/app/domain/models/person.dart';
 import 'package:peopler/app/domain/models/person_detail.dart';
 import 'package:peopler/app/ui/models/person_tab_form_state.dart';
@@ -99,5 +104,71 @@ class PersonTabFormVM extends StateNotifier<PersonTabFormState> {
 
   toggleEditing() {
     state = state.update(isEditing: !state.isEditing);
+  }
+
+  saveFormData() async {
+    updateStateFromControllers();
+    var personData = jsonEncode(state.currentPerson.toJson());
+    var personDetailData = jsonEncode(state.currentPersonDetail.toJson());
+    debugPrint('saveFormData: personData: $personData');
+    debugPrint('saveFormData: personDetailData: $personDetailData');
+    Map<String, String> headers = {'Content-Type': 'application/json'};
+    var authHeaderResult = await ref.read(authRepositoryProvider).getAuthHeader();
+    switch (authHeaderResult) {
+      case Failure(error: final error):
+        debugPrint('saveFormData: $error');
+        return;
+      case Success(value: final authHeader):
+        debugPrint('saveFormData: $authHeader');
+        headers.addAll(authHeader);
+    }
+    if (state.currentPerson.id! > -1) {
+      var response = await ref.read(appSettingsProvider).apiService.putRequest(
+          Uri.parse('${ApiConfig.personUrl}/${state.currentPerson.id}'),
+          headers: headers,
+          body: personData);
+      switch (response) {
+        case Success(value: final serverResponse):
+          debugPrint('saveFormData: Person updated successfully: ${serverResponse.statusCode}');
+        case Failure(error: final error):
+          debugPrint('saveFormData: Failed to update person: $error');
+      }
+    } else {
+      var response = await ref
+          .read(appSettingsProvider)
+          .apiService
+          .postRequest(Uri.parse(ApiConfig.personUrl), headers: headers, body: personData);
+      switch (response) {
+        case Success(value: final serverResponse):
+          debugPrint('saveFormData: Person created successfully: ${serverResponse.statusCode}');
+        case Failure(error: final error):
+          debugPrint('saveFormData: Failed to create person: $error');
+      }
+    }
+    if (state.currentPersonDetail.id > -1) {
+      var response = await ref.read(appSettingsProvider).apiService.putRequest(
+          Uri.parse('${ApiConfig.personDetailUrl}/${state.currentPerson.id}'),
+          headers: headers,
+          body: personDetailData);
+      switch (response) {
+        case Success(value: final serverResponse):
+          debugPrint(
+              'saveFormData: PersonDetail updated successfully: ${serverResponse.statusCode}');
+        case Failure(error: final error):
+          debugPrint('saveFormData: Failed to update person detail: $error');
+      }
+    } else {
+      var response = await ref.read(appSettingsProvider).apiService.postRequest(
+          Uri.parse(ApiConfig.personDetailUrl),
+          headers: headers,
+          body: personDetailData);
+      switch (response) {
+        case Success(value: final serverResponse):
+          debugPrint(
+              'saveFormData: PersonDetail created successfully: ${serverResponse.statusCode}');
+        case Failure(error: final error):
+          debugPrint('saveFormData: Failed to create person detail: $error');
+      }
+    }
   }
 }

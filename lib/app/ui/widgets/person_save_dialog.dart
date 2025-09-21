@@ -7,7 +7,8 @@ class PersonSaveDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final personFormModel = ref.watch(personTabFormVMProvider);
+    final personTabFormState = ref.watch(personTabFormVMProvider);
+    final personTabFormVM = ref.watch(personTabFormVMProvider.notifier);
     return Dialog(
       child: SizedBox(
         width: 300.0,
@@ -25,6 +26,9 @@ class PersonSaveDialog extends ConsumerWidget {
                   TextButton(
                     onPressed: () {
                       debugPrint('Yes save pressed');
+                      // personTabFormVM.updateStateFromControllers();
+                      // personTabFormVM.initializeFormStateWithCurrentData();
+                      personTabFormVM.saveFormData();
                       Navigator.pop(context);
                     },
                     child: const Text('Yes'),

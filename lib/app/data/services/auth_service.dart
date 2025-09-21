@@ -47,8 +47,8 @@ class AuthService {
     }
   }
 
-  Future<Result<bool, String>> logout({required AuthRepository repository}) async {
-    Result<bool, String> result = await repository.deleteCredentials();
+  Future<Result<bool, String>> logout({required AuthRepository userRepository}) async {
+    Result<bool, String> result = await userRepository.deleteCredentials();
     switch (result) {
       case Success(value: _):
         return const Success(true);
