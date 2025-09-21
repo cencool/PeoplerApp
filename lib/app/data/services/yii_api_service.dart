@@ -65,4 +65,64 @@ class YiiApiService implements ApiService {
       return Failure('Network error: ${e.toString()}');
     }
   }
+
+  @override
+  Future<Result<http.Response, String>> putRequest(Uri uri,
+      {Map<String, String>? headers, Object? body}) async {
+    try {
+      final response = await _client
+          .put(
+            uri,
+            headers: headers,
+            body: body,
+          )
+          .timeout(defaultTimeoutDuration); // Added timeout
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return Success(response);
+      } else {
+        return Failure('HTTP Error: ${response.statusCode}');
+      }
+    } on TimeoutException catch (e) {
+      // Specific catch for TimeoutException
+      return Failure(
+          'Request timed out after ${defaultTimeoutDuration.inSeconds} seconds: ${e.toString()}');
+    } on SocketException catch (e) {
+      // Specific catch for SocketException
+      return Failure('Network connection error: ${e.toString()}');
+    } catch (e) {
+      // General catch for other errors
+      return Failure('Network error: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<Result<http.Response, String>> deleteRequest(Uri uri,
+      {Map<String, String>? headers, Object? body}) async {
+    try {
+      final response = await _client
+          .put(
+            uri,
+            headers: headers,
+            body: body,
+          )
+          .timeout(defaultTimeoutDuration); // Added timeout
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return Success(response);
+      } else {
+        return Failure('HTTP Error: ${response.statusCode}');
+      }
+    } on TimeoutException catch (e) {
+      // Specific catch for TimeoutException
+      return Failure(
+          'Request timed out after ${defaultTimeoutDuration.inSeconds} seconds: ${e.toString()}');
+    } on SocketException catch (e) {
+      // Specific catch for SocketException
+      return Failure('Network connection error: ${e.toString()}');
+    } catch (e) {
+      // General catch for other errors
+      return Failure('Network error: ${e.toString()}');
+    }
+  }
 }

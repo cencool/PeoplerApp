@@ -7,4 +7,6 @@ abstract class ApiService {
       {Map<String, String>? headers, Object? body});
   Future<Result<http.Response, String>> putRequest(Uri uri,
       {Map<String, String>? headers, Object? body});
+  Future<Result<http.Response, String>> deleteRequest(Uri uri,
+      {Map<String, String>? headers, Object? body});
 }
