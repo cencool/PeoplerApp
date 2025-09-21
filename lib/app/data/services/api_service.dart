@@ -5,4 +5,6 @@ abstract class ApiService {
   Future<Result<http.Response, String>> getRequest(Uri uri, {Map<String, String>? headers});
   Future<Result<http.Response, String>> postRequest(Uri uri,
       {Map<String, String>? headers, Object? body});
+  Future<Result<http.Response, String>> putRequest(Uri uri,
+      {Map<String, String>? headers, Object? body});
 }
