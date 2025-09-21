@@ -68,4 +68,31 @@ class AuthRepository {
     }
     return const Success(true);
   }
+
+  Future<Result<String, String>> getAuthString() async {
+    final tokenResult = await getSharedPrefString('peoplerToken');
+    switch (tokenResult) {
+      case Failure(error: final error):
+        return Failure('getAuthString: $error');
+      case Success(value: final token):
+        return Success(_createAuthString(token));
+    }
+  }
+
+  Future<Result<Map<String, String>, String>> getAuthHeader() async {
+    final authStringResult = await getAuthString();
+    switch (authStringResult) {
+      case Failure(error: final error):
+        throw Exception('getAuthHeader: $error');
+      case Success(value: final authString):
+        Map<String, String> authHeader = {'Authorization': 'Basic $authString'};
+        return Success(authHeader);
+    }
+  }
+
+  String _createAuthString(String token) {
+    final authBytes = utf8.encode(
+        '$token:'); // colon is necessary to append for basic auth to work becaus Yii use only user part as token!
+    return base64Encode(authBytes); // create token for basic auth
+  }
 }
